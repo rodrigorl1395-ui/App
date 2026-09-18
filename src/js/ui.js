@@ -33,7 +33,16 @@ export function renderAppShell({ activePath }) {
     ],
   });
 
-  const header = createEl("header", { className: "app-header", children: [brand] });
+  const settingsLink = createEl("a", {
+    className: "link-button",
+    text: "Ajustes",
+    attrs: { href: "#/ajustes" },
+  });
+
+  const header = createEl("header", {
+    className: "app-header",
+    children: [brand, settingsLink],
+  });
   const main = createEl("main", { className: "app-main", attrs: { id: "app-main" } });
 
   const navItems = NAV_ITEMS.map((item) => {

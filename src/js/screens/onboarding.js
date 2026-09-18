@@ -19,7 +19,17 @@ export function renderOnboardingScreen() {
   });
   startButton.addEventListener("click", () => navigate("/escolha-animal"));
 
-  const actions = createEl("div", { className: "onboarding-actions", children: [startButton] });
+  // Quem chega com um backup na mão precisa restaurar antes de começar do zero.
+  const restoreLink = createEl("a", {
+    className: "link-button",
+    text: "Já tenho um backup",
+    attrs: { href: "#/ajustes" },
+  });
+
+  const actions = createEl("div", {
+    className: "onboarding-actions",
+    children: [startButton, restoreLink],
+  });
 
   return createEl("div", {
     className: "screen immersive-screen",

@@ -37,6 +37,13 @@ export function createHabit({
   return habit;
 }
 
+// Altera só os campos passados; o histórico daquele hábito segue intacto.
+export function updateHabit(id, changes) {
+  setState({
+    habits: getHabits().map((habit) => (habit.id === id ? { ...habit, ...changes } : habit)),
+  });
+}
+
 export function removeHabit(id) {
   setState({ habits: getHabits().filter((habit) => habit.id !== id) });
 }

@@ -77,11 +77,25 @@ export function isDoneToday(habitId) {
 }
 
 /*
-  Registra a missão e devolve o que mudou, para a tela comemorar: o XP ganho,
-  se o companheiro daquele hábito evoluiu e se algum animal novo foi liberado.
+  O nível sai do que foi feito, e não o contrário: quem correu 45 num plano de
+  30 registrou um bônus, mesmo tendo digitado o valor à mão.
 */
-export function completeMission(habit, levelKey) {
-  const level = MISSION_LEVELS[levelKey];
+export function levelForValue(habit, value) {
+  if (value >= habit.missions.bonus) return "bonus";
+  if (value >= habit.missions.main) return "main";
+  return "minimal";
+}
+
+/*
+  Registra a missão e devolve o que mudou, para a tela comemorar.
+
+  value é o que aconteceu de verdade. Sem ele, assume-se a meta daquele nível
+  — é o caminho rápido de um toque. Com ele, o histórico guarda o número real,
+  que é a única forma de "225 min acumulados" significar alguma coisa.
+*/
+export function completeMission(habit, levelKey, value = null) {
+  const realValue = value ?? habit.missions[levelKey];
+  const level = MISSION_LEVELS[value === null ? levelKey : levelForValue(habit, realValue)];
   const effects = getActiveEffects(habit);
 
   /*
@@ -90,7 +104,7 @@ export function completeMission(habit, levelKey) {
     principal continua sendo uma mínima no calendário.
   */
   let xpEarned = level.xp;
-  if (effects.minimaValeComoPrincipal && levelKey === "minimal") {
+  if (effects.minimaValeComoPrincipal && level.key === "minimal") {
     xpEarned = MISSION_LEVELS.main.xp;
   }
   if (effects.dobraXp) xpEarned *= 2;
@@ -107,7 +121,7 @@ export function completeMission(habit, levelKey) {
     date: todayKey(),
     time: new Date().toTimeString().slice(0, 5),
     level: level.key,
-    value: habit.missions[level.key],
+    value: realValue,
     xpEarned,
   };
 

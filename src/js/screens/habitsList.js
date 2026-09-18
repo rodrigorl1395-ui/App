@@ -64,7 +64,14 @@ function renderHabitItem(habit) {
         : null,
       createEl("div", {
         className: "habit-item-actions",
-        children: [createRemoveAction(habit)],
+        children: [
+          createEl("a", {
+            className: "link-button",
+            text: "Editar",
+            attrs: { href: `#/editar-habito?habit=${habit.id}` },
+          }),
+          createRemoveAction(habit),
+        ],
       }),
     ],
   });

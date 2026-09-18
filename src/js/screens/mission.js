@@ -9,6 +9,7 @@ import {
   MISSION_LEVELS,
   FEELINGS,
   completeMission,
+  levelForValue,
   getLogForToday,
   getPlanForToday,
   savePlan,
@@ -280,12 +281,48 @@ function renderBefore(habit) {
     return tile;
   });
 
+  /*
+    Registrar o que aconteceu de verdade. Sem isto o histórico guardaria
+    sempre a meta, e "225 min acumulados" seria um número inventado.
+  */
+  const realInput = createEl("input", {
+    className: "input",
+    attrs: { type: "number", min: "0", step: "1", id: "mission-real", placeholder: String(habit.missions.main) },
+  });
+
+  const realButton = createEl("button", {
+    className: "button button-secondary",
+    text: "Registrar",
+    attrs: { type: "button" },
+  });
+  realButton.addEventListener("click", () => {
+    const value = Number(realInput.value);
+    if (!(value > 0)) return;
+    complete(habit, levelForValue(habit, value), value);
+  });
+
+  const realRow = createEl("section", {
+    className: "ritual-card",
+    children: [
+      createEl("span", { className: "ritual-step", text: "Foi diferente?" }),
+      createEl("p", {
+        className: "mission-hint",
+        text: `Registre quanto você fez de verdade, em ${habit.unit}. O nível sai do número.`,
+      }),
+      createEl("div", {
+        className: "real-row",
+        children: [realInput, realButton],
+      }),
+    ],
+  });
+
   return createEl("div", {
     className: "ritual",
     children: [
       plan,
       createEl("span", { className: "ritual-step", text: "Agora" }),
       createEl("div", { className: "mission-list", children: tiles }),
+      realRow,
     ],
   });
 }
@@ -390,9 +427,9 @@ function formatFruitDate(dateKey) {
   );
 }
 
-function complete(habit, levelKey) {
+function complete(habit, levelKey, value = null) {
   const questsBefore = getConqueredIds(habit);
-  const result = completeMission(habit, levelKey);
+  const result = completeMission(habit, levelKey, value);
   const animal = getAnimalById(habit.animalId);
   const unlocked = result.unlockedAnimals[0];
   const conquered = findNewlyConquered(habit, questsBefore)[0];

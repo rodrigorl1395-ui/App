@@ -11,9 +11,18 @@ import { renderMissionScreen } from "./screens/mission.js";
 import { renderSanctuaryScreen } from "./screens/sanctuary.js";
 import { renderHomeScreen } from "./screens/home.js";
 import { renderCreatureScreen } from "./screens/creature.js";
+import { renderEditHabitScreen } from "./screens/editHabit.js";
+import { renderSettingsScreen } from "./screens/settings.js";
 import { generateId } from "./utils.js";
 
 const ENTRY_PATHS = ["/onboarding", "/escolha-animal"];
+
+/*
+  Ajustes fica acessível antes do onboarding porque é lá que se restaura um
+  backup. Sem isso, quem troca de aparelho teria que criar tudo de novo antes
+  de conseguir recuperar o próprio histórico — o oposto do que o backup serve.
+*/
+const ALWAYS_OPEN = ["/ajustes"];
 
 function bootstrapState() {
   const persisted = loadState();
@@ -38,10 +47,13 @@ function registerRoutes() {
   registerRoute("/santuario", renderSanctuaryScreen);
   registerRoute("/lar", renderHomeScreen);
   registerRoute("/criatura", renderCreatureScreen);
+  registerRoute("/editar-habito", renderEditHabitScreen);
+  registerRoute("/ajustes", renderSettingsScreen);
   setNotFound(renderTodayScreen);
 
   setGuard((path) => {
     const hasAnimal = Boolean(getState().user?.selectedAnimalId);
+    if (ALWAYS_OPEN.includes(path)) return null;
     if (!hasAnimal && !ENTRY_PATHS.includes(path)) return "/onboarding";
     if (hasAnimal && ENTRY_PATHS.includes(path)) return "/hoje";
     return null;
