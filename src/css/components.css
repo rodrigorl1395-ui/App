@@ -1734,6 +1734,176 @@ textarea.input {
     0 0 20px color-mix(in srgb, var(--habit-color, var(--color-accent)) 30%, transparent);
 }
 
+/* Onboarding com o professor */
+
+.onboarding {
+  gap: var(--space-4);
+  justify-content: flex-start;
+}
+
+.professor-stage {
+  display: flex;
+  justify-content: center;
+  transition: max-height var(--duration-slow) var(--ease-emphasized),
+    opacity var(--duration-slow) var(--ease-standard);
+  max-height: 260px;
+  overflow: hidden;
+}
+
+/* Depois da primeira fala o texto é que importa; a cena encolhe em vez de
+   sumir, para o professor continuar presente enquanto fala. */
+.professor-stage.is-compact {
+  max-height: 128px;
+  opacity: 0.75;
+}
+
+.professor-scene {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+}
+
+.step-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.step-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+  transition: background var(--duration-base) var(--ease-standard),
+    width var(--duration-base) var(--ease-standard);
+}
+
+.step-dot.is-past {
+  background: var(--color-accent-soft);
+}
+
+.step-dot.is-active {
+  width: 18px;
+  background: var(--color-accent);
+}
+
+.professor-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.professor-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+}
+
+/* A fala do professor é a voz dele: serifada, maior, sem aspas decorativas. */
+.professor-speech {
+  margin: 0;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-accent);
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  line-height: var(--lh-snug);
+  color: var(--color-text-primary);
+}
+
+.professor-body,
+.professor-note {
+  font-size: var(--fs-300);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
+}
+
+.professor-note {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+}
+
+.reference-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.reference {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.reference-source {
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-strong);
+}
+
+.reference-idea {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+
+.team-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-1);
+}
+
+.team-orb {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 32% 28%,
+    color-mix(in srgb, var(--color-accent) 72%, #fff),
+    var(--color-accent) 70%
+  );
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+.team-orb svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-on-accent);
+  opacity: 0.7;
+}
+
+.team-name {
+  font-size: var(--fs-100);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-primary);
+}
+
+.team-area {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: 1.2;
+}
+
+.onboarding-links {
+  display: flex;
+  justify-content: center;
+}
+
 /* Onboarding */
 
 .onboarding-hero {

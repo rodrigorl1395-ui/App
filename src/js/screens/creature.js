@@ -42,7 +42,7 @@ export function renderCreatureScreen(params) {
       }),
       renderIdentity(habit, companion, animal, tree, stats),
       renderHabitCard(habit, stats, tree),
-      renderIndicators(stats, habit),
+      renderIndicators(stats, habit, animal),
       renderCollection(habit, animal),
       renderJourney(habit, animal),
       renderCalendar(habit),
@@ -161,7 +161,7 @@ function renderHabitCard(habit, stats, tree) {
   a você mesmo" — por isso a comparação com o mês passado fica lado a lado
   com o total.
 */
-function renderIndicators(stats, habit) {
+function renderIndicators(stats, habit, animal) {
   const delta =
     stats.lastMonthDays === 0
       ? stats.monthDays > 0
@@ -170,6 +170,8 @@ function renderIndicators(stats, habit) {
       : `${stats.monthDelta >= 0 ? "+" : ""}${stats.monthDelta} vs. mês passado`;
 
   const tiles = [
+    { valor: stats.stage.stage, rotulo: "de nível", nota: stageName(stats.stage, animal?.gender) },
+    { valor: stats.xp, rotulo: "XP acumulado" },
     { valor: stats.total, rotulo: stats.total === 1 ? "registro" : "registros" },
     // A unidade vai no rótulo: concordar com "min", "páginas" ou "porções" no
     // meio da frase daria errado, e valor longo quebra a grade em duas linhas.
