@@ -3,9 +3,9 @@ import { createIcon } from "../icons.js";
 import { navigate } from "../router.js";
 import { HABIT_TEMPLATES, CUSTOM_TEMPLATE } from "../../data/habits.js";
 import { getTreeType } from "../../data/trees.js";
-import { CATEGORY_LABELS, getElement } from "../../data/animals.js";
-import { createHabit, getHabits } from "../habits.js";
-import { getUnlockedAnimals, getSuggestedElement } from "../companion.js";
+import { CATEGORY_ELEMENT, CATEGORY_LABELS, getElement } from "../../data/animals.js";
+import { createHabit } from "../habits.js";
+import { getAvailableAnimals } from "../companion.js";
 
 const MISSION_FIELDS = [
   { key: "minimal", label: "Mínima", hint: "O menor passo que mantém o vínculo." },
@@ -14,40 +14,67 @@ const MISSION_FIELDS = [
 ];
 
 export function renderNewHabitScreen() {
-  let template = HABIT_TEMPLATES[0];
+  const available = getAvailableAnimals();
 
-  const backLink = createEl("a", {
-    className: "link-button",
-    text: "Voltar",
-    attrs: { href: "#/hoje" },
-  });
-
+  const backLink = createEl("a", { className: "link-button", text: "Voltar", attrs: { href: "#/hoje" } });
   const header = createEl("div", {
     className: "screen-header",
     children: [createEl("h1", { className: "section-title", text: "Novo hábito" }), backLink],
   });
 
-  const chips = new Map();
-  const chipRow = createEl("div", {
-    className: "chip-row",
-    children: [...HABIT_TEMPLATES, CUSTOM_TEMPLATE].map((item) => {
-      const chip = createEl("button", {
-        className: "chip",
-        attrs: { type: "button", style: `--habit-color: ${item.color}` },
+  // Sem criatura livre não há hábito novo: é o freio que faz construir aos poucos.
+  if (!available.length) {
+    return createEl("div", {
+      className: "screen",
+      children: [
+        header,
+        createEl("section", {
+          className: "card",
+          children: [
+            createEl("h2", { className: "card-title", text: "Todas as suas criaturas já têm um hábito" }),
+            createEl("p", {
+              className: "card-subtitle",
+              text: "Cada criatura cuida de um hábito só. Para assumir mais um, conquiste a próxima criatura mantendo a constância no que você já começou.",
+            }),
+            createEl("a", {
+              className: "button button-primary button-block",
+              text: "Ver o santuário",
+              attrs: { href: "#/santuario" },
+            }),
+          ],
+        }),
+      ],
+    });
+  }
+
+  let animal = available[0];
+  let template = null;
+
+  const animalCards = new Map();
+  const animalPicker = createEl("div", {
+    className: "companion-picker",
+    children: available.map((option) => {
+      const card = createEl("button", {
+        className: "companion-option",
+        attrs: { type: "button", style: accentStyle(option.color) },
         children: [
-          createEl("span", { className: "chip-icon", children: [createIcon(item.icon)] }),
-          createEl("span", { text: item.id === "custom" ? "Do meu jeito" : item.name }),
+          createCreatureBadge({ animal: option, progress: 0 }),
+          createEl("span", { className: "companion-option-name", text: option.name }),
         ],
       });
-      chip.addEventListener("click", () => applyTemplate(item));
-      chips.set(item.id, chip);
-      return chip;
+      card.addEventListener("click", () => selectAnimal(option));
+      animalCards.set(option.id, card);
+      return card;
     }),
   });
 
+  const animalHint = createEl("p", { className: "tree-hint" });
+  const chipRow = createEl("div", { className: "chip-row" });
+  const chips = new Map();
+
   const nameInput = createEl("input", {
     className: "input",
-    attrs: { type: "text", id: "habit-name", placeholder: "Ex.: Correr" },
+    attrs: { type: "text", id: "habit-name", placeholder: "Ex.: Ir à academia" },
   });
   const unitInput = createEl("input", {
     className: "input",
@@ -73,65 +100,6 @@ export function renderNewHabitScreen() {
 
   const treeHint = createEl("p", { className: "tree-hint" });
   const errorText = createEl("p", { className: "form-error" });
-  const companionHint = createEl("p", { className: "tree-hint" });
-
-  // Só criaturas já conquistadas. As do elemento da categoria vêm primeiro,
-  // porque são as que combinam com o que este hábito treina.
-  let selectedAnimalId = null;
-  const companionCards = new Map();
-  const companionPicker = createEl("div", { className: "companion-picker" });
-
-  function buildCompanionPicker(category) {
-    const preferred = getSuggestedElement(category);
-    const taken = new Set(getHabits().map((habit) => habit.animalId));
-
-    // Primeiro as do elemento da categoria, depois as que ainda não cuidam de
-    // nenhum hábito — assim o lar não fica cheio de criaturas repetidas.
-    const available = getUnlockedAnimals()
-      .slice()
-      .sort((a, b) => {
-        const rank = (animal) =>
-          (animal.element === preferred ? 0 : 2) + (taken.has(animal.id) ? 1 : 0);
-        return rank(a) - rank(b);
-      });
-
-    companionCards.clear();
-    companionPicker.replaceChildren();
-
-    for (const animal of available) {
-      const card = createEl("button", {
-        className: "companion-option",
-        attrs: { type: "button", style: accentStyle(animal.color) },
-        children: [
-          createCreatureBadge({ animal, progress: 0 }),
-          createEl("span", { className: "companion-option-name", text: animal.name }),
-        ],
-      });
-      card.addEventListener("click", () => selectCompanion(animal.id));
-      companionCards.set(animal.id, card);
-      companionPicker.appendChild(card);
-    }
-
-    selectCompanion(available[0].id);
-
-    const preferredLabel = preferred ? getElement(preferred).label.toLowerCase() : null;
-    companionHint.textContent = preferredLabel
-      ? `Hábitos de ${CATEGORY_LABELS[category] || category} alimentam o elemento ${preferredLabel} e liberam criaturas desse elemento.`
-      : "Escolha quem vai crescer junto com este hábito.";
-  }
-
-  function selectCompanion(id) {
-    selectedAnimalId = id;
-    companionCards.forEach((card, cardId) => {
-      card.classList.toggle("is-selected", cardId === id);
-    });
-  }
-
-  const saveButton = createEl("button", {
-    className: "button button-primary button-block",
-    text: "Criar hábito",
-    attrs: { type: "submit" },
-  });
 
   const form = createEl("form", {
     className: "habit-form",
@@ -139,11 +107,7 @@ export function renderNewHabitScreen() {
       createEl("div", {
         className: "form-field",
         children: [
-          createEl("label", {
-            className: "form-label",
-            text: "Nome do hábito",
-            attrs: { for: "habit-name" },
-          }),
+          createEl("label", { className: "form-label", text: "Nome do hábito", attrs: { for: "habit-name" } }),
           nameInput,
         ],
       }),
@@ -161,11 +125,12 @@ export function renderNewHabitScreen() {
       createEl("h3", { className: "form-section-title", text: "Missões do dia" }),
       createEl("div", { className: "form-row", children: missionFields }),
       treeHint,
-      createEl("h3", { className: "form-section-title", text: "Quem cresce com este hábito" }),
-      companionHint,
-      companionPicker,
       errorText,
-      saveButton,
+      createEl("button", {
+        className: "button button-primary button-block",
+        text: "Criar hábito",
+        attrs: { type: "submit" },
+      }),
     ],
   });
 
@@ -173,6 +138,42 @@ export function renderNewHabitScreen() {
     event.preventDefault();
     submit();
   });
+
+  /*
+    A criatura define o terreno: só aparecem os hábitos cujo domínio é o
+    elemento dela, mais o livre. É o que amarra "meu animal é de energia,
+    então meus hábitos são de energia".
+  */
+  function selectAnimal(option) {
+    animal = option;
+    animalCards.forEach((card, id) => card.classList.toggle("is-selected", id === option.id));
+
+    const element = getElement(option.element);
+    const matching = HABIT_TEMPLATES.filter(
+      (item) => CATEGORY_ELEMENT[item.category] === option.element
+    );
+    const categorias = [...new Set(matching.map((item) => CATEGORY_LABELS[item.category]))].join(" e ");
+
+    animalHint.textContent = `${option.name} é de ${element.label.toLowerCase()} e cuida de hábitos de ${categorias}.`;
+
+    chips.clear();
+    chipRow.replaceChildren();
+    for (const item of [...matching, CUSTOM_TEMPLATE]) {
+      const chip = createEl("button", {
+        className: "chip",
+        attrs: { type: "button", style: `--habit-color: ${item.color}` },
+        children: [
+          createEl("span", { className: "chip-icon", children: [createIcon(item.icon)] }),
+          createEl("span", { text: item.id === "custom" ? "Do meu jeito" : item.name }),
+        ],
+      });
+      chip.addEventListener("click", () => applyTemplate(item));
+      chips.set(item.id, chip);
+      chipRow.appendChild(chip);
+    }
+
+    applyTemplate(matching[0] || CUSTOM_TEMPLATE);
+  }
 
   function applyTemplate(item) {
     template = item;
@@ -183,7 +184,6 @@ export function renderNewHabitScreen() {
       missionInputs[key].value = item.missions[key];
     }
     treeHint.textContent = `Este hábito planta: ${getTreeType(item.treeType).name}.`;
-    buildCompanionPicker(item.category);
     errorText.textContent = "";
   }
 
@@ -219,12 +219,22 @@ export function renderNewHabitScreen() {
       icon: template.icon,
       treeType: template.treeType,
       category: template.category,
-      animalId: selectedAnimalId,
+      animalId: animal.id,
     });
     navigate("/hoje");
   }
 
-  applyTemplate(template);
+  selectAnimal(animal);
 
-  return createEl("div", { className: "screen", children: [header, chipRow, form] });
+  return createEl("div", {
+    className: "screen",
+    children: [
+      header,
+      createEl("h3", { className: "form-section-title", text: "Quem vai cuidar dele" }),
+      animalPicker,
+      animalHint,
+      chipRow,
+      form,
+    ],
+  });
 }

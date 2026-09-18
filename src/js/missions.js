@@ -17,6 +17,41 @@ export function getLogs() {
   return getState().logs;
 }
 
+/*
+  O ritual do hábito tem três atos, e só o do meio é obrigatório:
+
+  1. Combinar — onde e quando vai acontecer. Dito antes, em voz própria,
+     é o que mais aumenta a chance de acontecer de verdade.
+  2. Cumprir  — a missão mínima, principal ou bônus.
+  3. Guardar  — uma linha positiva sobre o dia. Vira um fruto na árvore.
+
+  A árvore cresce por fazer; o fruto nasce por refletir.
+*/
+
+export function getPlanForToday(habitId) {
+  const today = todayKey();
+  return getState().plans.find((plan) => plan.habitId === habitId && plan.date === today) || null;
+}
+
+export function savePlan(habitId, text) {
+  const today = todayKey();
+  const plans = getState().plans.filter((plan) => !(plan.habitId === habitId && plan.date === today));
+  setState({ plans: [...plans, { habitId, date: today, text }] });
+}
+
+// A lembrança vai no registro do dia: é o fruto daquele dia.
+export function saveReflection(logId, text) {
+  setState({
+    logs: getLogs().map((log) => (log.id === logId ? { ...log, reflection: text } : log)),
+  });
+}
+
+export function getFruits(habitId) {
+  return getLogs()
+    .filter((log) => log.habitId === habitId && log.reflection)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
 export function getLogForToday(habitId) {
   const today = todayKey();
   return getLogs().find((log) => log.habitId === habitId && log.date === today) || null;

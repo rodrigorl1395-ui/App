@@ -7,6 +7,7 @@ function getInitialState() {
     user: null,
     habits: [],
     logs: [],
+    plans: [],
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

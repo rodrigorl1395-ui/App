@@ -78,14 +78,19 @@ export function createEmptyState(message) {
   return createEl("div", { className: "empty-state", children: [createEl("p", { text: message })] });
 }
 
-export function createHabitRow(habit, { action = null, done = false, onClick = null, companion = null } = {}) {
+export function createHabitRow(
+  habit,
+  { action = null, done = false, onClick = null, companion = null, mood = null } = {}
+) {
   const lines = [createEl("span", { className: "habit-name", text: habit.name })];
 
   if (companion?.animal) {
     lines.push(
       createEl("span", {
         className: "habit-companion",
-        text: `${companion.animal.name}, ${companion.stageLabel.toLowerCase()}`,
+        text: mood
+          ? `${companion.animal.name}, ${mood.label}`
+          : `${companion.animal.name}, ${companion.stageLabel.toLowerCase()}`,
       })
     );
   }

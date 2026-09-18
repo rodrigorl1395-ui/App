@@ -1,6 +1,9 @@
-// Modelos de hábito sugeridos na criação. São apenas pontos de partida:
-// o usuário pode alterar qualquer campo antes de salvar.
-// missions guarda as três metas do dia — mínima, principal e bônus.
+// Modelos de hábito sugeridos. São pontos de partida: o usuário pode alterar
+// qualquer campo antes de salvar.
+//
+// A categoria é o que liga o hábito ao elemento da criatura. Como cada animal
+// cuida de um hábito só, os modelos oferecidos são filtrados pelo elemento de
+// quem vai cuidar: uma criatura de fogo recebe hábitos de movimento.
 
 export const HABIT_TEMPLATES = [
   {
@@ -12,6 +15,26 @@ export const HABIT_TEMPLATES = [
     unit: "min",
     treeType: "resistencia",
     missions: { minimal: 5, main: 30, bonus: 45 },
+  },
+  {
+    id: "academia",
+    name: "Ir à academia",
+    category: "movimento",
+    icon: "flame",
+    color: "#f0703c",
+    unit: "min",
+    treeType: "resistencia",
+    missions: { minimal: 15, main: 60, bonus: 90 },
+  },
+  {
+    id: "caminhada",
+    name: "Caminhar",
+    category: "movimento",
+    icon: "sprout",
+    color: "#f0a04b",
+    unit: "min",
+    treeType: "resistencia",
+    missions: { minimal: 10, main: 30, bonus: 60 },
   },
   {
     id: "leitura",
@@ -34,14 +57,14 @@ export const HABIT_TEMPLATES = [
     missions: { minimal: 10, main: 45, bonus: 90 },
   },
   {
-    id: "meditacao",
-    name: "Meditar",
-    category: "equilibrio",
-    icon: "sprout",
-    color: "#6fae8f",
+    id: "escrita",
+    name: "Escrever",
+    category: "mente",
+    icon: "book",
+    color: "#c3b8e8",
     unit: "min",
-    treeType: "bonsai",
-    missions: { minimal: 2, main: 10, bonus: 20 },
+    treeType: "conhecimento",
+    missions: { minimal: 5, main: 20, bonus: 40 },
   },
   {
     id: "sono",
@@ -54,6 +77,16 @@ export const HABIT_TEMPLATES = [
     missions: { minimal: 6, main: 7, bonus: 8 },
   },
   {
+    id: "descanso",
+    name: "Alongar e descansar",
+    category: "recuperacao",
+    icon: "droplet",
+    color: "#4fb3c9",
+    unit: "min",
+    treeType: "noturna",
+    missions: { minimal: 3, main: 15, bonus: 30 },
+  },
+  {
     id: "alimentacao",
     name: "Comer bem",
     category: "corpo",
@@ -62,6 +95,36 @@ export const HABIT_TEMPLATES = [
     unit: "porções",
     treeType: "frutifera",
     missions: { minimal: 1, main: 3, bonus: 5 },
+  },
+  {
+    id: "agua",
+    name: "Beber água",
+    category: "corpo",
+    icon: "droplet",
+    color: "#5fc2d9",
+    unit: "copos",
+    treeType: "frutifera",
+    missions: { minimal: 2, main: 8, bonus: 10 },
+  },
+  {
+    id: "meditacao",
+    name: "Meditar",
+    category: "equilibrio",
+    icon: "sprout",
+    color: "#6fae8f",
+    unit: "min",
+    treeType: "bonsai",
+    missions: { minimal: 2, main: 10, bonus: 20 },
+  },
+  {
+    id: "organizacao",
+    name: "Organizar",
+    category: "equilibrio",
+    icon: "star",
+    color: "#7d9b6a",
+    unit: "min",
+    treeType: "bonsai",
+    missions: { minimal: 5, main: 20, bonus: 40 },
   },
 ];
 

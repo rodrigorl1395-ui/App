@@ -2,6 +2,7 @@ import { createEl, createEmptyState, createSectionHeader, accentStyle } from "..
 import { createIcon, createTree } from "../icons.js";
 import { navigate } from "../router.js";
 import { getSceneCreatures, getStartPosition, getTreePosition, pickTarget, depthScale } from "../garden.js";
+import { getMoodMessage } from "../mood.js";
 import { getTreeType } from "../../data/trees.js";
 import { getElement } from "../../data/animals.js";
 
@@ -30,7 +31,7 @@ export function renderHomeScreen() {
   const timers = [];
 
   // Uma árvore por hábito, espalhadas ao fundo; as criaturas circulam na frente.
-  const allTrees = creatures.flatMap((creature) => creature.trees);
+  const allTrees = creatures.map((creature) => creature.tree);
   allTrees.forEach((item, treeIndex) => {
     const treeType = getTreeType(item.habit.treeType);
     const treePosition = getTreePosition(treeIndex, allTrees.length);
@@ -56,9 +57,10 @@ export function renderHomeScreen() {
       children: [createIcon(getElement(creature.animal.element).icon)],
     });
 
-    // Só quem já cumpriu mostra o balão do que está fazendo. Com todos
-    // mostrando, os balões se sobrepõem e a cena vira uma parede de texto.
-    const bubble = creature.done
+    // Só mostram balão quem está praticando e quem está pedindo atenção —
+    // com todos mostrando, os balões viram uma parede de texto ilegível.
+    const showsBubble = creature.done || creature.mood.id !== "alegre";
+    const bubble = showsBubble
       ? createEl("div", {
           className: "home-bubble",
           children: [
@@ -119,11 +121,12 @@ export function renderHomeScreen() {
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
+  const faminta = creatures.find((creature) => !creature.done);
   const legend = createEl("p", {
     className: "tree-hint",
-    text: creatures.every((creature) => creature.done)
-      ? "Todo mundo cumpriu hoje. O lar está em paz."
-      : "Quem ainda não cumpriu o hábito de hoje está te esperando.",
+    text: faminta
+      ? getMoodMessage(faminta.animal, faminta.habit.id)
+      : "Todo mundo foi alimentado hoje. O lar está em paz.",
   });
 
   return createEl("div", {

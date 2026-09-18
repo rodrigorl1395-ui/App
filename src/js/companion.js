@@ -36,6 +36,20 @@ export function getHabitsOfAnimal(animalId) {
   return getState().habits.filter((habit) => habit.animalId === animalId);
 }
 
+export function getHabitOfAnimal(animalId) {
+  return getState().habits.find((habit) => habit.animalId === animalId) || null;
+}
+
+/*
+  Cada criatura cuida de um hábito só. Quem já tem o seu não aparece para um
+  hábito novo — é isso que faz a pessoa construir aos poucos, conquistando uma
+  criatura antes de assumir mais um compromisso.
+*/
+export function getAvailableAnimals() {
+  const taken = new Set(getState().habits.map((habit) => habit.animalId));
+  return getUnlockedAnimals().filter((animal) => !taken.has(animal.id));
+}
+
 // Dias distintos em que a pessoa registrou qualquer coisa: é o "tempo de jogo".
 export function getActiveDays() {
   return new Set(getState().logs.map((log) => log.date)).size;

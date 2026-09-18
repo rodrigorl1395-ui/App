@@ -3,6 +3,7 @@ import { navigate } from "../router.js";
 import { getHabits } from "../habits.js";
 import { isDoneToday } from "../missions.js";
 import { getCompanionState } from "../companion.js";
+import { getMood } from "../mood.js";
 import { formatDateLong } from "../utils.js";
 
 function summaryText(done, total) {
@@ -43,6 +44,7 @@ export function renderTodayScreen() {
           createHabitRow(habit, {
             done: isDoneToday(habit.id),
             companion: getCompanionState(habit),
+            mood: getMood(habit.id),
             onClick: () => navigate(`/missao?habit=${habit.id}`),
           })
         ),

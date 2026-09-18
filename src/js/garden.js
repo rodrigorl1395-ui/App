@@ -7,6 +7,7 @@
 import { getHabits } from "./habits.js";
 import { isDoneToday } from "./missions.js";
 import { getCompanionState } from "./companion.js";
+import { getMood } from "./mood.js";
 import { getTreeStage } from "../data/trees.js";
 
 // O que a criatura faz quando o hábito do dia já foi cumprido.
@@ -19,51 +20,46 @@ const ACTIVITY_BY_CATEGORY = {
   custom: { verb: "brincando", icon: "star", motion: "bounce" },
 };
 
-const WAITING = { verb: "esperando você", icon: "sprout", motion: "idle" };
+// Quando o hábito do dia ainda não veio, quem fala é o humor.
+const MOOD_ICON = {
+  novo: "star",
+  faminta: "apple",
+  saudosa: "droplet",
+  descansando: "moon",
+};
 
 /*
-  Uma criatura por animal, não por hábito: quem cuida de três hábitos aparece
-  uma vez só, com as três árvores por perto. Ela só pratica quando todos os
-  hábitos dela estão cumpridos; faltando algum, fica esperando.
+  Cada criatura cuida de um hábito, então há uma criatura por hábito na cena.
+  Cumpriu hoje, ela pratica o que o hábito treina; não cumpriu, o humor é que
+  manda — com fome, com saudade ou descansando.
 */
 export function getSceneCreatures() {
-  const byAnimal = new Map();
+  return getHabits()
+    .map((habit) => {
+      const companion = getCompanionState(habit);
+      if (!companion.animal) return null;
 
-  for (const habit of getHabits()) {
-    const companion = getCompanionState(habit);
-    if (!companion.animal) continue;
+      const done = isDoneToday(habit.id);
+      const mood = getMood(habit.id);
+      const activity = done
+        ? ACTIVITY_BY_CATEGORY[habit.category] || ACTIVITY_BY_CATEGORY.custom
+        : { verb: mood.label, icon: MOOD_ICON[mood.id] || "sprout", motion: mood.motion };
 
-    if (!byAnimal.has(companion.animal.id)) {
-      byAnimal.set(companion.animal.id, {
+      return {
+        habit,
+        targetHabit: habit,
         animal: companion.animal,
         stageLabel: companion.stageLabel,
         xp: companion.xp,
-        habits: [],
-        trees: [],
-      });
-    }
-
-    const entry = byAnimal.get(companion.animal.id);
-    entry.habits.push({ habit, done: isDoneToday(habit.id) });
-    entry.trees.push({ habit, stage: getTreeStage(companion.habitXp) });
-  }
-
-  return [...byAnimal.values()].map((entry) => {
-    const pending = entry.habits.find((item) => !item.done);
-    const activity = pending
-      ? WAITING
-      : ACTIVITY_BY_CATEGORY[entry.habits[0].habit.category] || ACTIVITY_BY_CATEGORY.custom;
-
-    return {
-      ...entry,
-      // Tocar leva à missão que ainda falta; se tudo foi feito, à primeira.
-      targetHabit: (pending || entry.habits[0]).habit,
-      done: !pending,
-      activity,
-      // Quem dorme não perambula.
-      wanders: activity.motion !== "sleep",
-    };
-  });
+        tree: { habit, stage: getTreeStage(companion.habitXp) },
+        mood,
+        done,
+        activity,
+        // Quem dorme não perambula.
+        wanders: activity.motion !== "sleep",
+      };
+    })
+    .filter(Boolean);
 }
 
 /*
