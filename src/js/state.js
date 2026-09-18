@@ -9,6 +9,7 @@ function getInitialState() {
     logs: [],
     plans: [],
     collected: [],
+    powerUses: [],
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

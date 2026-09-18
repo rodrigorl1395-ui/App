@@ -7,6 +7,16 @@ import { todayKey } from "./utils.js";
 import { getStage, stageName } from "./evolution.js";
 import { getTreeStage } from "../data/trees.js";
 
+/*
+  Lido direto do estado, e não de powers.js, porque powers.js já depende de
+  stats.js — importar de volta fecharia um ciclo entre os dois módulos.
+*/
+function restDaysOf(habitId) {
+  return getState()
+    .powerUses.filter((use) => use.habitId === habitId && use.powerId === "mare-calma")
+    .map((use) => use.date);
+}
+
 export function getHabitLogs(habitId) {
   return getState()
     .logs.filter((log) => log.habitId === habitId)
@@ -22,17 +32,30 @@ export function daysBetween(fromKey, toKey) {
   return Math.round(diff / 86400000);
 }
 
-// Dias seguidos até hoje. Cumprir ontem e ainda não hoje mantém a sequência:
-// o dia só quebra quando vira.
-export function getStreak(habitId) {
-  const dates = habitDates(habitId);
-  if (!dates.length) return 0;
-  if (daysBetween(dates[dates.length - 1], todayKey()) > 1) return 0;
+function shiftDay(dateKey, delta) {
+  const date = new Date(`${dateKey}T00:00:00`);
+  date.setDate(date.getDate() + delta);
+  return date.toISOString().slice(0, 10);
+}
 
-  let streak = 1;
-  for (let i = dates.length - 1; i > 0; i--) {
-    if (daysBetween(dates[i - 1], dates[i]) === 1) streak++;
-    else break;
+/*
+  A sequência caminha dia a dia para trás. Um dia de descanso declarado
+  atravessa o vão sem quebrar a corrente — e sem contar como dia cumprido,
+  porque descansar não é o mesmo que ter feito.
+*/
+export function getStreak(habitId) {
+  const dates = new Set(habitDates(habitId));
+  if (!dates.size) return 0;
+
+  const rest = new Set(restDaysOf(habitId));
+  const today = todayKey();
+  // Ainda não cumpriu hoje não quebra nada: o dia só fecha quando vira.
+  let cursor = dates.has(today) || rest.has(today) ? today : shiftDay(today, -1);
+
+  let streak = 0;
+  while (dates.has(cursor) || rest.has(cursor)) {
+    if (dates.has(cursor)) streak++;
+    cursor = shiftDay(cursor, -1);
   }
   return streak;
 }
@@ -41,11 +64,22 @@ export function getBestStreak(habitId) {
   const dates = habitDates(habitId);
   if (!dates.length) return 0;
 
-  let best = 1;
-  let run = 1;
-  for (let i = 1; i < dates.length; i++) {
-    run = daysBetween(dates[i - 1], dates[i]) === 1 ? run + 1 : 1;
-    best = Math.max(best, run);
+  const marked = new Set(dates);
+  const rest = new Set(restDaysOf(habitId));
+
+  let best = 0;
+  let run = 0;
+  let cursor = dates[0];
+  const last = dates[dates.length - 1];
+
+  while (cursor <= last) {
+    if (marked.has(cursor)) {
+      run++;
+      best = Math.max(best, run);
+    } else if (!rest.has(cursor)) {
+      run = 0;
+    }
+    cursor = shiftDay(cursor, 1);
   }
   return best;
 }
@@ -137,17 +171,20 @@ export function getMonthCalendar(habitId, monthOffset = 0) {
     }
   }
 
+  // O descanso declarado aparece como descanso, nunca como cumprido: é o que
+  // mantém o calendário honesto mesmo com o poder em jogo.
+  const rest = new Set(restDaysOf(habitId));
+
   const days = [];
   // Casas vazias até cair na coluna certa (semana começando na segunda).
   for (let i = 0; i < (first.getDay() + 6) % 7; i++) days.push(null);
 
   for (let day = 1; day <= daysInMonth; day++) {
     const key = `${base}-${String(day).padStart(2, "0")}`;
-    days.push({
-      day,
-      date: key,
-      status: byDate.get(key) || (key > todayKey() ? "futuro" : "vazio"),
-    });
+    const status =
+      byDate.get(key) ||
+      (rest.has(key) ? "descanso" : key > todayKey() ? "futuro" : "vazio");
+    days.push({ day, date: key, status });
   }
 
   return {

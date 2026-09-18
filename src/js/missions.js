@@ -6,6 +6,7 @@ import { getState, setState } from "./state.js";
 import { generateId, todayKey } from "./utils.js";
 import { getStage } from "./evolution.js";
 import { getAnimalXp, getUnlockedAnimals, findNewlyUnlocked } from "./companion.js";
+import { getActiveEffects } from "./powers.js";
 
 export const MISSION_LEVELS = {
   minimal: { key: "minimal", label: "Mínima", xp: 10 },
@@ -81,6 +82,18 @@ export function isDoneToday(habitId) {
 */
 export function completeMission(habit, levelKey) {
   const level = MISSION_LEVELS[levelKey];
+  const effects = getActiveEffects(habit);
+
+  /*
+    Os poderes mexem no XP do registro, nunca no fato de ter acontecido: o
+    dia só entra no histórico porque a pessoa cumpriu. A mínima valendo como
+    principal continua sendo uma mínima no calendário.
+  */
+  let xpEarned = level.xp;
+  if (effects.minimaValeComoPrincipal && levelKey === "minimal") {
+    xpEarned = MISSION_LEVELS.main.xp;
+  }
+  if (effects.dobraXp) xpEarned *= 2;
   // A evolução olha o XP da criatura (soma dos hábitos dela), não o do hábito.
   const previousXp = getAnimalXp(habit.animalId);
   const previouslyUnlocked = new Set(getUnlockedAnimals().map((animal) => animal.id));
@@ -95,17 +108,17 @@ export function completeMission(habit, levelKey) {
     time: new Date().toTimeString().slice(0, 5),
     level: level.key,
     value: habit.missions[level.key],
-    xpEarned: level.xp,
+    xpEarned,
   };
 
   setState({ logs: [...getLogs(), log] });
 
-  const newXp = previousXp + level.xp;
+  const newXp = previousXp + xpEarned;
   const previousStage = getStage(previousXp);
   const currentStage = getStage(newXp);
 
   return {
-    xpEarned: level.xp,
+    xpEarned,
     previousStage,
     currentStage,
     evolved: currentStage.stage > previousStage.stage,

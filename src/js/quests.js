@@ -86,6 +86,11 @@ export function getJourney(habit) {
   }));
 }
 
+// A próxima selada, que o Vislumbre revela.
+export function getNextSealedQuestId(habit) {
+  return getJourney(habit).find((state) => state.status === "trancada")?.quest.id || null;
+}
+
 export function getCurrentQuest(habit) {
   return getJourney(habit).find((state) => state.status === "atual") || null;
 }

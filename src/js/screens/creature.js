@@ -1,6 +1,8 @@
 import { createEl, createCompanion, accentStyle } from "../ui.js";
 import { createTree, createIcon } from "../icons.js";
 import { getCollectionFor } from "../discoveries.js";
+import { getPowerForElement } from "../../data/powers.js";
+import { getCharges, getNextChargeIn, getRevealedQuests } from "../powers.js";
 import { navigate } from "../router.js";
 import { getHabits } from "../habits.js";
 import { getCompanionState } from "../companion.js";
@@ -74,11 +76,34 @@ function renderIdentity(habit, companion, animal, tree, stats) {
       createEl("p", { className: "profile-guardian", text: guardian }),
       createEl("p", { className: "profile-personality", text: animal.personality }),
       createEl("p", { className: "profile-mood", text: getMoodMessage(animal, habit.id) }),
+      renderPowerBadge(habit, animal),
       createEl("p", {
         className: "fruit-date",
         text: `${animal.gender === "f" ? "Escolhida" : "Escolhido"} em ${formatDate(
           habit.createdAt.slice(0, 10)
         )}`,
+      }),
+    ],
+  });
+}
+
+// O poder é parte da identidade: é o que faz escolher uma criatura em vez
+// de outra pesar de verdade, e não ser só a cor.
+function renderPowerBadge(habit, animal) {
+  const power = getPowerForElement(animal.element);
+  if (!power) return null;
+
+  const charges = getCharges(habit);
+  return createEl("div", {
+    className: "power-badge",
+    children: [
+      createEl("span", { className: "power-badge-name", text: power.name }),
+      createEl("span", { className: "power-badge-text", text: power.description }),
+      createEl("span", {
+        className: "mission-xp",
+        text: charges
+          ? `${charges} ${charges === 1 ? "carga" : "cargas"} disponível`
+          : `Próxima carga em ${getNextChargeIn(habit)} dias cumpridos`,
       }),
     ],
   });
@@ -202,6 +227,7 @@ function renderCollection(habit, animal) {
 function renderJourney(habit, animal) {
   const journey = getJourney(habit);
   const conquered = journey.filter((state) => state.conquered).length;
+  const revealed = getRevealedQuests(habit.id);
 
   return createEl("section", {
     className: "journey",
@@ -219,10 +245,11 @@ function renderJourney(habit, animal) {
       ...journey.map((state) => {
         const { quest, status, main, reserve, byReserve } = state;
 
-        // A missão trancada não entrega a história: o que vem depois é
-        // justamente o que dá vontade de voltar amanhã.
+        // A missão trancada não entrega a história — a não ser que o
+        // Vislumbre tenha revelado esta.
+        const revelada = revealed.includes(quest.id);
         const body =
-          status === "trancada"
+          status === "trancada" && !revelada
             ? [createEl("p", { className: "quest-locked-text", text: "Ainda não revelada." })]
             : [
                 createEl("p", {
@@ -253,7 +280,7 @@ function renderJourney(habit, animal) {
               children: [
                 createEl("span", {
                   className: "quest-row-name",
-                  text: status === "trancada" ? "Missão selada" : quest.name,
+                  text: status === "trancada" && !revelada ? "Missão selada" : quest.name,
                 }),
                 ...body,
               ],
@@ -294,6 +321,7 @@ function renderCalendar(habit) {
         children: [
           legendItem("cumprido", "cumprido"),
           legendItem("parcial", "só a mínima"),
+          legendItem("descanso", "descanso"),
           legendItem("vazio", "sem registro"),
         ],
       }),

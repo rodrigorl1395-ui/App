@@ -18,7 +18,14 @@ import {
 import { getAnimalById } from "../../data/animals.js";
 import { getTreeType } from "../../data/trees.js";
 import { fillNames } from "../../data/quests.js";
-import { getCurrentQuest, getConqueredIds, findNewlyConquered } from "../quests.js";
+import {
+  getCurrentQuest,
+  getConqueredIds,
+  findNewlyConquered,
+  getNextSealedQuestId,
+} from "../quests.js";
+import { getPowerForElement } from "../../data/powers.js";
+import { getCharges, getUseForToday, getNextChargeIn, usePower } from "../powers.js";
 import { todayKey } from "../utils.js";
 
 const LEVEL_ORDER = [
@@ -100,9 +107,59 @@ export function renderMissionScreen(params) {
       header,
       hero,
       intro,
+      renderPower(habit, companion.animal, Boolean(todayLog)),
       renderCurrentQuest(habit, companion.animal),
       todayLog ? renderAfter(habit, todayLog) : renderBefore(habit),
       renderFruits(habit),
+    ],
+  });
+}
+
+/*
+  O poder da criatura. Nenhum deles marca um dia como cumprido — o descanso
+  protege a sequência mas entra no calendário como descanso.
+*/
+function renderPower(habit, animal, doneToday) {
+  const power = getPowerForElement(animal?.element);
+  if (!power) return null;
+
+  const charges = getCharges(habit);
+  const usedToday = getUseForToday(habit);
+  const podeUsar = charges > 0 && !usedToday && !(power.availableWhen === "pendente" && doneToday);
+
+  const estado = usedToday
+    ? usedToday.powerId === power.id
+      ? `${power.name} em uso hoje.`
+      : "Poder já usado hoje."
+    : charges > 0
+      ? `${charges} ${charges === 1 ? "carga disponível" : "cargas disponíveis"}.`
+      : `Sem carga. Faltam ${getNextChargeIn(habit)} dias cumpridos para a próxima.`;
+
+  const button = createEl("button", {
+    className: "button button-secondary",
+    text: power.verb,
+    attrs: { type: "button" },
+  });
+  button.disabled = !podeUsar;
+  button.addEventListener("click", () => {
+    // O Vislumbre precisa saber qual missão revelar; os outros não têm alvo.
+    const payload =
+      power.id === "vislumbre" ? getNextSealedQuestId(habit) : null;
+    usePower(habit, animal, payload);
+    refresh();
+  });
+
+  return createEl("section", {
+    className: `power-card${usedToday?.powerId === power.id ? " is-active" : ""}`,
+    children: [
+      createEl("span", { className: "ritual-step", text: `Poder de ${animal.name}` }),
+      createEl("h2", { className: "power-name", text: power.name }),
+      createEl("p", { className: "quest-story", text: power.description }),
+      createEl("p", { className: "mission-hint", text: `"${power.story}"` }),
+      createEl("div", {
+        className: "power-footer",
+        children: [createEl("span", { className: "mission-xp", text: estado }), button],
+      }),
     ],
   });
 }
