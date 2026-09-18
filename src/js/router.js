@@ -34,6 +34,11 @@ export function navigate(path) {
   window.location.hash = path;
 }
 
+// Re-renderiza a rota atual (ex.: depois de alterar dados que a tela mostra).
+export function refresh() {
+  render();
+}
+
 function currentPath() {
   return window.location.hash.replace(/^#/, "") || "/";
 }

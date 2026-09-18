@@ -291,3 +291,203 @@
 .button:disabled {
   opacity: 0.4;
 }
+
+/* Cabeçalhos de seção e links de ação */
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  color: var(--color-text-primary);
+}
+
+.screen-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.link-button {
+  color: var(--color-accent-strong);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-medium);
+}
+
+.link-danger {
+  color: var(--color-danger);
+}
+
+/* Lista de hábitos */
+
+.habit-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.habit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.habit-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--habit-color, var(--color-accent));
+  background: color-mix(in srgb, var(--habit-color, var(--color-accent)) 18%, transparent);
+}
+
+.habit-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.habit-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.habit-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-primary);
+}
+
+.habit-mission {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+}
+
+/* Formulário de hábito */
+
+.habit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.form-label {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+}
+
+.form-hint {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.form-section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  color: var(--color-text-primary);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.form-error:empty {
+  display: none;
+}
+
+.form-error {
+  font-size: var(--fs-200);
+  color: var(--color-danger);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--fs-300);
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.tree-hint {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+/* Chips de modelo de hábito */
+
+.chip-row {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(var(--space-4) * -1);
+  padding: var(--space-1) var(--space-4) var(--space-2);
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-200);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard);
+}
+
+.chip-icon {
+  display: flex;
+  color: var(--habit-color, var(--color-accent));
+}
+
+.chip-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.chip.is-selected {
+  color: var(--color-text-primary);
+  border-color: var(--habit-color, var(--color-accent));
+  background: color-mix(in srgb, var(--habit-color, var(--color-accent)) 16%, var(--color-surface));
+}

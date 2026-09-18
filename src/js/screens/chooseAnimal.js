@@ -1,4 +1,5 @@
-import { createEl, createElementalIcon } from "../ui.js";
+import { createEl } from "../ui.js";
+import { createElementalIcon } from "../icons.js";
 import { navigate } from "../router.js";
 import { getState, setState } from "../state.js";
 import { ANIMALS } from "../../data/animals.js";

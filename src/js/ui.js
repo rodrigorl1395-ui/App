@@ -1,6 +1,8 @@
 // Construtores de UI compartilhados. Não conhecem regra de negócio,
 // apenas montam DOM a partir de dados simples.
 
+import { createIcon } from "./icons.js";
+
 export function createEl(tag, { className, text, attrs = {}, children = [] } = {}) {
   const el = document.createElement(tag);
   if (className) el.className = className;
@@ -16,7 +18,7 @@ export function createEl(tag, { className, text, attrs = {}, children = [] } = {
 
 const NAV_ITEMS = [
   { path: "/hoje", label: "Hoje", enabled: true },
-  { path: "/habitos", label: "Hábitos", enabled: false },
+  { path: "/habitos", label: "Hábitos", enabled: true },
   { path: "/jardim", label: "Jardim", enabled: false },
   { path: "/animal", label: "Animal", enabled: false },
 ];
@@ -75,20 +77,32 @@ export function createEmptyState(message) {
   return createEl("div", { className: "empty-state", children: [createEl("p", { text: message })] });
 }
 
-const ELEMENT_ICON_PATHS = {
-  fogo: "M12 2c1 3-2 4-2 7a4 4 0 1 0 8 0c0-1-.5-2-1-2 .5 2-1 3-2 3-1.5 0-2-1.5-1-3-2 .5-3 2.5-3 4a5 5 0 0 0 10 0C21 7 15 5 12 2Z",
-  agua: "M12 2C9 7 5 10.5 5 15a7 7 0 0 0 14 0c0-4.5-4-8-7-13Z",
-  terra: "M12 3v6M12 21c-4 0-7-2.5-7-6 2 1 4 1 5-.5C9 12 8 9.5 5 8c3-2 7-1 7 2 0-3 4-4 7-2-3 1.5-4 4-5 6.5 1 1.5 3 1.5 5 .5 0 3.5-3 6-7 6Z",
-};
+export function createHabitRow(habit, { action = null } = {}) {
+  const body = createEl("div", {
+    className: "habit-body",
+    children: [
+      createEl("span", { className: "habit-name", text: habit.name }),
+      createEl("span", {
+        className: "habit-mission",
+        text: `Principal: ${habit.missions.main} ${habit.unit} · mínima: ${habit.missions.minimal} ${habit.unit}`,
+      }),
+    ],
+  });
 
-// Ícone elemental minimalista para o emblema (orb) de cada animal.
-export function createElementalIcon(element) {
-  const svgNS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("fill", "currentColor");
-  const path = document.createElementNS(svgNS, "path");
-  path.setAttribute("d", ELEMENT_ICON_PATHS[element] || ELEMENT_ICON_PATHS.terra);
-  svg.appendChild(path);
-  return svg;
+  return createEl("div", {
+    className: "habit-row",
+    attrs: { style: `--habit-color: ${habit.color}` },
+    children: [
+      createEl("div", { className: "habit-icon", children: [createIcon(habit.icon)] }),
+      body,
+      action,
+    ],
+  });
+}
+
+export function createSectionHeader(title, action = null) {
+  return createEl("div", {
+    className: "section-header",
+    children: [createEl("h2", { className: "section-title", text: title }), action],
+  });
 }

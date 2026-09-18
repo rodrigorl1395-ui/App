@@ -5,6 +5,8 @@ import { renderAppShell } from "./ui.js";
 import { renderTodayScreen } from "./screens/today.js";
 import { renderOnboardingScreen } from "./screens/onboarding.js";
 import { renderChooseAnimalScreen } from "./screens/chooseAnimal.js";
+import { renderHabitsScreen } from "./screens/habitsList.js";
+import { renderNewHabitScreen } from "./screens/newHabit.js";
 import { generateId } from "./utils.js";
 
 const ENTRY_PATHS = ["/onboarding", "/escolha-animal"];
@@ -31,6 +33,8 @@ function registerRoutes() {
   registerRoute("/onboarding", renderOnboardingScreen, { chromeless: true });
   registerRoute("/escolha-animal", renderChooseAnimalScreen, { chromeless: true });
   registerRoute("/hoje", () => renderTodayScreen(getState()));
+  registerRoute("/habitos", renderHabitsScreen);
+  registerRoute("/novo-habito", renderNewHabitScreen);
   setNotFound(() => renderTodayScreen(getState()));
 
   setGuard((path) => {

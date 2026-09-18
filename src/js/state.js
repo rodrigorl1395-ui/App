@@ -5,6 +5,7 @@
 function getInitialState() {
   return {
     user: null,
+    habits: [],
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }
