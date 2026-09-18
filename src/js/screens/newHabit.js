@@ -81,6 +81,12 @@ export function renderNewHabitScreen() {
     attrs: { type: "text", id: "habit-unit", placeholder: "min" },
   });
 
+  const weeklyInput = createEl("input", {
+    className: "input",
+    attrs: { type: "number", min: "1", max: "7", step: "1", id: "habit-weekly" },
+  });
+  weeklyInput.value = "7";
+
   const missionInputs = {};
   const missionFields = MISSION_FIELDS.map(({ key, label, hint }) => {
     const input = createEl("input", {
@@ -120,6 +126,21 @@ export function renderNewHabitScreen() {
             attrs: { for: "habit-unit" },
           }),
           unitInput,
+        ],
+      }),
+      createEl("div", {
+        className: "form-field",
+        children: [
+          createEl("label", {
+            className: "form-label",
+            text: "Quantos dias por semana",
+            attrs: { for: "habit-weekly" },
+          }),
+          weeklyInput,
+          createEl("span", {
+            className: "form-hint",
+            text: "O que você combina consigo. Um dia fora da meta não é falha.",
+          }),
         ],
       }),
       createEl("h3", { className: "form-section-title", text: "Missões do dia" }),
@@ -220,6 +241,7 @@ export function renderNewHabitScreen() {
       treeType: template.treeType,
       category: template.category,
       animalId: animal.id,
+      weeklyTarget: Math.min(7, Math.max(1, Number(weeklyInput.value) || 7)),
     });
     navigate("/hoje");
   }

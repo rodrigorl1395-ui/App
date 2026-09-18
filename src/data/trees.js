@@ -2,14 +2,19 @@
 // hábito: as duas crescem com o mesmo esforço, em vez de serem duas barras
 // de progresso competindo.
 
+/*
+  guardianOf completa o título da criatura ("Guardiã da Resistência"). Vem da
+  árvore, e não do nome que a pessoa digitou, porque aqui o gênero e a
+  preposição são nossos — "Guardiã de Ir à academia" não existe em português.
+*/
 export const TREE_TYPES = {
-  resistencia: { id: "resistencia", name: "Árvore da Resistência", leaf: "#7fb069" },
-  conhecimento: { id: "conhecimento", name: "Árvore do Conhecimento", leaf: "#6db3f2" },
-  ancestral: { id: "ancestral", name: "Árvore Ancestral", leaf: "#9b8cfa" },
-  bonsai: { id: "bonsai", name: "Bonsai", leaf: "#6fae8f" },
-  noturna: { id: "noturna", name: "Árvore Noturna", leaf: "#8a8fd9" },
-  frutifera: { id: "frutifera", name: "Árvore Frutífera", leaf: "#e0705f" },
-  comum: { id: "comum", name: "Muda do seu jeito", leaf: "#8fae5c" },
+  resistencia: { id: "resistencia", name: "Árvore da Resistência", guardianOf: "da Resistência", leaf: "#7fb069" },
+  conhecimento: { id: "conhecimento", name: "Árvore do Conhecimento", guardianOf: "do Conhecimento", leaf: "#6db3f2" },
+  ancestral: { id: "ancestral", name: "Árvore Ancestral", guardianOf: "do Saber", leaf: "#9b8cfa" },
+  bonsai: { id: "bonsai", name: "Bonsai", guardianOf: "do Equilíbrio", leaf: "#6fae8f" },
+  noturna: { id: "noturna", name: "Árvore Noturna", guardianOf: "do Descanso", leaf: "#8a8fd9" },
+  frutifera: { id: "frutifera", name: "Árvore Frutífera", guardianOf: "do Cuidado", leaf: "#e0705f" },
+  comum: { id: "comum", name: "Muda do seu jeito", guardianOf: "do seu Caminho", leaf: "#8fae5c" },
 };
 
 // Os limiares acompanham os estágios da criatura: quando ela evolui, o

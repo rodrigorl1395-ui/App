@@ -7,7 +7,17 @@ export function getHabits() {
   return getState().habits;
 }
 
-export function createHabit({ name, unit, color, icon, treeType, missions, category, animalId }) {
+export function createHabit({
+  name,
+  unit,
+  color,
+  icon,
+  treeType,
+  missions,
+  category,
+  animalId,
+  weeklyTarget = 7,
+}) {
   const habit = {
     id: generateId("habit"),
     name,
@@ -18,7 +28,9 @@ export function createHabit({ name, unit, color, icon, treeType, missions, categ
     category,
     animalId,
     missions,
-    frequency: "daily",
+    // Quantos dias por semana a pessoa se compromete — é a base do progresso
+    // semanal e evita tratar como falha um dia que nunca foi planejado.
+    weeklyTarget,
     createdAt: new Date().toISOString(),
   };
   setState({ habits: [...getHabits(), habit] });

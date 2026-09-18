@@ -7,6 +7,7 @@ import { getMoodMessage, getStreak } from "../mood.js";
 import { stageName } from "../evolution.js";
 import {
   MISSION_LEVELS,
+  FEELINGS,
   completeMission,
   getLogForToday,
   getPlanForToday,
@@ -48,7 +49,17 @@ export function renderMissionScreen(params) {
         attrs: { style: `--habit-color: ${habit.color}` },
         children: [createIcon(habit.icon)],
       }),
-      createEl("a", { className: "link-button", text: "Voltar", attrs: { href: "#/hoje" } }),
+      createEl("div", {
+        className: "header-actions",
+        children: [
+          createEl("a", {
+            className: "link-button",
+            text: "Perfil",
+            attrs: { href: `#/criatura?habit=${habit.id}` },
+          }),
+          createEl("a", { className: "link-button", text: "Voltar", attrs: { href: "#/hoje" } }),
+        ],
+      }),
     ],
   });
 
@@ -182,6 +193,25 @@ function renderAfter(habit, log) {
     attrs: { id: "mission-reflection", rows: "3", maxlength: "240", placeholder: "O que foi bom nisso hoje?" },
   });
 
+  let feeling = null;
+  const feelingButtons = new Map();
+  const feelingRow = createEl("div", {
+    className: "feeling-row",
+    children: FEELINGS.map((option) => {
+      const chip = createEl("button", {
+        className: "chip",
+        text: option.label,
+        attrs: { type: "button" },
+      });
+      chip.addEventListener("click", () => {
+        feeling = feeling === option.id ? null : option.id;
+        feelingButtons.forEach((el, id) => el.classList.toggle("is-selected", id === feeling));
+      });
+      feelingButtons.set(option.id, chip);
+      return chip;
+    }),
+  });
+
   const saveButton = createEl("button", {
     className: "button button-primary button-block",
     text: "Guardar lembrança",
@@ -190,7 +220,7 @@ function renderAfter(habit, log) {
   saveButton.addEventListener("click", () => {
     const text = input.value.trim();
     if (!text) return;
-    saveReflection(log.id, text);
+    saveReflection(log.id, text, feeling);
     refresh();
   });
 
@@ -206,6 +236,8 @@ function renderAfter(habit, log) {
           : "Uma linha sobre o que foi bom. Ela vira um fruto na sua árvore.",
       }),
       input,
+      createEl("span", { className: "form-label", text: "Como você se sentiu?" }),
+      feelingRow,
       saveButton,
     ],
   });

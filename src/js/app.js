@@ -10,6 +10,7 @@ import { renderNewHabitScreen } from "./screens/newHabit.js";
 import { renderMissionScreen } from "./screens/mission.js";
 import { renderSanctuaryScreen } from "./screens/sanctuary.js";
 import { renderHomeScreen } from "./screens/home.js";
+import { renderCreatureScreen } from "./screens/creature.js";
 import { generateId } from "./utils.js";
 
 const ENTRY_PATHS = ["/onboarding", "/escolha-animal"];
@@ -36,6 +37,7 @@ function registerRoutes() {
   registerRoute("/missao", renderMissionScreen, { chromeless: true });
   registerRoute("/santuario", renderSanctuaryScreen);
   registerRoute("/lar", renderHomeScreen);
+  registerRoute("/criatura", renderCreatureScreen);
   setNotFound(renderTodayScreen);
 
   setGuard((path) => {

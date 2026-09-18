@@ -40,8 +40,14 @@ export function renderHabitsScreen() {
 function renderHabitItem(habit) {
   const fruits = getFruits(habit.id).length;
 
+  const profileLink = createEl("a", {
+    className: "link-button",
+    text: "Perfil",
+    attrs: { href: `#/criatura?habit=${habit.id}` },
+  });
+
   const row = createHabitRow(habit, {
-    action: createRemoveAction(habit),
+    action: profileLink,
     companion: getCompanionState(habit),
     mood: getMood(habit.id),
   });
@@ -56,6 +62,10 @@ function renderHabitItem(habit) {
             text: `${fruits} ${fruits === 1 ? "fruto guardado" : "frutos guardados"}.`,
           })
         : null,
+      createEl("div", {
+        className: "habit-item-actions",
+        children: [createRemoveAction(habit)],
+      }),
     ],
   });
 }

@@ -39,11 +39,25 @@ export function savePlan(habitId, text) {
   setState({ plans: [...plans, { habitId, date: today, text }] });
 }
 
+// Como a pessoa se sentiu. Fica junto da lembrança, no registro do dia.
+export const FEELINGS = [
+  { id: "leve", label: "Leve" },
+  { id: "forte", label: "Forte" },
+  { id: "dificil", label: "Foi difícil" },
+  { id: "valeu", label: "Valeu a pena" },
+];
+
 // A lembrança vai no registro do dia: é o fruto daquele dia.
-export function saveReflection(logId, text) {
+export function saveReflection(logId, text, feeling = null) {
   setState({
-    logs: getLogs().map((log) => (log.id === logId ? { ...log, reflection: text } : log)),
+    logs: getLogs().map((log) =>
+      log.id === logId ? { ...log, reflection: text, feeling } : log
+    ),
   });
+}
+
+export function getFeelingLabel(id) {
+  return FEELINGS.find((feeling) => feeling.id === id)?.label || null;
 }
 
 export function getFruits(habitId) {
@@ -78,6 +92,7 @@ export function completeMission(habit, levelKey) {
     // o esforço já feito para quem acabou de chegar.
     animalId: habit.animalId,
     date: todayKey(),
+    time: new Date().toTimeString().slice(0, 5),
     level: level.key,
     value: habit.missions[level.key],
     xpEarned: level.xp,
