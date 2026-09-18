@@ -17,6 +17,8 @@ import {
 } from "../missions.js";
 import { getAnimalById } from "../../data/animals.js";
 import { getTreeType } from "../../data/trees.js";
+import { fillNames } from "../../data/quests.js";
+import { getCurrentQuest, getConqueredIds, findNewlyConquered } from "../quests.js";
 import { todayKey } from "../utils.js";
 
 const LEVEL_ORDER = [
@@ -98,8 +100,66 @@ export function renderMissionScreen(params) {
       header,
       hero,
       intro,
+      renderCurrentQuest(habit, companion.animal),
       todayLog ? renderAfter(habit, todayLog) : renderBefore(habit),
       renderFruits(habit),
+    ],
+  });
+}
+
+// A missão da Jornada que está valendo agora — o que a criatura pediu.
+function renderCurrentQuest(habit, animal) {
+  const current = getCurrentQuest(habit);
+  if (!current) return null;
+
+  const { quest, main, reserve, steps } = current;
+
+  const stepList = createEl("ul", {
+    className: "quest-steps",
+    children: steps.map((step) =>
+      createEl("li", {
+        className: `quest-step${step.progress.done ? " is-done" : ""}`,
+        children: [
+          createEl("span", { className: "quest-step-mark" }),
+          createEl("span", { text: step.text }),
+          createEl("span", {
+            className: "quest-step-count",
+            text: `${step.progress.current}/${step.progress.target}`,
+          }),
+        ],
+      })
+    ),
+  });
+
+  return createEl("section", {
+    className: "quest-card",
+    children: [
+      createEl("span", { className: "ritual-step", text: "Missão da jornada" }),
+      createEl("h2", { className: "quest-name", text: quest.name }),
+      createEl("p", { className: "quest-story", text: fillNames(quest.story, animal?.name) }),
+      createEl("div", {
+        className: "quest-bar",
+        children: [
+          createEl("span", {
+            className: "quest-bar-fill",
+            attrs: { style: `width: ${(main.current / main.target) * 100}%` },
+          }),
+        ],
+      }),
+      createEl("p", {
+        className: "mission-xp",
+        text: `${main.current} de ${main.target}`,
+      }),
+      stepList,
+      reserve
+        ? createEl("p", {
+            className: "quest-reserve",
+            text: `Missão reserva — ${quest.reserve.name}: ${fillNames(
+              quest.reserve.story,
+              animal?.name
+            )} (${reserve.current}/${reserve.target})`,
+          })
+        : null,
     ],
   });
 }
@@ -274,9 +334,29 @@ function formatFruitDate(dateKey) {
 }
 
 function complete(habit, levelKey) {
+  const questsBefore = getConqueredIds(habit);
   const result = completeMission(habit, levelKey);
   const animal = getAnimalById(habit.animalId);
   const unlocked = result.unlockedAnimals[0];
+  const conquered = findNewlyConquered(habit, questsBefore)[0];
+
+  // A missão da jornada conquistada é a notícia maior do dia: vem antes da
+  // evolução, que a pessoa continua vendo no anel e no perfil.
+  if (conquered) {
+    showCelebration(
+      {
+        xpEarned: result.xpEarned,
+        message: `${conquered.quest.name} conquistada.`,
+        animal,
+        evolutionText: conquered.byReserve
+          ? `Pela missão reserva: ${conquered.quest.reserve.name}`
+          : fillNames(conquered.quest.reward, animal?.name),
+        note: conquered.byReserve ? fillNames(conquered.quest.reward, animal?.name) : null,
+      },
+      () => refresh()
+    );
+    return;
+  }
 
   showCelebration(
     {

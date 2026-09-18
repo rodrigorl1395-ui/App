@@ -4,12 +4,24 @@ import { getHabits } from "../habits.js";
 import { isDoneToday } from "../missions.js";
 import { getCompanionState } from "../companion.js";
 import { getMood } from "../mood.js";
+import { getCurrentQuest } from "../quests.js";
 import { formatDateLong } from "../utils.js";
 
 function summaryText(done, total) {
   if (done === 0) return "Nenhum cumprido ainda hoje.";
   if (done === total) return "Tudo cumprido hoje. O jardim agradece.";
   return `${done} de ${total} cumpridos hoje.`;
+}
+
+// A missão da jornada em uma linha: o que falta para a próxima conquista.
+function questLine(habit) {
+  const current = getCurrentQuest(habit);
+  if (!current) return null;
+
+  return createEl("p", {
+    className: "tree-hint",
+    text: `${current.quest.name} — ${current.main.current} de ${current.main.target}`,
+  });
 }
 
 export function renderTodayScreen() {
@@ -41,11 +53,17 @@ export function renderTodayScreen() {
     ? createEl("div", {
         className: "habit-list",
         children: habits.map((habit) =>
-          createHabitRow(habit, {
-            done: isDoneToday(habit.id),
-            companion: getCompanionState(habit),
-            mood: getMood(habit.id),
-            onClick: () => navigate(`/missao?habit=${habit.id}`),
+          createEl("div", {
+            className: "habit-item",
+            children: [
+              createHabitRow(habit, {
+                done: isDoneToday(habit.id),
+                companion: getCompanionState(habit),
+                mood: getMood(habit.id),
+                onClick: () => navigate(`/missao?habit=${habit.id}`),
+              }),
+              questLine(habit),
+            ],
           })
         ),
       })

@@ -8,6 +8,8 @@ import { stageName } from "../evolution.js";
 import { getHabitStats, getMonthCalendar, getTimeline, getHabitLogs } from "../stats.js";
 import { MISSION_LEVELS, getFeelingLabel } from "../missions.js";
 import { getTreeType } from "../../data/trees.js";
+import { fillNames } from "../../data/quests.js";
+import { getJourney } from "../quests.js";
 import { CATEGORY_LABELS } from "../../data/animals.js";
 
 const WEEKDAYS = ["S", "T", "Q", "Q", "S", "S", "D"];
@@ -38,6 +40,7 @@ export function renderCreatureScreen(params) {
       renderIdentity(habit, companion, animal, tree, stats),
       renderHabitCard(habit, stats, tree),
       renderIndicators(stats, habit),
+      renderJourney(habit, animal),
       renderCalendar(habit),
       renderTimeline(habit, animal),
       renderHistory(habit),
@@ -164,6 +167,72 @@ function renderIndicators(stats, habit) {
         ],
       })
     ),
+  });
+}
+
+function renderJourney(habit, animal) {
+  const journey = getJourney(habit);
+  const conquered = journey.filter((state) => state.conquered).length;
+
+  return createEl("section", {
+    className: "journey",
+    children: [
+      createEl("div", {
+        className: "section-header",
+        children: [
+          createEl("h2", { className: "section-title", text: "Jornada" }),
+          createEl("span", {
+            className: "fruit-date",
+            text: `${conquered} de ${journey.length}`,
+          }),
+        ],
+      }),
+      ...journey.map((state) => {
+        const { quest, status, main, reserve, byReserve } = state;
+
+        // A missão trancada não entrega a história: o que vem depois é
+        // justamente o que dá vontade de voltar amanhã.
+        const body =
+          status === "trancada"
+            ? [createEl("p", { className: "quest-locked-text", text: "Ainda não revelada." })]
+            : [
+                createEl("p", {
+                  className: "quest-story",
+                  text: fillNames(quest.story, animal?.name),
+                }),
+                status === "atual"
+                  ? createEl("p", {
+                      className: "mission-xp",
+                      text: reserve
+                        ? `${main.current} de ${main.target} · reserva ${reserve.current} de ${reserve.target}`
+                        : `${main.current} de ${main.target}`,
+                    })
+                  : createEl("p", {
+                      className: "quest-reward",
+                      text: byReserve
+                        ? `Conquistada pela missão reserva: ${quest.reserve.name}`
+                        : fillNames(quest.reward, animal?.name),
+                    }),
+              ];
+
+        return createEl("article", {
+          className: `quest-row is-${status}`,
+          children: [
+            createEl("span", { className: "quest-row-mark" }),
+            createEl("div", {
+              className: "quest-row-body",
+              children: [
+                createEl("span", {
+                  className: "quest-row-name",
+                  text: status === "trancada" ? "Missão selada" : quest.name,
+                }),
+                ...body,
+              ],
+            }),
+          ],
+        });
+      }),
+    ],
   });
 }
 
