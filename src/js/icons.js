@@ -26,3 +26,85 @@ export function createIcon(name) {
   svg.appendChild(path);
   return svg;
 }
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/*
+  Árvore desenhada por estágio: o tronco cresce, a copa ganha volume e, no
+  fim, vêm flores e frutos. Tudo em SVG simples para escalar sem asset.
+*/
+export function createTree(stage, leafColor) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 64 80");
+  svg.setAttribute("aria-hidden", "true");
+
+  const trunkHeight = [10, 18, 28, 38, 48, 50, 52][stage] ?? 10;
+  const canopy = [5, 9, 14, 19, 23, 24, 25][stage] ?? 5;
+
+  const trunk = document.createElementNS(SVG_NS, "path");
+  const trunkWidth = Math.max(2, trunkHeight * 0.12);
+  trunk.setAttribute(
+    "d",
+    `M${32 - trunkWidth / 2} 76 L${32 - trunkWidth / 2} ${76 - trunkHeight} h${trunkWidth} L${
+      32 + trunkWidth / 2
+    } 76 Z`
+  );
+  trunk.setAttribute("fill", "#5b4a3a");
+  svg.appendChild(trunk);
+
+  if (stage === 0) {
+    // Recém-plantada: um par de folhas rompendo a terra. Precisa ser visível,
+    // senão o lar de quem acabou de começar parece abandonado.
+    const mound = document.createElementNS(SVG_NS, "ellipse");
+    mound.setAttribute("cx", "32");
+    mound.setAttribute("cy", "75");
+    mound.setAttribute("rx", "9");
+    mound.setAttribute("ry", "4");
+    mound.setAttribute("fill", "#4a3f33");
+    svg.appendChild(mound);
+
+    for (const dx of [-1, 1]) {
+      const leaf = document.createElementNS(SVG_NS, "ellipse");
+      leaf.setAttribute("cx", String(32 + dx * 6));
+      leaf.setAttribute("cy", "64");
+      leaf.setAttribute("rx", "6");
+      leaf.setAttribute("ry", "3.6");
+      leaf.setAttribute("fill", leafColor);
+      leaf.setAttribute("transform", `rotate(${dx * 28} ${32 + dx * 6} 64)`);
+      svg.appendChild(leaf);
+    }
+    return svg;
+  }
+
+  const canopyY = 76 - trunkHeight - canopy * 0.45;
+  for (const [dx, dy, scale] of [
+    [0, 0, 1],
+    [-canopy * 0.55, canopy * 0.35, 0.72],
+    [canopy * 0.55, canopy * 0.3, 0.68],
+  ]) {
+    const blob = document.createElementNS(SVG_NS, "circle");
+    blob.setAttribute("cx", String(32 + dx));
+    blob.setAttribute("cy", String(canopyY + dy));
+    blob.setAttribute("r", String(Math.max(3, canopy * scale)));
+    blob.setAttribute("fill", leafColor);
+    blob.setAttribute("opacity", "0.9");
+    svg.appendChild(blob);
+  }
+
+  if (stage >= 5) {
+    for (const [cx, cy] of [
+      [24, canopyY - 2],
+      [40, canopyY + 4],
+      [32, canopyY - 10],
+    ]) {
+      const dot = document.createElementNS(SVG_NS, "circle");
+      dot.setAttribute("cx", String(cx));
+      dot.setAttribute("cy", String(cy));
+      dot.setAttribute("r", stage >= 6 ? "3.4" : "2.4");
+      dot.setAttribute("fill", stage >= 6 ? "#e0705f" : "#f5d0e0");
+      svg.appendChild(dot);
+    }
+  }
+
+  return svg;
+}

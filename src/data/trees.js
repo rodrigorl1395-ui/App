@@ -1,17 +1,33 @@
-// Tipos de árvore que cada hábito planta no jardim.
-// Os estágios visuais de crescimento entram junto com o jardim (fase futura);
-// por enquanto isto é só a identidade de cada árvore.
+// Tipos de árvore e seus estágios. A árvore é o habitat da criatura daquele
+// hábito: as duas crescem com o mesmo esforço, em vez de serem duas barras
+// de progresso competindo.
 
 export const TREE_TYPES = {
-  resistencia: { id: "resistencia", name: "Árvore da Resistência" },
-  conhecimento: { id: "conhecimento", name: "Árvore do Conhecimento" },
-  ancestral: { id: "ancestral", name: "Árvore Ancestral" },
-  bonsai: { id: "bonsai", name: "Bonsai" },
-  noturna: { id: "noturna", name: "Árvore Noturna" },
-  frutifera: { id: "frutifera", name: "Árvore Frutífera" },
-  comum: { id: "comum", name: "Muda do seu jeito" },
+  resistencia: { id: "resistencia", name: "Árvore da Resistência", leaf: "#7fb069" },
+  conhecimento: { id: "conhecimento", name: "Árvore do Conhecimento", leaf: "#6db3f2" },
+  ancestral: { id: "ancestral", name: "Árvore Ancestral", leaf: "#9b8cfa" },
+  bonsai: { id: "bonsai", name: "Bonsai", leaf: "#6fae8f" },
+  noturna: { id: "noturna", name: "Árvore Noturna", leaf: "#8a8fd9" },
+  frutifera: { id: "frutifera", name: "Árvore Frutífera", leaf: "#e0705f" },
+  comum: { id: "comum", name: "Muda do seu jeito", leaf: "#8fae5c" },
 };
+
+// Os limiares acompanham os estágios da criatura: quando ela evolui, o
+// habitat dela muda junto.
+export const TREE_STAGES = [
+  { stage: 0, name: "Semente", minXp: 0 },
+  { stage: 1, name: "Broto", minXp: 25 },
+  { stage: 2, name: "Muda", minXp: 100 },
+  { stage: 3, name: "Árvore jovem", minXp: 300 },
+  { stage: 4, name: "Árvore adulta", minXp: 700 },
+  { stage: 5, name: "Em flor", minXp: 1400 },
+  { stage: 6, name: "Dando frutos", minXp: 2500 },
+];
 
 export function getTreeType(id) {
   return TREE_TYPES[id] || TREE_TYPES.comum;
+}
+
+export function getTreeStage(xp) {
+  return TREE_STAGES.reduce((current, stage) => (xp >= stage.minXp ? stage : current), TREE_STAGES[0]);
 }

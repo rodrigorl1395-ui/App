@@ -4,7 +4,7 @@ import { navigate } from "../router.js";
 import { HABIT_TEMPLATES, CUSTOM_TEMPLATE } from "../../data/habits.js";
 import { getTreeType } from "../../data/trees.js";
 import { CATEGORY_LABELS, getElement } from "../../data/animals.js";
-import { createHabit } from "../habits.js";
+import { createHabit, getHabits } from "../habits.js";
 import { getUnlockedAnimals, getSuggestedElement } from "../companion.js";
 
 const MISSION_FIELDS = [
@@ -83,10 +83,17 @@ export function renderNewHabitScreen() {
 
   function buildCompanionPicker(category) {
     const preferred = getSuggestedElement(category);
-    const available = getUnlockedAnimals().slice().sort((a, b) => {
-      const rank = (animal) => (animal.element === preferred ? 0 : 1);
-      return rank(a) - rank(b);
-    });
+    const taken = new Set(getHabits().map((habit) => habit.animalId));
+
+    // Primeiro as do elemento da categoria, depois as que ainda não cuidam de
+    // nenhum hábito — assim o lar não fica cheio de criaturas repetidas.
+    const available = getUnlockedAnimals()
+      .slice()
+      .sort((a, b) => {
+        const rank = (animal) =>
+          (animal.element === preferred ? 0 : 2) + (taken.has(animal.id) ? 1 : 0);
+        return rank(a) - rank(b);
+      });
 
     companionCards.clear();
     companionPicker.replaceChildren();

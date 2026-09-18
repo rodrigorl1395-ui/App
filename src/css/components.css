@@ -337,6 +337,137 @@
   color: var(--color-accent-strong);
 }
 
+/* Lar — a cena viva */
+
+.home-scene {
+  position: relative;
+  height: 62vh;
+  min-height: 340px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background:
+    radial-gradient(70% 50% at 50% 8%, rgba(155, 140, 250, 0.16), transparent 70%),
+    linear-gradient(180deg, rgba(12, 19, 34, 0.9), rgba(6, 9, 18, 0.95));
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+/* O chão começa onde as criaturas passam a andar (GROUND_TOP em garden.js). */
+.home-ground {
+  position: absolute;
+  inset: 36% 0 0 0;
+  background:
+    radial-gradient(60% 40% at 50% 0%, rgba(143, 174, 92, 0.2), transparent 70%),
+    linear-gradient(180deg, rgba(120, 155, 85, 0.14), rgba(60, 85, 50, 0.06));
+  border-top: 1px solid rgba(143, 174, 92, 0.22);
+}
+
+.home-tree {
+  position: absolute;
+  width: 74px;
+  height: 92px;
+  transform: translate(-50%, -78%) scale(var(--tree-scale, 1));
+  transform-origin: bottom center;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.home-creature {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: translate(-50%, -50%) scale(var(--depth, 1));
+  /* A viagem entre alvos é o "passeio" — lenta o bastante para parecer vida. */
+  transition: left 5s var(--ease-standard), top 5s var(--ease-standard),
+    transform 5s var(--ease-standard);
+}
+
+.home-creature-orb {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.5), transparent 42%),
+    radial-gradient(
+      circle at 36% 30%,
+      var(--color-accent-strong),
+      var(--color-accent) 62%,
+      color-mix(in srgb, var(--color-accent) 62%, #000) 100%
+    );
+  box-shadow: 0 0 26px var(--color-accent-glow), inset 0 -6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.home-creature-orb svg {
+  width: 19px;
+  height: 19px;
+  color: var(--color-text-on-accent);
+  opacity: 0.7;
+}
+
+.home-creature-name {
+  font-size: var(--fs-100);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.home-bubble {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  font-size: var(--fs-100);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.home-bubble-icon {
+  display: flex;
+  color: var(--color-accent-strong);
+}
+
+.home-bubble-icon svg {
+  width: 11px;
+  height: 11px;
+}
+
+.home-creature:not(.is-done) .home-creature-orb {
+  filter: saturate(0.55) brightness(0.8);
+}
+
+/* Cada comportamento tem seu jeito de se mexer. */
+.motion-bounce .home-creature-orb {
+  animation: creature-bounce 1.6s var(--ease-standard) infinite;
+}
+
+.motion-breathe .home-creature-orb {
+  animation: creature-breathe 4s var(--ease-standard) infinite;
+}
+
+.motion-read .home-creature-orb {
+  animation: creature-read 3s var(--ease-standard) infinite;
+}
+
+.motion-sleep .home-creature-orb {
+  animation: creature-sleep 5s var(--ease-standard) infinite;
+}
+
+.motion-idle .home-creature-orb {
+  animation: creature-idle 3.4s var(--ease-standard) infinite;
+}
+
 /* Santuário */
 
 .sanctuary-grid {

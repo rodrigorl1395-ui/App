@@ -28,6 +28,44 @@
   }
 }
 
+/* Comportamentos das criaturas no Lar */
+
+@keyframes creature-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-9px) scale(1.04); }
+  70% { transform: translateY(0) scale(0.98); }
+}
+
+@keyframes creature-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+
+@keyframes creature-read {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+@keyframes creature-sleep {
+  0%, 100% { transform: scale(1) translateY(0); opacity: 0.75; }
+  50% { transform: scale(0.95) translateY(3px); opacity: 0.95; }
+}
+
+@keyframes creature-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/*
+  Com movimento reduzido as criaturas param de perambular: a transição de
+  posição some junto com as animações pela regra global em base.css.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .home-creature {
+    transition: none !important;
+  }
+}
+
 /* O orbe "acorda" quando o companheiro evolui. */
 @keyframes orb-awaken {
   0% {
