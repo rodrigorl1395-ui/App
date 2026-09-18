@@ -1,54 +1,75 @@
 /*
   Pocket Habits — Componentes
-  Blocos de UI reutilizáveis: cards, botões, nav-item, badges, estado vazio.
+
+  Receita de vidro: preenchimento translúcido + desfoque do fundo + borda
+  clara + um brilho interno de 1px no topo. É esse brilho no topo que faz
+  o painel ler como vidro, e não como um retângulo cinza.
 */
+
+.glass,
+.card,
+.habit-row,
+.chip,
+.input,
+.mission-tile,
+.animal-card {
+  background: var(--glass-fill);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Marca */
 
 .brand {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
 }
 
 .brand-name {
-  font-size: var(--fs-500);
-  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
 }
 
 .brand-tagline {
-  font-size: var(--fs-200);
+  font-size: var(--fs-100);
   color: var(--color-text-tertiary);
 }
 
+/* Cards */
+
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
 
 .card-title {
+  font-family: var(--font-display);
   font-size: var(--fs-400);
+  font-weight: var(--fw-semibold);
   color: var(--color-text-primary);
 }
 
 .card-subtitle {
   font-size: var(--fs-200);
   color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
 }
 
 .card-accent {
-  border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
-  background: linear-gradient(180deg, var(--color-accent-soft), var(--color-surface) 65%);
+  border-color: color-mix(in srgb, var(--color-accent) 30%, var(--glass-border));
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 32px var(--color-accent-soft);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
   background: var(--color-accent-soft);
@@ -66,35 +87,60 @@
   gap: var(--space-2);
   padding: var(--space-6) var(--space-4);
   color: var(--color-text-tertiary);
-  border: 1px dashed var(--color-border-strong);
+  border: 1px dashed var(--glass-border);
   border-radius: var(--radius-lg);
+  line-height: var(--lh-snug);
 }
+
+/* Botões */
 
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-md);
   font-size: var(--fs-300);
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-semibold);
   transition: transform var(--duration-fast) var(--ease-standard),
-    background var(--duration-fast) var(--ease-standard);
+    filter var(--duration-fast) var(--ease-standard);
 }
 
 .button:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .button-primary {
   background: var(--color-accent);
   color: var(--color-text-on-accent);
+  box-shadow: 0 8px 28px var(--color-accent-glow);
 }
 
 .button-primary:hover {
-  background: var(--color-accent-strong);
+  filter: brightness(1.08);
 }
+
+.button-block {
+  width: 100%;
+}
+
+.button:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+.link-button {
+  color: var(--color-accent-strong);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+}
+
+.link-danger {
+  color: var(--color-danger);
+}
+
+/* Navegação */
 
 .nav-item {
   flex: 1;
@@ -104,8 +150,9 @@
   justify-content: center;
   gap: var(--space-1);
   font-size: var(--fs-100);
+  font-weight: var(--fw-medium);
   color: var(--color-text-tertiary);
-  transition: color var(--duration-fast) var(--ease-standard);
+  transition: color var(--duration-base) var(--ease-standard);
 }
 
 .nav-item-icon {
@@ -113,7 +160,8 @@
   height: 22px;
   border-radius: var(--radius-sm);
   border: 1.5px solid currentColor;
-  opacity: 0.7;
+  opacity: 0.6;
+  transition: opacity var(--duration-base) var(--ease-standard);
 }
 
 .nav-item.is-active {
@@ -122,12 +170,485 @@
 
 .nav-item.is-active .nav-item-icon {
   opacity: 1;
+  box-shadow: 0 0 14px var(--color-accent-glow);
 }
 
 .nav-item.is-disabled {
-  color: var(--color-text-tertiary);
-  opacity: 0.45;
+  opacity: 0.35;
   cursor: not-allowed;
+}
+
+/* Companheiro — o momento forte da tela Hoje */
+
+.companion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-4) var(--space-2);
+}
+
+.companion-ring {
+  position: relative;
+  width: 168px;
+  height: 168px;
+}
+
+/* Só o anel gira (para o arco começar no topo) — nunca o ícone do orbe. */
+.companion-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.companion-ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.16);
+  stroke-width: 3;
+}
+
+.companion-ring-progress {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px var(--color-accent-glow));
+  transition: stroke-dashoffset var(--duration-celebration) var(--ease-emphasized);
+}
+
+/*
+  O orbe é uma esfera de cristal, não um disco: brilho especular no alto à
+  esquerda, corpo escurecendo na borda, sombra interna embaixo para dar volume
+  e o brilho externo da cor do elemento.
+*/
+.companion-orb {
+  position: absolute;
+  inset: 18px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.5), transparent 40%),
+    radial-gradient(
+      circle at 36% 30%,
+      var(--color-accent-strong),
+      var(--color-accent) 60%,
+      color-mix(in srgb, var(--color-accent) 62%, #000) 100%
+    );
+  box-shadow: 0 0 58px var(--color-accent-glow), inset 0 -16px 32px rgba(0, 0, 0, 0.38),
+    inset 0 10px 22px rgba(255, 255, 255, 0.16);
+}
+
+.companion-orb svg {
+  width: 50px;
+  height: 50px;
+  color: var(--color-text-on-accent);
+  opacity: 0.7;
+}
+
+.companion-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+}
+
+.companion-stage {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-strong);
+  text-align: center;
+  margin-top: calc(var(--space-2) * -1);
+}
+
+.companion-progress {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+/* Seções */
+
+.section-header,
+.screen-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+/* Lista de hábitos */
+
+.habit-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.habit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  width: 100%;
+  text-align: left;
+  transition: transform var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
+}
+
+button.habit-row:active {
+  transform: scale(0.99);
+}
+
+.habit-icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--habit-color, var(--color-accent));
+  background: color-mix(in srgb, var(--habit-color, var(--color-accent)) 16%, transparent);
+  box-shadow: inset 0 0 18px color-mix(in srgb, var(--habit-color, var(--color-accent)) 20%, transparent);
+}
+
+.habit-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.habit-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.habit-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.habit-goal {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+}
+
+.habit-row.is-done {
+  border-color: color-mix(in srgb, var(--color-success) 40%, var(--glass-border));
+}
+
+.habit-row.is-done .habit-name {
+  color: var(--color-text-secondary);
+}
+
+.habit-done-mark {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  position: relative;
+}
+
+.habit-done-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid var(--color-void);
+  border-bottom: 2px solid var(--color-void);
+  transform: translateY(-1px) rotate(-45deg);
+}
+
+/* Tela de missão — os três níveis, hierarquizados pelo tamanho */
+
+.mission-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mission-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  font-weight: var(--fw-semibold);
+}
+
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.mission-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  width: 100%;
+  transition: transform var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.mission-tile:active {
+  transform: scale(0.99);
+}
+
+/* Só onde existe cursor de verdade: no toque, hover fica "grudado". */
+@media (hover: hover) {
+  .mission-tile:hover {
+    border-color: color-mix(in srgb, var(--habit-color, var(--color-accent)) 45%, var(--glass-border));
+  }
+}
+
+.mission-tile-main {
+  padding: var(--space-5);
+  border-color: color-mix(in srgb, var(--habit-color, var(--color-accent)) 35%, var(--glass-border));
+  box-shadow: inset 0 1px 0 var(--glass-highlight),
+    0 0 30px color-mix(in srgb, var(--habit-color, var(--color-accent)) 18%, transparent);
+}
+
+.mission-tile-minimal,
+.mission-tile-bonus {
+  padding: var(--space-4);
+}
+
+.mission-goal {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.mission-tile-main .mission-goal {
+  font-size: var(--fs-600);
+}
+
+.mission-tile-minimal .mission-goal,
+.mission-tile-bonus .mission-goal {
+  font-size: var(--fs-400);
+}
+
+.mission-label {
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  color: var(--habit-color, var(--color-accent));
+}
+
+.mission-hint {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.mission-xp {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+/* Comemoração */
+
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+  background: rgba(6, 9, 18, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: celebration-in var(--duration-base) var(--ease-emphasized);
+}
+
+.celebration-orb {
+  width: 132px;
+  height: 132px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.5), transparent 40%),
+    radial-gradient(
+      circle at 36% 30%,
+      var(--color-accent-strong),
+      var(--color-accent) 60%,
+      color-mix(in srgb, var(--color-accent) 62%, #000) 100%
+    );
+  box-shadow: 0 0 70px var(--color-accent-glow), inset 0 -16px 32px rgba(0, 0, 0, 0.38);
+  animation: orb-awaken 1.6s var(--ease-emphasized);
+}
+
+.celebration-orb svg {
+  width: 46px;
+  height: 46px;
+  color: var(--color-text-on-accent);
+  opacity: 0.7;
+}
+
+.celebration-xp {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-strong);
+  text-shadow: 0 0 30px var(--color-accent-glow);
+  animation: xp-rise var(--duration-celebration) var(--ease-emphasized);
+}
+
+.celebration-message {
+  font-size: var(--fs-400);
+  color: var(--color-text-primary);
+  max-width: 24ch;
+  line-height: var(--lh-snug);
+}
+
+.celebration-note {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  max-width: 28ch;
+  line-height: var(--lh-snug);
+}
+
+.celebration-evolution {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  animation: evolution-pulse 1.4s var(--ease-emphasized);
+}
+
+/* Formulário */
+
+.habit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.form-label {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  font-weight: var(--fw-medium);
+}
+
+.form-hint {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.form-section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-semibold);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.form-error:empty {
+  display: none;
+}
+
+.form-error {
+  font-size: var(--fs-200);
+  color: var(--color-danger);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--fs-300);
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.tree-hint {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+/* Chips de modelo de hábito */
+
+.chip-row {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(var(--space-5) * -1);
+  padding: var(--space-1) var(--space-5) var(--space-2);
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-medium);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.chip-icon {
+  display: flex;
+  color: var(--habit-color, var(--color-accent));
+}
+
+.chip-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.chip.is-selected {
+  color: var(--color-text-primary);
+  border-color: var(--habit-color, var(--color-accent));
+  box-shadow: inset 0 1px 0 var(--glass-highlight),
+    0 0 20px color-mix(in srgb, var(--habit-color, var(--color-accent)) 30%, transparent);
 }
 
 /* Onboarding */
@@ -143,12 +664,14 @@
 
 .onboarding-title {
   font-size: var(--fs-700);
+  font-weight: var(--fw-semibold);
 }
 
 .onboarding-pitch {
   color: var(--color-text-secondary);
   font-size: var(--fs-400);
-  max-width: 32ch;
+  max-width: 30ch;
+  line-height: var(--lh-snug);
 }
 
 .onboarding-actions {
@@ -158,10 +681,6 @@
   gap: var(--space-3);
 }
 
-.button-block {
-  width: 100%;
-}
-
 /* Escolha do animal */
 
 .animal-choice-header {
@@ -169,6 +688,10 @@
   flex-direction: column;
   gap: var(--space-2);
   text-align: center;
+}
+
+.animal-choice-header h1 {
+  font-size: var(--fs-600);
 }
 
 .animal-choice-list {
@@ -184,12 +707,19 @@
   gap: var(--space-4);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  border: 1.5px solid var(--color-border);
-  background: var(--color-surface);
   text-align: left;
   transition: border-color var(--duration-base) var(--ease-standard),
     box-shadow var(--duration-base) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);
+}
+
+.animal-card:active {
+  transform: scale(0.98);
+}
+
+.animal-card.is-selected {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 34px var(--color-accent-glow);
 }
 
 .animal-card-check {
@@ -199,7 +729,7 @@
   width: 22px;
   height: 22px;
   border-radius: var(--radius-full);
-  border: 1.5px solid var(--color-border-strong);
+  border: 1.5px solid var(--glass-border);
   opacity: 0;
   transform: scale(0.7);
   transition: opacity var(--duration-fast) var(--ease-standard),
@@ -225,27 +755,13 @@
   transform: translateY(-1px) rotate(-45deg);
 }
 
-.animal-card:active {
-  transform: scale(0.98);
-}
-
-.animal-card.is-selected {
-  border-color: var(--color-accent);
-  background: linear-gradient(160deg, var(--color-accent-soft), var(--color-surface) 70%);
-  box-shadow: 0 0 0 1.5px var(--color-accent), 0 0 32px var(--color-accent-glow);
-}
-
-.animal-card.is-selected .animal-orb {
-  box-shadow: 0 0 34px var(--color-accent-glow);
-}
-
 .animal-orb {
   flex-shrink: 0;
   width: 56px;
   height: 56px;
   border-radius: var(--radius-full);
   background: radial-gradient(circle at 32% 28%, var(--color-accent-strong), var(--color-accent) 70%);
-  box-shadow: 0 0 22px var(--color-accent-glow);
+  box-shadow: 0 0 26px var(--color-accent-glow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,6 +771,7 @@
   width: 26px;
   height: 26px;
   color: var(--color-text-on-accent);
+  opacity: 0.85;
 }
 
 .animal-card-body {
@@ -267,12 +784,21 @@
 .animal-card-name {
   font-family: var(--font-display);
   font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
   color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+.animal-card-element {
+  font-size: var(--fs-200);
+  font-weight: var(--fw-medium);
+  color: var(--color-accent-strong);
 }
 
 .animal-card-tagline {
   font-size: var(--fs-200);
   color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
 }
 
 .animal-card-traits {
@@ -280,214 +806,4 @@
   gap: var(--space-2);
   margin-top: var(--space-1);
   flex-wrap: wrap;
-}
-
-.button-secondary {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  color: var(--color-text-secondary);
-}
-
-.button:disabled {
-  opacity: 0.4;
-}
-
-/* Cabeçalhos de seção e links de ação */
-
-.section-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.section-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-500);
-  color: var(--color-text-primary);
-}
-
-.screen-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.link-button {
-  color: var(--color-accent-strong);
-  font-size: var(--fs-200);
-  font-weight: var(--fw-medium);
-}
-
-.link-danger {
-  color: var(--color-danger);
-}
-
-/* Lista de hábitos */
-
-.habit-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.habit-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-}
-
-.habit-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--habit-color, var(--color-accent));
-  background: color-mix(in srgb, var(--habit-color, var(--color-accent)) 18%, transparent);
-}
-
-.habit-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.habit-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.habit-name {
-  font-size: var(--fs-300);
-  font-weight: var(--fw-medium);
-  color: var(--color-text-primary);
-}
-
-.habit-mission {
-  font-size: var(--fs-200);
-  color: var(--color-text-tertiary);
-}
-
-/* Formulário de hábito */
-
-.habit-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  flex: 1;
-  min-width: 0;
-}
-
-.form-label {
-  font-size: var(--fs-200);
-  color: var(--color-text-secondary);
-}
-
-.form-hint {
-  font-size: var(--fs-100);
-  color: var(--color-text-tertiary);
-  line-height: var(--lh-snug);
-}
-
-.form-section-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-400);
-  color: var(--color-text-primary);
-}
-
-.form-row {
-  display: flex;
-  gap: var(--space-3);
-}
-
-.form-error:empty {
-  display: none;
-}
-
-.form-error {
-  font-size: var(--fs-200);
-  color: var(--color-danger);
-}
-
-.input {
-  width: 100%;
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  font-family: inherit;
-  font-size: var(--fs-300);
-}
-
-.input::placeholder {
-  color: var(--color-text-tertiary);
-}
-
-.tree-hint {
-  font-size: var(--fs-200);
-  color: var(--color-text-tertiary);
-  line-height: var(--lh-snug);
-}
-
-/* Chips de modelo de hábito */
-
-.chip-row {
-  display: flex;
-  gap: var(--space-2);
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin-inline: calc(var(--space-4) * -1);
-  padding: var(--space-1) var(--space-4) var(--space-2);
-}
-
-.chip-row::-webkit-scrollbar {
-  display: none;
-}
-
-.chip {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-  font-size: var(--fs-200);
-  transition: border-color var(--duration-fast) var(--ease-standard),
-    background var(--duration-fast) var(--ease-standard);
-}
-
-.chip-icon {
-  display: flex;
-  color: var(--habit-color, var(--color-accent));
-}
-
-.chip-icon svg {
-  width: 16px;
-  height: 16px;
-}
-
-.chip.is-selected {
-  color: var(--color-text-primary);
-  border-color: var(--habit-color, var(--color-accent));
-  background: color-mix(in srgb, var(--habit-color, var(--color-accent)) 16%, var(--color-surface));
 }

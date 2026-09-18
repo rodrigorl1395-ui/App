@@ -1,0 +1,63 @@
+/*
+  Pocket Habits — Animações
+  Só movimento que responde a uma ação do usuário: concluir uma missão,
+  ver o companheiro evoluir. Nada de entradas animadas em cada seção.
+*/
+
+@keyframes celebration-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes xp-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* O orbe "acorda" quando o companheiro evolui. */
+@keyframes orb-awaken {
+  0% {
+    transform: scale(0.82);
+    filter: brightness(0.7);
+  }
+  55% {
+    transform: scale(1.08);
+    filter: brightness(1.35);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes evolution-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+    text-shadow: none;
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.06);
+    text-shadow: 0 0 34px var(--color-accent-glow);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 0 0 18px var(--color-accent-glow);
+  }
+}

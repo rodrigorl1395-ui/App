@@ -1,40 +1,49 @@
 /*
   Pocket Habits — Design Tokens
-  Paleta única "jardim noturno": tons profundos de verde-musgo e azul-noite
-  com um accent âmbar/terracota que muda por animal escolhido.
-  Tudo em variáveis para consumo consistente pelos demais arquivos CSS.
+
+  A direção visual nasce da arte dos companheiros: caverna de cristal,
+  água bioluminescente, brasa vulcânica, floresta de musgo. O que une tudo
+  é luz vista através de material translúcido — por isso a interface é de
+  vidro sobre um fundo que brilha, nunca sobre um fundo chapado.
 */
 
 :root {
-  /* Cor — base */
-  --color-bg: #0f1410;
-  --color-bg-elevated: #141a15;
-  --color-surface: #1b231c;
-  --color-surface-hover: #232c23;
-  --color-border: #2a332a;
-  --color-border-strong: #384238;
+  /* Cor — profundidade do mundo */
+  --color-void: #060912;
+  --color-deep: #0c1322;
+  --color-elevated: #121a2c;
+
+  /* Luz ambiente por trás do vidro (é o que dá o que refratar) */
+  --glow-violet: #5b3fa8;
+  --glow-teal: #1d7d8c;
+  --glow-ember: #b04a1e;
+
+  /* Vidro */
+  --glass-fill: rgba(255, 255, 255, 0.05);
+  --glass-fill-strong: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass-blur: blur(20px) saturate(140%);
 
   /* Cor — texto */
-  --color-text-primary: #eef2ec;
-  --color-text-secondary: #aab5a6;
-  --color-text-tertiary: #707d6d;
-  --color-text-on-accent: #14180f;
+  --color-text-primary: #eef2fa;
+  --color-text-secondary: #a3b0c9;
+  --color-text-tertiary: #66748f;
+  --color-text-on-accent: #0a0f1a;
 
   /* Cor — accent padrão (antes da escolha do animal) */
-  --color-accent: #d99a4e;
-  --color-accent-strong: #e8b26c;
-  --color-accent-soft: rgba(217, 154, 78, 0.16);
-  --color-accent-glow: rgba(217, 154, 78, 0.4);
+  --color-accent: #7fa8d8;
+  --color-accent-strong: #a9c6e8;
+  --color-accent-soft: rgba(127, 168, 216, 0.16);
+  --color-accent-glow: rgba(127, 168, 216, 0.45);
 
   /* Cor — semântica */
-  --color-success: #6fae6a;
-  --color-success-soft: rgba(111, 174, 106, 0.16);
-  --color-danger: #c96b5a;
-  --color-danger-soft: rgba(201, 107, 90, 0.16);
+  --color-success: #5fc79a;
+  --color-danger: #e0705f;
 
   /* Tipografia */
-  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --fs-100: 0.75rem;
   --fs-200: 0.8125rem;
@@ -63,36 +72,34 @@
   --space-8: 4rem;
 
   /* Raio */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 999px;
 
   /* Sombra */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.55);
 
   /* Movimento */
   --duration-fast: 120ms;
   --duration-base: 220ms;
   --duration-slow: 400ms;
+  --duration-celebration: 900ms;
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 
   /* Layout */
   --app-max-width: 480px;
-  --nav-height: 64px;
-  --header-height: 56px;
+  --nav-height: 68px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /*
-  Accent dinâmico por animal escolhido — paleta elemental, vibrante e
-  brilhante (glow), aplicada via [data-animal] tanto no <body> quanto
-  localmente em cards que precisam mostrar mais de um animal ao mesmo tempo
-  (ex.: tela de escolha).
+  Accent por animal. Aplicado no <body> (retema o app inteiro) e também
+  localmente em cards que mostram vários animais ao mesmo tempo.
 */
 [data-animal="raposa"] {
   /* Fogo */
@@ -103,7 +110,7 @@
 }
 
 [data-animal="axolote"] {
-  /* Água / cristal */
+  /* Água e cristal */
   --color-accent: #9b8cfa;
   --color-accent-strong: #c4b5fd;
   --color-accent-soft: rgba(155, 140, 250, 0.18);
@@ -111,9 +118,9 @@
 }
 
 [data-animal="capivara"] {
-  /* Terra / floresta */
+  /* Terra e floresta */
   --color-accent: #8fae5c;
-  --color-accent-strong: #c9a15a;
+  --color-accent-strong: #c9d98a;
   --color-accent-soft: rgba(143, 174, 92, 0.18);
   --color-accent-glow: rgba(168, 201, 138, 0.45);
 }

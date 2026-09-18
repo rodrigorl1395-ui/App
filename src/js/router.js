@@ -39,12 +39,15 @@ export function refresh() {
   render();
 }
 
-function currentPath() {
-  return window.location.hash.replace(/^#/, "") || "/";
+// "#/missao?habit=abc" vira { path: "/missao", params: { habit: "abc" } }.
+function parseHash() {
+  const raw = window.location.hash.replace(/^#/, "") || "/";
+  const [path, query = ""] = raw.split("?");
+  return { path, params: Object.fromEntries(new URLSearchParams(query)) };
 }
 
 function render() {
-  const path = currentPath();
+  const { path, params } = parseHash();
 
   const redirect = guardFn ? guardFn(path) : null;
   if (redirect && redirect !== path) {
@@ -57,7 +60,7 @@ function render() {
   document.body.classList.toggle("is-chromeless", Boolean(entry?.chromeless));
   rootEl.replaceChildren();
   if (handler) {
-    rootEl.appendChild(handler());
+    rootEl.appendChild(handler(params));
   }
   highlightNav(path);
 }

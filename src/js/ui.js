@@ -1,7 +1,7 @@
 // Construtores de UI compartilhados. Não conhecem regra de negócio,
 // apenas montam DOM a partir de dados simples.
 
-import { createIcon } from "./icons.js";
+import { createIcon, createElementalIcon } from "./icons.js";
 
 export function createEl(tag, { className, text, attrs = {}, children = [] } = {}) {
   const el = document.createElement(tag);
@@ -77,27 +77,109 @@ export function createEmptyState(message) {
   return createEl("div", { className: "empty-state", children: [createEl("p", { text: message })] });
 }
 
-export function createHabitRow(habit, { action = null } = {}) {
+export function createHabitRow(habit, { action = null, done = false, onClick = null } = {}) {
   const body = createEl("div", {
     className: "habit-body",
     children: [
       createEl("span", { className: "habit-name", text: habit.name }),
       createEl("span", {
-        className: "habit-mission",
-        text: `Principal: ${habit.missions.main} ${habit.unit} · mínima: ${habit.missions.minimal} ${habit.unit}`,
+        className: "habit-goal",
+        text: done ? "Feito hoje" : `${habit.missions.main} ${habit.unit} hoje`,
       }),
     ],
   });
 
+  const children = [
+    createEl("div", { className: "habit-icon", children: [createIcon(habit.icon)] }),
+    body,
+    done ? createEl("span", { className: "habit-done-mark" }) : action,
+  ];
+
+  const className = `habit-row${done ? " is-done" : ""}`;
+  const style = `--habit-color: ${habit.color}`;
+
+  if (!onClick) {
+    return createEl("div", { className, attrs: { style }, children });
+  }
+
+  const row = createEl("button", { className, attrs: { style, type: "button" }, children });
+  row.addEventListener("click", onClick);
+  return row;
+}
+
+const RING_RADIUS = 78;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+// Orbe do companheiro com o anel de progresso até o próximo estágio.
+export function createCompanion({ animal, stageName, progress, caption }) {
   return createEl("div", {
-    className: "habit-row",
-    attrs: { style: `--habit-color: ${habit.color}` },
+    className: "companion",
     children: [
-      createEl("div", { className: "habit-icon", children: [createIcon(habit.icon)] }),
-      body,
-      action,
+      createEl("div", {
+        className: "companion-ring",
+        children: [createProgressRing(progress), createOrb("companion-orb", animal.element)],
+      }),
+      createEl("p", { className: "companion-name", text: animal.name }),
+      createEl("p", { className: "companion-stage", text: stageName }),
+      createEl("p", { className: "companion-progress", text: caption }),
     ],
   });
+}
+
+function createOrb(className, element) {
+  return createEl("div", { className, children: [createElementalIcon(element)] });
+}
+
+function createProgressRing(progress) {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox", "0 0 168 168");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("class", "companion-ring-svg");
+
+  for (const className of ["companion-ring-track", "companion-ring-progress"]) {
+    const circle = document.createElementNS(svgNS, "circle");
+    circle.setAttribute("cx", "84");
+    circle.setAttribute("cy", "84");
+    circle.setAttribute("r", String(RING_RADIUS));
+    circle.setAttribute("class", className);
+    if (className === "companion-ring-progress") {
+      circle.setAttribute("stroke-dasharray", String(RING_CIRCUMFERENCE));
+      circle.setAttribute("stroke-dashoffset", String(RING_CIRCUMFERENCE * (1 - progress)));
+    }
+    svg.appendChild(circle);
+  }
+
+  return svg;
+}
+
+/*
+  Overlay de comemoração. Quando há evolução, o companheiro aparece e "acorda"
+  — é o momento dele. Fecha no toque ou sozinho, e chama onClose.
+*/
+export function showCelebration({ xpEarned, message, note, evolutionText, element }, onClose) {
+  const overlay = createEl("div", {
+    className: "celebration",
+    children: [
+      evolutionText && element ? createOrb("celebration-orb", element) : null,
+      createEl("p", { className: "celebration-xp", text: `+${xpEarned} XP` }),
+      createEl("p", { className: "celebration-message", text: message }),
+      evolutionText ? createEl("p", { className: "celebration-evolution", text: evolutionText }) : null,
+      note ? createEl("p", { className: "celebration-note", text: note }) : null,
+    ],
+  });
+
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    overlay.remove();
+    if (onClose) onClose();
+  };
+
+  overlay.addEventListener("click", close);
+  setTimeout(close, evolutionText ? 3600 : 2200);
+  document.body.appendChild(overlay);
 }
 
 export function createSectionHeader(title, action = null) {

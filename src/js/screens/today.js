@@ -1,24 +1,39 @@
 import {
   createEl,
-  createCard,
   createEmptyState,
   createHabitRow,
   createSectionHeader,
+  createCompanion,
 } from "../ui.js";
-import { formatDateLong } from "../utils.js";
 import { navigate } from "../router.js";
 import { getAnimalById } from "../../data/animals.js";
 import { getHabits } from "../habits.js";
+import { isDoneToday } from "../missions.js";
+import { getStage, getNextStage, getStageProgress } from "../evolution.js";
+
+function summaryText(done, total) {
+  if (done === 0) return "Nenhum cumprido ainda hoje.";
+  if (done === total) return "Tudo cumprido hoje. O jardim agradece.";
+  return `${done} de ${total} cumpridos hoje.`;
+}
 
 export function renderTodayScreen(state) {
   const animal = getAnimalById(state.user?.selectedAnimalId);
   const habits = getHabits();
+  const xp = state.user?.xp || 0;
 
-  const greeting = createEl("h1", { text: animal ? `Olá, ${animal.name}.` : "Olá." });
-  const dateLine = createEl("p", { className: "card-subtitle", text: formatDateLong() });
+  const stage = getStage(xp);
+  const nextStage = getNextStage(xp);
 
-  const companionCard = animal
-    ? createCard({ title: `${animal.name} · ${animal.elementLabel}`, subtitle: animal.tagline, accent: true })
+  const companion = animal
+    ? createCompanion({
+        animal,
+        stageName: stage.name,
+        progress: getStageProgress(xp),
+        caption: nextStage
+          ? `${xp} de ${nextStage.minXp} XP para ${nextStage.name}`
+          : `${xp} XP na forma lendária`,
+      })
     : null;
 
   const newHabitLink = createEl("button", {
@@ -28,17 +43,32 @@ export function renderTodayScreen(state) {
   });
   newHabitLink.addEventListener("click", () => navigate("/novo-habito"));
 
+  const doneCount = habits.filter((habit) => isDoneToday(habit.id)).length;
+  const summary = habits.length
+    ? createEl("p", {
+        className: "tree-hint",
+        text: summaryText(doneCount, habits.length),
+      })
+    : null;
+
   const habitsContent = habits.length
-    ? createEl("div", { className: "habit-list", children: habits.map((habit) => createHabitRow(habit)) })
-    : createEmptyState("Nenhum hábito para hoje. Crie o primeiro e plante sua primeira árvore.");
+    ? createEl("div", {
+        className: "habit-list",
+        children: habits.map((habit) =>
+          createHabitRow(habit, {
+            done: isDoneToday(habit.id),
+            onClick: () => navigate(`/missao?habit=${habit.id}`),
+          })
+        ),
+      })
+    : createEmptyState("Nenhum hábito ainda. Crie o primeiro e plante sua primeira árvore.");
 
   return createEl("div", {
     className: "screen",
     children: [
-      greeting,
-      dateLine,
-      companionCard,
+      companion,
       createSectionHeader("Hábitos de hoje", newHabitLink),
+      summary,
       habitsContent,
     ],
   });

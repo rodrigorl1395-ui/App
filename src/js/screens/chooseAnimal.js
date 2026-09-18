@@ -31,7 +31,8 @@ export function renderChooseAnimalScreen() {
       const body = createEl("div", {
         className: "animal-card-body",
         children: [
-          createEl("span", { className: "animal-card-name", text: `${animal.name} · ${animal.elementLabel}` }),
+          createEl("span", { className: "animal-card-name", text: animal.name }),
+          createEl("span", { className: "animal-card-element", text: animal.companionOf }),
           createEl("span", { className: "animal-card-tagline", text: animal.tagline }),
           traits,
         ],
@@ -67,6 +68,7 @@ export function renderChooseAnimalScreen() {
       user: {
         ...state.user,
         selectedAnimalId: selectedId,
+        xp: state.user?.xp || 0,
         createdAt: state.user?.createdAt || new Date().toISOString(),
       },
     });
@@ -74,11 +76,14 @@ export function renderChooseAnimalScreen() {
     navigate("/hoje");
   });
 
+  // A tela inteira assume a cor do elemento escolhido — a escolha se vê antes
+  // mesmo de ser confirmada.
   function selectAnimal(id) {
     selectedId = id;
     cards.forEach((card, cardId) => {
       card.classList.toggle("is-selected", cardId === id);
     });
+    document.body.dataset.animal = id;
     confirmButton.disabled = false;
   }
 

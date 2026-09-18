@@ -8,33 +8,33 @@ export const ANIMALS = [
     name: "Raposa",
     element: "fogo",
     elementLabel: "Fogo",
+    companionOf: "Companheira do fogo",
     tagline: "A faísca que te coloca em movimento.",
     personality:
       "Impulsiva, corajosa, cheia de energia. Não espera o momento perfeito — ela cria o momento.",
     traits: ["Energia", "Iniciativa", "Coragem"],
-    evolutionStages: [{ stage: 1, name: "Companheira inicial", minXp: 0 }],
   },
   {
     id: "axolote",
     name: "Axolote",
     element: "agua",
     elementLabel: "Água",
+    companionOf: "Companheiro da água",
     tagline: "A calma que enxerga com clareza.",
     personality:
       "Serena, observadora, regenera-se com facilidade. Ensina que descansar também é progresso.",
     traits: ["Foco", "Calma", "Recuperação"],
-    evolutionStages: [{ stage: 1, name: "Companheiro inicial", minXp: 0 }],
   },
   {
     id: "capivara",
     name: "Capivara",
     element: "terra",
     elementLabel: "Terra",
+    companionOf: "Companheira da terra",
     tagline: "A raiz que sustenta cada dia.",
     personality:
       "Constante, paciente, inabalável. Constrói devagar o que dura para sempre.",
     traits: ["Constância", "Resiliência", "Equilíbrio"],
-    evolutionStages: [{ stage: 1, name: "Companheira inicial", minXp: 0 }],
   },
 ];
 

@@ -18,7 +18,7 @@ const ICON_PATHS = {
 const ELEMENT_ICONS = {
   fogo: "flame",
   agua: "droplet",
-  terra: "leaf",
+  terra: "sprout",
 };
 
 export function createIcon(name) {
