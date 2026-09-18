@@ -33,13 +33,26 @@ const SVG_NS = "http://www.w3.org/2000/svg";
   Árvore desenhada por estágio: o tronco cresce, a copa ganha volume e, no
   fim, vêm flores e frutos. Tudo em SVG simples para escalar sem asset.
 */
-export function createTree(stage, leafColor) {
+/*
+  vigor (0 a 1) é o quanto a árvore está de pé. Ele encolhe a copa, apaga a
+  cor e inclina o tronco — a árvore murcha à vista quando a pessoa some, e se
+  levanta quando ela volta. Nunca some de todo: murchar não é morrer.
+*/
+export function createTree(stage, leafColor, vigor = 1) {
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("viewBox", "0 0 64 80");
   svg.setAttribute("aria-hidden", "true");
 
   const trunkHeight = [10, 18, 28, 38, 48, 50, 52][stage] ?? 10;
-  const canopy = [5, 9, 14, 19, 23, 24, 25][stage] ?? 5;
+  // A copa é o que mais sofre com a sede; o tronco quase não muda.
+  const canopy = ([5, 9, 14, 19, 23, 24, 25][stage] ?? 5) * (0.55 + vigor * 0.45);
+  const folhagem = 0.45 + vigor * 0.45;
+  const inclinacao = (1 - vigor) * 7;
+
+  // Tudo dentro de um grupo inclinado pela base: é o que faz a árvore pender.
+  const grupo = document.createElementNS(SVG_NS, "g");
+  grupo.setAttribute("transform", `rotate(${inclinacao.toFixed(1)} 32 76)`);
+  svg.appendChild(grupo);
 
   const trunk = document.createElementNS(SVG_NS, "path");
   const trunkWidth = Math.max(2, trunkHeight * 0.12);
@@ -50,7 +63,7 @@ export function createTree(stage, leafColor) {
     } 76 Z`
   );
   trunk.setAttribute("fill", "#5b4a3a");
-  svg.appendChild(trunk);
+  grupo.appendChild(trunk);
 
   if (stage === 0) {
     // Recém-plantada: um par de folhas rompendo a terra. Precisa ser visível,
@@ -61,7 +74,7 @@ export function createTree(stage, leafColor) {
     mound.setAttribute("rx", "9");
     mound.setAttribute("ry", "4");
     mound.setAttribute("fill", "#4a3f33");
-    svg.appendChild(mound);
+    grupo.appendChild(mound);
 
     for (const dx of [-1, 1]) {
       const leaf = document.createElementNS(SVG_NS, "ellipse");
@@ -70,8 +83,9 @@ export function createTree(stage, leafColor) {
       leaf.setAttribute("rx", "6");
       leaf.setAttribute("ry", "3.6");
       leaf.setAttribute("fill", leafColor);
+      leaf.setAttribute("opacity", String(folhagem));
       leaf.setAttribute("transform", `rotate(${dx * 28} ${32 + dx * 6} 64)`);
-      svg.appendChild(leaf);
+      grupo.appendChild(leaf);
     }
     return svg;
   }
@@ -87,8 +101,8 @@ export function createTree(stage, leafColor) {
     blob.setAttribute("cy", String(canopyY + dy));
     blob.setAttribute("r", String(Math.max(3, canopy * scale)));
     blob.setAttribute("fill", leafColor);
-    blob.setAttribute("opacity", "0.9");
-    svg.appendChild(blob);
+    blob.setAttribute("opacity", String(folhagem));
+    grupo.appendChild(blob);
   }
 
   if (stage >= 5) {
@@ -102,7 +116,7 @@ export function createTree(stage, leafColor) {
       dot.setAttribute("cy", String(cy));
       dot.setAttribute("r", stage >= 6 ? "3.4" : "2.4");
       dot.setAttribute("fill", stage >= 6 ? "#e0705f" : "#f5d0e0");
-      svg.appendChild(dot);
+      grupo.appendChild(dot);
     }
   }
 

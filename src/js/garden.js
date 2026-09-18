@@ -9,6 +9,7 @@ import { isDoneToday } from "./missions.js";
 import { getCompanionState } from "./companion.js";
 import { getMood } from "./mood.js";
 import { getPendingDiscovery } from "./discoveries.js";
+import { getTreeVigor, vigorAmount } from "./master.js";
 import { getTreeStage } from "../data/trees.js";
 
 // O que a criatura faz quando o hábito do dia já foi cumprido.
@@ -53,7 +54,7 @@ export function getSceneCreatures() {
         pendingDiscovery: getPendingDiscovery(habit, companion.animal),
         stageLabel: companion.stageLabel,
         xp: companion.xp,
-        tree: { habit, stage: getTreeStage(companion.habitXp) },
+        tree: { habit, stage: getTreeStage(companion.habitXp), vigor: getTreeVigor(habit.id) },
         mood,
         done,
         activity,
@@ -86,6 +87,30 @@ export function getTreePosition(index, total) {
     x: clamp(12 + spread * (index + 0.5), 10, 90),
     y: GROUND_TOP - 2 + ((index * 9) % 16),
   };
+}
+
+/*
+  Onde a criatura para quando vai comer: ao pé da própria árvore, um pouco à
+  frente para não ficar escondida atrás do tronco.
+*/
+export function getFeedingSpot(treePosition) {
+  return {
+    x: clamp(treePosition.x + 7, 12, 88),
+    y: clamp(treePosition.y + 9, GROUND_TOP + 2, GROUND_BOTTOM),
+  };
+}
+
+/*
+  O que ela faz ao chegar na árvore. É aqui que a ideia fecha: o dia cumprido
+  regou a árvore, a árvore deu fruto, e o fruto é a comida. Sem o dia, ela
+  chega e não encontra nada — e isso aparece na cena, não num aviso.
+*/
+export function getFeedingActivity(creature) {
+  const vigor = vigorAmount(creature.tree.vigor);
+  if (creature.done) return { verb: "comendo os frutos", icon: "apple", motion: "bounce" };
+  if (vigor >= 0.5) return { verb: "procurando fruto", icon: "leaf", motion: "idle" };
+  if (vigor >= 0.3) return { verb: "com sede pela árvore", icon: "droplet", motion: "idle" };
+  return { verb: "dormindo nas raízes", icon: "moon", motion: "sleep" };
 }
 
 // Quanto mais perto do rodapé, maior a criatura.

@@ -930,19 +930,6 @@ textarea.input {
   box-shadow: 0 0 12px var(--color-accent-glow);
 }
 
-.profile-tree {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding-top: var(--space-2);
-}
-
-.profile-tree-art {
-  width: 54px;
-  height: 68px;
-  flex-shrink: 0;
-}
-
 /* Indicadores */
 
 .indicator-grid {
@@ -2059,4 +2046,288 @@ textarea.input {
   gap: var(--space-2);
   margin-top: var(--space-1);
   flex-wrap: wrap;
+}
+
+/*
+  Perfil do Mestre
+
+  O mestre é o jogador. O cartão é o mais "sólido" da interface de propósito:
+  é o único lugar que fala do jogador inteiro, e precisa se destacar dos
+  cartões de criatura sem virar outra linguagem visual.
+*/
+
+.master {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 40px rgba(91, 63, 168, 0.18);
+}
+
+.master-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.master-title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.master-rank {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  background: var(--glass-fill-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.master-bar {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+  overflow: hidden;
+}
+
+.master-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--glow-teal), var(--glow-violet));
+  box-shadow: 0 0 14px rgba(155, 140, 250, 0.4);
+  transition: width var(--duration-slow) var(--ease-emphasized);
+}
+
+.master-numbers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+/* Seis números em três colunas: o valor precisa encolher para caber. */
+.master-numbers .indicator {
+  padding: var(--space-3);
+  gap: 0;
+}
+
+.master-numbers .indicator-value {
+  font-size: var(--fs-500);
+}
+
+.master-numbers .indicator-label {
+  font-size: var(--fs-100);
+}
+
+.master-areas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.master-area {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.master-area .creature-badge {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+}
+
+.master-area-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.master-area-label {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+.master-area-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.master-area-note {
+  font-size: var(--fs-200);
+  color: var(--color-accent-strong);
+}
+
+/*
+  Estado agora — a criatura e a árvore de onde ela come
+
+  Cumprir o hábito é regar a árvore; a árvore dá o fruto; o fruto alimenta a
+  criatura. Por isso o vigor aparece como uma barra de água, e não como mais
+  um contador.
+*/
+
+.status-card.is-alimentada {
+  border-color: color-mix(in srgb, var(--color-success) 26%, var(--glass-border));
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.status-item-label {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+.status-item-value {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.status-item.is-bom .status-item-value {
+  color: var(--color-success);
+}
+
+.status-item.is-atencao .status-item-value {
+  color: var(--color-accent-strong);
+}
+
+.status-tree {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-1);
+}
+
+.status-tree-art {
+  width: 58px;
+  height: 72px;
+  flex-shrink: 0;
+}
+
+.status-tree-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.status-tree-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.status-tree-state {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+}
+
+/* A barra é de água: cheia logo depois de regar, baixa quando a pessoa some. */
+.vigor-bar {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+  overflow: hidden;
+}
+
+.vigor-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--glow-teal), #5fc79a);
+  box-shadow: 0 0 12px rgba(29, 125, 140, 0.55);
+  transition: width var(--duration-slow) var(--ease-emphasized);
+}
+
+.status-feeding {
+  font-size: var(--fs-300);
+  color: var(--color-text-primary);
+  line-height: var(--lh-snug);
+}
+
+/* A árvore de cada hábito, já na lista */
+
+.habit-tree-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.habit-tree-art {
+  width: 34px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.habit-tree-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.habit-tree-name {
+  font-size: var(--fs-200);
+  color: var(--color-text-primary);
+}
+
+.habit-tree-note {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+/* A árvore com sede perde o brilho na cena, além de encolher a copa. */
+.home-tree.is-murcha {
+  opacity: 0.62;
+  filter: saturate(0.6);
+}
+
+.home-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }

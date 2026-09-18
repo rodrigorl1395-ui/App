@@ -119,7 +119,14 @@ export function getHabitStats(habit) {
   const today = todayKey();
   const createdKey = habit.createdAt.slice(0, 10);
 
-  const daysSinceCreated = Math.max(1, daysBetween(createdKey, today) + 1);
+  /*
+    A janela da consistência começa no primeiro dos dois: a criação do hábito
+    ou o registro mais antigo. Um backup restaurado, um fuso atravessado ou um
+    hábito recriado podem deixar registros anteriores à data de criação — sem
+    isso a conta estoura e a tela mostra "3000% de consistência".
+  */
+  const inicio = dates.length && dates[0] < createdKey ? dates[0] : createdKey;
+  const daysSinceCreated = Math.max(1, daysBetween(inicio, today) + 1);
   const thisWeek = weekStart(today);
   const thisMonth = monthKey(today);
   const lastMonth = shiftMonth(thisMonth, -1);
@@ -134,7 +141,7 @@ export function getHabitStats(habit) {
     total: logs.length,
     activeDays: dates.length,
     daysSinceCreated,
-    consistency: Math.round((dates.length / daysSinceCreated) * 100),
+    consistency: Math.min(100, Math.round((dates.length / daysSinceCreated) * 100)),
     currentStreak: getStreak(habit.id),
     bestStreak: getBestStreak(habit.id),
     weekDays,

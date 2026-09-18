@@ -14,6 +14,7 @@ import { getTreeType } from "../../data/trees.js";
 import { fillNames } from "../../data/quests.js";
 import { getJourney } from "../quests.js";
 import { CATEGORY_LABELS } from "../../data/animals.js";
+import { getCreatureStatus, vigorAmount } from "../master.js";
 
 const WEEKDAYS = ["S", "T", "Q", "Q", "S", "S", "D"];
 
@@ -41,7 +42,8 @@ export function renderCreatureScreen(params) {
         ],
       }),
       renderIdentity(habit, companion, animal, tree, stats),
-      renderHabitCard(habit, stats, tree),
+      renderStatus(habit),
+      renderHabitCard(habit, stats),
       renderIndicators(stats, habit, animal),
       renderCollection(habit, animal),
       renderJourney(habit, animal),
@@ -109,7 +111,106 @@ function renderPowerBadge(habit, animal) {
   });
 }
 
-function renderHabitCard(habit, stats, tree) {
+/*
+  Estado agora: a resposta rápida para "como ela está?", sem obrigar a pessoa
+  a ler números. Ela já fez hoje? Está feliz ou com fome? E a árvore de onde
+  ela come, está de pé?
+
+  A ligação entre as três coisas é a ideia toda: cumprir o hábito é regar a
+  árvore, a árvore dá o fruto, e o fruto é o que alimenta a criatura. Por isso
+  não existe botão de água — regar é fazer.
+*/
+function renderStatus(habit) {
+  const status = getCreatureStatus(habit);
+
+  const linhas = [
+    {
+      rotulo: "Atividade de hoje",
+      valor: status.doneToday ? "Cumprida" : "Ainda não",
+      estado: status.doneToday ? "bom" : "atencao",
+    },
+    {
+      rotulo: "Como ela está",
+      valor: capitalize(status.mood.label),
+      estado: status.doneToday ? "bom" : status.mood.id === "faminta" ? "atencao" : "neutro",
+    },
+    {
+      rotulo: "Sequência",
+      valor: `${status.streak} ${status.streak === 1 ? "dia" : "dias"}`,
+      estado: status.streak > 0 ? "bom" : "neutro",
+    },
+    {
+      rotulo: "Esta semana",
+      valor: `${status.weekDays} de ${status.weeklyTarget}`,
+      estado: status.weekDays >= status.weeklyTarget ? "bom" : "neutro",
+    },
+  ];
+
+  // A árvore que nunca foi regada não tem o que medir — a barra só aparece
+  // depois do primeiro dia cumprido.
+  const medidor =
+    status.vigor === null
+      ? null
+      : createEl("div", {
+          className: "vigor-bar",
+          children: [
+            createEl("span", {
+              className: "vigor-bar-fill",
+              attrs: { style: `width: ${Math.round(status.vigor * 100)}%` },
+            }),
+          ],
+        });
+
+  return createEl("section", {
+    className: `card status-card is-${status.doneToday ? "alimentada" : "esperando"}`,
+    children: [
+      createEl("h2", { className: "card-title", text: "Estado agora" }),
+      createEl("div", {
+        className: "status-grid",
+        children: linhas.map((linha) =>
+          createEl("div", {
+            className: `status-item is-${linha.estado}`,
+            children: [
+              createEl("span", { className: "status-item-label", text: linha.rotulo }),
+              createEl("span", { className: "status-item-value", text: linha.valor }),
+            ],
+          })
+        ),
+      }),
+      createEl("div", {
+        className: "status-tree",
+        children: [
+          createEl("div", {
+            className: "status-tree-art",
+            children: [createTree(status.treeStage.stage, status.tree.leaf, vigorAmount(status.vigor))],
+          }),
+          createEl("div", {
+            className: "status-tree-body",
+            children: [
+              createEl("span", {
+                className: "status-tree-name",
+                text: `${status.tree.name} · ${status.treeStage.name}`,
+              }),
+              createEl("span", { className: "status-tree-state", text: status.vigorLabel }),
+              medidor,
+            ],
+          }),
+        ],
+      }),
+      createEl("p", { className: "status-feeding", text: status.feeding }),
+      createEl("p", {
+        className: "tree-hint",
+        text: `Cumprir ${habit.name.toLowerCase()} é regar esta árvore. Ela murcha quando você some, e volta a ficar de pé quando você volta — nunca morre.`,
+      }),
+    ],
+  });
+}
+
+function capitalize(texto) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+function renderHabitCard(habit, stats) {
   const weekBar = createEl("div", {
     className: "week-bar",
     children: Array.from({ length: stats.weeklyTarget }, (_, index) =>
@@ -136,22 +237,6 @@ function renderHabitCard(habit, stats, tree) {
         } de ${stats.weeklyTarget}.`,
       }),
       weekBar,
-      createEl("div", {
-        className: "profile-tree",
-        children: [
-          createEl("div", {
-            className: "profile-tree-art",
-            children: [createTree(stats.treeStage.stage, tree.leaf)],
-          }),
-          createEl("div", {
-            className: "habit-body",
-            children: [
-              createEl("span", { className: "habit-name", text: tree.name }),
-              createEl("span", { className: "habit-goal", text: stats.treeStage.name }),
-            ],
-          }),
-        ],
-      }),
     ],
   });
 }
