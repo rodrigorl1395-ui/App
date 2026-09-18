@@ -1,0 +1,131 @@
+/*
+  Pocket Habits — Componentes
+  Blocos de UI reutilizáveis: cards, botões, nav-item, badges, estado vazio.
+*/
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.brand-name {
+  font-size: var(--fs-500);
+  color: var(--color-text-primary);
+}
+
+.brand-tagline {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.card-title {
+  font-size: var(--fs-400);
+  color: var(--color-text-primary);
+}
+
+.card-subtitle {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+}
+
+.card-accent {
+  border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
+  background: linear-gradient(180deg, var(--color-accent-soft), var(--color-surface) 65%);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-size: var(--fs-100);
+  font-weight: var(--fw-medium);
+  width: fit-content;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-tertiary);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-medium);
+  transition: transform var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button-primary {
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+}
+
+.button-primary:hover {
+  background: var(--color-accent-strong);
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.nav-item-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid currentColor;
+  opacity: 0.7;
+}
+
+.nav-item.is-active {
+  color: var(--color-accent-strong);
+}
+
+.nav-item.is-active .nav-item-icon {
+  opacity: 1;
+}
+
+.nav-item.is-disabled {
+  color: var(--color-text-tertiary);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
