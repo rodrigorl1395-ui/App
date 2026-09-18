@@ -4,13 +4,20 @@
 const routes = new Map();
 let rootEl = null;
 let notFoundHandler = null;
+let guardFn = null;
 
-export function registerRoute(path, renderFn) {
-  routes.set(path, renderFn);
+export function registerRoute(path, renderFn, { chromeless = false } = {}) {
+  routes.set(path, { renderFn, chromeless });
 }
 
 export function setNotFound(renderFn) {
   notFoundHandler = renderFn;
+}
+
+// guardFn(path) pode retornar um novo path para redirecionar, ou null/undefined
+// para deixar a navegação seguir normalmente.
+export function setGuard(fn) {
+  guardFn = fn;
 }
 
 export function initRouter(root, defaultPath) {
@@ -33,7 +40,16 @@ function currentPath() {
 
 function render() {
   const path = currentPath();
-  const handler = routes.get(path) || notFoundHandler;
+
+  const redirect = guardFn ? guardFn(path) : null;
+  if (redirect && redirect !== path) {
+    navigate(redirect);
+    return;
+  }
+
+  const entry = routes.get(path);
+  const handler = entry?.renderFn || notFoundHandler;
+  document.body.classList.toggle("is-chromeless", Boolean(entry?.chromeless));
   rootEl.replaceChildren();
   if (handler) {
     rootEl.appendChild(handler());

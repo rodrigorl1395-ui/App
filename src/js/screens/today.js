@@ -1,36 +1,33 @@
 import { createEl, createCard, createEmptyState } from "../ui.js";
 import { formatDateLong } from "../utils.js";
+import { getAnimalById } from "../../data/animals.js";
 
 export function renderTodayScreen(state) {
-  const greeting = createEl("h1", { text: "Olá." });
+  const animal = getAnimalById(state.user?.selectedAnimalId);
+
+  const greeting = createEl("h1", { text: animal ? `Olá, ${animal.name}.` : "Olá." });
   const dateLine = createEl("p", {
     className: "card-subtitle",
     text: formatDateLong(),
   });
 
-  const firstOpened = state.meta?.firstOpenedAt
-    ? new Date(state.meta.firstOpenedAt)
+  const companionCard = animal
+    ? createCard({
+        title: `${animal.name} · ${animal.elementLabel}`,
+        subtitle: animal.tagline,
+        accent: true,
+      })
     : null;
-
-  const statusCard = createCard({
-    title: "Fundação do app",
-    subtitle: firstOpened
-      ? `Este dispositivo usa o Pocket Habits desde ${formatDateLong(firstOpened)}.`
-      : "Preparando seu espaço.",
-    accent: true,
-  });
 
   const nextStepsCard = createCard({
     title: "Próximos passos",
     children: [
-      createEmptyState(
-        "Em breve: escolha do seu animal-companheiro e criação do primeiro hábito."
-      ),
+      createEmptyState("Em breve: criação do seu primeiro hábito e a missão do dia."),
     ],
   });
 
   return createEl("div", {
     className: "screen",
-    children: [greeting, dateLine, statusCard, nextStepsCard],
+    children: [greeting, dateLine, companionCard, nextStepsCard],
   });
 }

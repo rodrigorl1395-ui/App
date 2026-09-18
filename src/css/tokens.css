@@ -24,11 +24,7 @@
   --color-accent: #d99a4e;
   --color-accent-strong: #e8b26c;
   --color-accent-soft: rgba(217, 154, 78, 0.16);
-
-  /* Cor — accent por animal (aplicado via [data-animal] no <body>) */
-  --color-accent-lobo: #8fa8c9;
-  --color-accent-raposa: #d97a3f;
-  --color-accent-urso: #b8813f;
+  --color-accent-glow: rgba(217, 154, 78, 0.4);
 
   /* Cor — semântica */
   --color-success: #6fae6a;
@@ -92,21 +88,32 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Accent dinâmico por animal escolhido */
-[data-animal="lobo"] {
-  --color-accent: var(--color-accent-lobo);
-  --color-accent-strong: #a9c0dd;
-  --color-accent-soft: rgba(143, 168, 201, 0.16);
-}
-
+/*
+  Accent dinâmico por animal escolhido — paleta elemental, vibrante e
+  brilhante (glow), aplicada via [data-animal] tanto no <body> quanto
+  localmente em cards que precisam mostrar mais de um animal ao mesmo tempo
+  (ex.: tela de escolha).
+*/
 [data-animal="raposa"] {
-  --color-accent: var(--color-accent-raposa);
-  --color-accent-strong: #ea9660;
-  --color-accent-soft: rgba(217, 122, 63, 0.16);
+  /* Fogo */
+  --color-accent: #ff7a3c;
+  --color-accent-strong: #ffb366;
+  --color-accent-soft: rgba(255, 122, 60, 0.18);
+  --color-accent-glow: rgba(255, 138, 61, 0.5);
 }
 
-[data-animal="urso"] {
-  --color-accent: var(--color-accent-urso);
-  --color-accent-strong: #cf9a5c;
-  --color-accent-soft: rgba(184, 129, 63, 0.16);
+[data-animal="axolote"] {
+  /* Água / cristal */
+  --color-accent: #9b8cfa;
+  --color-accent-strong: #c4b5fd;
+  --color-accent-soft: rgba(155, 140, 250, 0.18);
+  --color-accent-glow: rgba(167, 139, 250, 0.5);
+}
+
+[data-animal="capivara"] {
+  /* Terra / floresta */
+  --color-accent: #8fae5c;
+  --color-accent-strong: #c9a15a;
+  --color-accent-soft: rgba(143, 174, 92, 0.18);
+  --color-accent-glow: rgba(168, 201, 138, 0.45);
 }

@@ -46,3 +46,25 @@
   flex-direction: column;
   gap: var(--space-5);
 }
+
+/* Telas imersivas (onboarding, escolha do animal): sem header/nav,
+   conteúdo ocupa a tela inteira. */
+.is-chromeless .app-header,
+.is-chromeless .app-nav {
+  display: none;
+}
+
+.is-chromeless .app-main {
+  padding: calc(var(--space-6) + var(--safe-top)) var(--space-5)
+    calc(var(--space-6) + var(--safe-bottom));
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.immersive-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  flex: 1;
+}
+
