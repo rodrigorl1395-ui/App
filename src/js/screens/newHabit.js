@@ -1,9 +1,11 @@
-import { createEl } from "../ui.js";
+import { createEl, createCreatureBadge, accentStyle } from "../ui.js";
 import { createIcon } from "../icons.js";
 import { navigate } from "../router.js";
 import { HABIT_TEMPLATES, CUSTOM_TEMPLATE } from "../../data/habits.js";
 import { getTreeType } from "../../data/trees.js";
+import { CATEGORY_LABELS, getElement } from "../../data/animals.js";
 import { createHabit } from "../habits.js";
+import { getUnlockedAnimals, getSuggestedElement } from "../companion.js";
 
 const MISSION_FIELDS = [
   { key: "minimal", label: "Mínima", hint: "O menor passo que mantém o vínculo." },
@@ -71,6 +73,52 @@ export function renderNewHabitScreen() {
 
   const treeHint = createEl("p", { className: "tree-hint" });
   const errorText = createEl("p", { className: "form-error" });
+  const companionHint = createEl("p", { className: "tree-hint" });
+
+  // Só criaturas já conquistadas. As do elemento da categoria vêm primeiro,
+  // porque são as que combinam com o que este hábito treina.
+  let selectedAnimalId = null;
+  const companionCards = new Map();
+  const companionPicker = createEl("div", { className: "companion-picker" });
+
+  function buildCompanionPicker(category) {
+    const preferred = getSuggestedElement(category);
+    const available = getUnlockedAnimals().slice().sort((a, b) => {
+      const rank = (animal) => (animal.element === preferred ? 0 : 1);
+      return rank(a) - rank(b);
+    });
+
+    companionCards.clear();
+    companionPicker.replaceChildren();
+
+    for (const animal of available) {
+      const card = createEl("button", {
+        className: "companion-option",
+        attrs: { type: "button", style: accentStyle(animal.color) },
+        children: [
+          createCreatureBadge({ animal, progress: 0 }),
+          createEl("span", { className: "companion-option-name", text: animal.name }),
+        ],
+      });
+      card.addEventListener("click", () => selectCompanion(animal.id));
+      companionCards.set(animal.id, card);
+      companionPicker.appendChild(card);
+    }
+
+    selectCompanion(available[0].id);
+
+    const preferredLabel = preferred ? getElement(preferred).label.toLowerCase() : null;
+    companionHint.textContent = preferredLabel
+      ? `Hábitos de ${CATEGORY_LABELS[category] || category} alimentam o elemento ${preferredLabel} e liberam criaturas desse elemento.`
+      : "Escolha quem vai crescer junto com este hábito.";
+  }
+
+  function selectCompanion(id) {
+    selectedAnimalId = id;
+    companionCards.forEach((card, cardId) => {
+      card.classList.toggle("is-selected", cardId === id);
+    });
+  }
 
   const saveButton = createEl("button", {
     className: "button button-primary button-block",
@@ -106,6 +154,9 @@ export function renderNewHabitScreen() {
       createEl("h3", { className: "form-section-title", text: "Missões do dia" }),
       createEl("div", { className: "form-row", children: missionFields }),
       treeHint,
+      createEl("h3", { className: "form-section-title", text: "Quem cresce com este hábito" }),
+      companionHint,
+      companionPicker,
       errorText,
       saveButton,
     ],
@@ -125,6 +176,7 @@ export function renderNewHabitScreen() {
       missionInputs[key].value = item.missions[key];
     }
     treeHint.textContent = `Este hábito planta: ${getTreeType(item.treeType).name}.`;
+    buildCompanionPicker(item.category);
     errorText.textContent = "";
   }
 
@@ -160,6 +212,7 @@ export function renderNewHabitScreen() {
       icon: template.icon,
       treeType: template.treeType,
       category: template.category,
+      animalId: selectedAnimalId,
     });
     navigate("/hoje");
   }

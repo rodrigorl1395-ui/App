@@ -8,6 +8,7 @@ import { renderChooseAnimalScreen } from "./screens/chooseAnimal.js";
 import { renderHabitsScreen } from "./screens/habitsList.js";
 import { renderNewHabitScreen } from "./screens/newHabit.js";
 import { renderMissionScreen } from "./screens/mission.js";
+import { renderSanctuaryScreen } from "./screens/sanctuary.js";
 import { generateId } from "./utils.js";
 
 const ENTRY_PATHS = ["/onboarding", "/escolha-animal"];
@@ -23,21 +24,17 @@ function bootstrapState() {
     saveState(getState());
   }
   subscribe((state) => saveState(state));
-
-  const animalId = getState().user?.selectedAnimalId;
-  if (animalId) {
-    document.body.dataset.animal = animalId;
-  }
 }
 
 function registerRoutes() {
   registerRoute("/onboarding", renderOnboardingScreen, { chromeless: true });
   registerRoute("/escolha-animal", renderChooseAnimalScreen, { chromeless: true });
-  registerRoute("/hoje", () => renderTodayScreen(getState()));
+  registerRoute("/hoje", renderTodayScreen);
   registerRoute("/habitos", renderHabitsScreen);
   registerRoute("/novo-habito", renderNewHabitScreen);
   registerRoute("/missao", renderMissionScreen, { chromeless: true });
-  setNotFound(() => renderTodayScreen(getState()));
+  registerRoute("/santuario", renderSanctuaryScreen);
+  setNotFound(renderTodayScreen);
 
   setGuard((path) => {
     const hasAnimal = Boolean(getState().user?.selectedAnimalId);

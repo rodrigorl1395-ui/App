@@ -1,8 +1,8 @@
-import { createEl } from "../ui.js";
-import { createElementalIcon } from "../icons.js";
+import { createEl, createCreatureBadge, accentStyle } from "../ui.js";
 import { navigate } from "../router.js";
 import { getState, setState } from "../state.js";
-import { ANIMALS } from "../../data/animals.js";
+import { getElement } from "../../data/animals.js";
+import { getUnlockedAnimals } from "../companion.js";
 
 export function renderChooseAnimalScreen() {
   let selectedId = null;
@@ -10,10 +10,10 @@ export function renderChooseAnimalScreen() {
   const header = createEl("div", {
     className: "animal-choice-header",
     children: [
-      createEl("h1", { text: "Qual elemento é o seu?" }),
+      createEl("h1", { text: "Quem começa com você?" }),
       createEl("p", {
         className: "card-subtitle",
-        text: "Essa escolha é o coração da sua jornada — mas todo hábito continua disponível, seja qual for o companheiro.",
+        text: "Cada hábito seu terá uma criatura que cresce junto com ele. Esta é a primeira — outras se juntam conforme sua constância.",
       }),
     ],
   });
@@ -22,31 +22,27 @@ export function renderChooseAnimalScreen() {
 
   const list = createEl("div", {
     className: "animal-choice-list",
-    children: ANIMALS.map((animal) => {
-      const traits = createEl("div", {
-        className: "animal-card-traits",
-        children: animal.traits.map((trait) => createEl("span", { className: "badge", text: trait })),
-      });
-
+    children: getUnlockedAnimals().map((animal) => {
       const body = createEl("div", {
         className: "animal-card-body",
         children: [
           createEl("span", { className: "animal-card-name", text: animal.name }),
-          createEl("span", { className: "animal-card-element", text: animal.companionOf }),
+          createEl("span", {
+            className: "animal-card-element",
+            text: getElement(animal.element).label,
+          }),
           createEl("span", { className: "animal-card-tagline", text: animal.tagline }),
-          traits,
         ],
       });
 
-      const orb = createEl("div", { className: "animal-orb" });
-      orb.appendChild(createElementalIcon(animal.element));
-
-      const check = createEl("span", { className: "animal-card-check" });
-
       const card = createEl("button", {
         className: "animal-card",
-        attrs: { type: "button", "data-animal": animal.id },
-        children: [orb, body, check],
+        attrs: { type: "button", style: accentStyle(animal.color) },
+        children: [
+          createCreatureBadge({ animal, progress: 0 }),
+          body,
+          createEl("span", { className: "animal-card-check" }),
+        ],
       });
 
       card.addEventListener("click", () => selectAnimal(animal.id));
@@ -57,8 +53,8 @@ export function renderChooseAnimalScreen() {
 
   const confirmButton = createEl("button", {
     className: "button button-primary button-block",
-    attrs: { type: "button", disabled: "true" },
-    text: "Confirmar companheiro",
+    text: "Começar com esta criatura",
+    attrs: { type: "button" },
   });
   confirmButton.disabled = true;
   confirmButton.addEventListener("click", () => {
@@ -68,22 +64,15 @@ export function renderChooseAnimalScreen() {
       user: {
         ...state.user,
         selectedAnimalId: selectedId,
-        xp: state.user?.xp || 0,
         createdAt: state.user?.createdAt || new Date().toISOString(),
       },
     });
-    document.body.dataset.animal = selectedId;
     navigate("/hoje");
   });
 
-  // A tela inteira assume a cor do elemento escolhido — a escolha se vê antes
-  // mesmo de ser confirmada.
   function selectAnimal(id) {
     selectedId = id;
-    cards.forEach((card, cardId) => {
-      card.classList.toggle("is-selected", cardId === id);
-    });
-    document.body.dataset.animal = id;
+    cards.forEach((card, cardId) => card.classList.toggle("is-selected", cardId === id));
     confirmButton.disabled = false;
   }
 

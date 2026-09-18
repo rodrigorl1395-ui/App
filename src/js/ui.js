@@ -1,7 +1,8 @@
 // Construtores de UI compartilhados. Não conhecem regra de negócio,
 // apenas montam DOM a partir de dados simples.
 
-import { createIcon, createElementalIcon } from "./icons.js";
+import { createIcon } from "./icons.js";
+import { getElement } from "../data/animals.js";
 
 export function createEl(tag, { className, text, attrs = {}, children = [] } = {}) {
   const el = document.createElement(tag);
@@ -20,7 +21,7 @@ const NAV_ITEMS = [
   { path: "/hoje", label: "Hoje", enabled: true },
   { path: "/habitos", label: "Hábitos", enabled: true },
   { path: "/jardim", label: "Jardim", enabled: false },
-  { path: "/animal", label: "Animal", enabled: false },
+  { path: "/santuario", label: "Santuário", enabled: true },
 ];
 
 export function renderAppShell({ activePath }) {
@@ -77,26 +78,39 @@ export function createEmptyState(message) {
   return createEl("div", { className: "empty-state", children: [createEl("p", { text: message })] });
 }
 
-export function createHabitRow(habit, { action = null, done = false, onClick = null } = {}) {
-  const body = createEl("div", {
-    className: "habit-body",
-    children: [
-      createEl("span", { className: "habit-name", text: habit.name }),
+export function createHabitRow(habit, { action = null, done = false, onClick = null, companion = null } = {}) {
+  const lines = [createEl("span", { className: "habit-name", text: habit.name })];
+
+  if (companion?.animal) {
+    lines.push(
       createEl("span", {
-        className: "habit-goal",
-        text: done ? "Feito hoje" : `${habit.missions.main} ${habit.unit} hoje`,
-      }),
-    ],
-  });
+        className: "habit-companion",
+        text: `${companion.animal.name}, ${companion.stageLabel.toLowerCase()}`,
+      })
+    );
+  }
+
+  lines.push(
+    createEl("span", {
+      className: "habit-goal",
+      text: done ? "Feito hoje" : `${habit.missions.main} ${habit.unit} hoje`,
+    })
+  );
+
+  const emblem = companion?.animal
+    ? createCreatureBadge({ animal: companion.animal, progress: companion.progress })
+    : createEl("div", { className: "habit-icon", children: [createIcon(habit.icon)] });
 
   const children = [
-    createEl("div", { className: "habit-icon", children: [createIcon(habit.icon)] }),
-    body,
+    emblem,
+    createEl("div", { className: "habit-body", children: lines }),
     done ? createEl("span", { className: "habit-done-mark" }) : action,
   ];
 
   const className = `habit-row${done ? " is-done" : ""}`;
-  const style = `--habit-color: ${habit.color}`;
+  const style = companion?.animal
+    ? `${accentStyle(companion.animal.color)}; --habit-color: ${habit.color}`
+    : `--habit-color: ${habit.color}`;
 
   if (!onClick) {
     return createEl("div", { className, attrs: { style }, children });
@@ -107,6 +121,33 @@ export function createHabitRow(habit, { action = null, done = false, onClick = n
   return row;
 }
 
+// Orbe pequeno da criatura, com o anel de progresso do próprio hábito.
+export function createCreatureBadge({ animal, progress, locked = false }) {
+  return createEl("div", {
+    className: `creature-badge${locked ? " is-locked" : ""}`,
+    attrs: { style: accentStyle(animal.color) },
+    children: [
+      locked ? null : createProgressRing(progress),
+      createOrb("creature-badge-orb", animal.element),
+    ],
+  });
+}
+
+/*
+  A cor do animal vira o accent do contexto. Os tons derivados saem dela por
+  color-mix aqui e não no CSS, porque custom properties herdadas não se
+  recalculam quando um filho troca a cor base — e o catálogo precisa escalar
+  sem uma regra de CSS por animal.
+*/
+export function accentStyle(color) {
+  return [
+    `--color-accent: ${color}`,
+    `--color-accent-strong: color-mix(in srgb, ${color} 72%, #fff)`,
+    `--color-accent-soft: color-mix(in srgb, ${color} 18%, transparent)`,
+    `--color-accent-glow: color-mix(in srgb, ${color} 48%, transparent)`,
+  ].join("; ");
+}
+
 const RING_RADIUS = 78;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
@@ -114,6 +155,7 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 export function createCompanion({ animal, stageName, progress, caption }) {
   return createEl("div", {
     className: "companion",
+    attrs: { style: accentStyle(animal.color) },
     children: [
       createEl("div", {
         className: "companion-ring",
@@ -126,8 +168,9 @@ export function createCompanion({ animal, stageName, progress, caption }) {
   });
 }
 
+// O glifo do orbe vem do elemento definido no catálogo — fonte única.
 function createOrb(className, element) {
-  return createEl("div", { className, children: [createElementalIcon(element)] });
+  return createEl("div", { className, children: [createIcon(getElement(element).icon)] });
 }
 
 function createProgressRing(progress) {
@@ -157,11 +200,12 @@ function createProgressRing(progress) {
   Overlay de comemoração. Quando há evolução, o companheiro aparece e "acorda"
   — é o momento dele. Fecha no toque ou sozinho, e chama onClose.
 */
-export function showCelebration({ xpEarned, message, note, evolutionText, element }, onClose) {
+export function showCelebration({ xpEarned, message, note, evolutionText, animal }, onClose) {
   const overlay = createEl("div", {
     className: "celebration",
+    attrs: animal ? { style: accentStyle(animal.color) } : {},
     children: [
-      evolutionText && element ? createOrb("celebration-orb", element) : null,
+      animal ? createOrb("celebration-orb", animal.element) : null,
       createEl("p", { className: "celebration-xp", text: `+${xpEarned} XP` }),
       createEl("p", { className: "celebration-message", text: message }),
       evolutionText ? createEl("p", { className: "celebration-evolution", text: evolutionText }) : null,

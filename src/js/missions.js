@@ -5,6 +5,7 @@
 import { getState, setState } from "./state.js";
 import { generateId, todayKey } from "./utils.js";
 import { getStage } from "./evolution.js";
+import { getHabitXp, getUnlockedAnimals, findNewlyUnlocked } from "./companion.js";
 
 export const MISSION_LEVELS = {
   minimal: { key: "minimal", label: "Mínima", xp: 10 },
@@ -26,13 +27,13 @@ export function isDoneToday(habitId) {
 }
 
 /*
-  Conclui a missão de um hábito e devolve o que mudou, para a tela poder
-  comemorar: XP ganho, total novo e o estágio anterior/atual do companheiro.
+  Registra a missão e devolve o que mudou, para a tela comemorar: o XP ganho,
+  se o companheiro daquele hábito evoluiu e se algum animal novo foi liberado.
 */
 export function completeMission(habit, levelKey) {
   const level = MISSION_LEVELS[levelKey];
-  const previousXp = getState().user.xp || 0;
-  const newXp = previousXp + level.xp;
+  const previousXp = getHabitXp(habit.id);
+  const previouslyUnlocked = new Set(getUnlockedAnimals().map((animal) => animal.id));
 
   const log = {
     id: generateId("log"),
@@ -43,15 +44,17 @@ export function completeMission(habit, levelKey) {
     xpEarned: level.xp,
   };
 
-  setState({
-    logs: [...getLogs(), log],
-    user: { ...getState().user, xp: newXp },
-  });
+  setState({ logs: [...getLogs(), log] });
+
+  const newXp = previousXp + level.xp;
+  const previousStage = getStage(previousXp);
+  const currentStage = getStage(newXp);
 
   return {
     xpEarned: level.xp,
-    previousStage: getStage(previousXp),
-    currentStage: getStage(newXp),
-    evolved: getStage(newXp).stage > getStage(previousXp).stage,
+    previousStage,
+    currentStage,
+    evolved: currentStage.stage > previousStage.stage,
+    unlockedAnimals: findNewlyUnlocked(previouslyUnlocked),
   };
 }

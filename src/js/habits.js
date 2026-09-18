@@ -7,7 +7,7 @@ export function getHabits() {
   return getState().habits;
 }
 
-export function createHabit({ name, unit, color, icon, treeType, missions, category }) {
+export function createHabit({ name, unit, color, icon, treeType, missions, category, animalId }) {
   const habit = {
     id: generateId("habit"),
     name,
@@ -16,6 +16,7 @@ export function createHabit({ name, unit, color, icon, treeType, missions, categ
     icon,
     treeType,
     category,
+    animalId,
     missions,
     frequency: "daily",
     createdAt: new Date().toISOString(),

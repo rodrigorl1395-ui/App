@@ -1,6 +1,7 @@
 import { createEl, createHabitRow, createEmptyState, createSectionHeader } from "../ui.js";
 import { navigate, refresh } from "../router.js";
 import { getHabits, removeHabit } from "../habits.js";
+import { getCompanionState } from "../companion.js";
 import { getTreeType } from "../../data/trees.js";
 
 export function renderHabitsScreen() {
@@ -16,7 +17,12 @@ export function renderHabitsScreen() {
   const content = habits.length
     ? createEl("div", {
         className: "habit-list",
-        children: habits.map((habit) => createHabitRow(habit, { action: createRemoveAction(habit) })),
+        children: habits.map((habit) =>
+          createHabitRow(habit, {
+            action: createRemoveAction(habit),
+            companion: getCompanionState(habit),
+          })
+        ),
       })
     : createEmptyState("Nenhum hábito ainda. Cada hábito criado vira uma árvore no seu jardim.");
 

@@ -1,8 +1,9 @@
-import { createEl, showCelebration } from "../ui.js";
+import { createEl, showCelebration, createCompanion } from "../ui.js";
 import { createIcon } from "../icons.js";
 import { navigate } from "../router.js";
-import { getState } from "../state.js";
 import { getHabits } from "../habits.js";
+import { getCompanionState } from "../companion.js";
+import { stageName } from "../evolution.js";
 import { getAnimalById } from "../../data/animals.js";
 import { MISSION_LEVELS, completeMission, isDoneToday } from "../missions.js";
 import { getTreeType } from "../../data/trees.js";
@@ -54,6 +55,21 @@ export function renderMissionScreen(params) {
     ],
   });
 
+  const companion = getCompanionState(habit);
+  const hero = companion.animal
+    ? createCompanion({
+        animal: companion.animal,
+        stageName: companion.stageLabel,
+        progress: companion.progress,
+        caption: companion.nextStage
+          ? `${companion.xp} de ${companion.nextStage.minXp} XP para ${stageName(
+              companion.nextStage,
+              companion.animal.gender
+            )}`
+          : `${companion.xp} XP na forma lendária`,
+      })
+    : null;
+
   const intro = createEl("div", {
     className: "mission-intro",
     children: [
@@ -88,17 +104,27 @@ export function renderMissionScreen(params) {
 
   function complete(levelKey) {
     const result = completeMission(habit, levelKey);
-    const animal = getAnimalById(getState().user?.selectedAnimalId);
+    const animal = getAnimalById(habit.animalId);
+    const unlocked = result.unlockedAnimals[0];
 
     showCelebration(
       {
         xpEarned: result.xpEarned,
         message: `${habit.name} registrado. ${getTreeType(habit.treeType).name} recebeu água.`,
-        element: animal?.element,
-        evolutionText: result.evolved
-          ? `${animal ? animal.name : "Seu companheiro"} agora é ${result.currentStage.name}`
-          : null,
-        note: result.evolved ? null : "Cada registro aproxima a próxima evolução.",
+        animal: unlocked || (result.evolved ? animal : null),
+        evolutionText: unlocked
+          ? `${unlocked.name} se juntou ao seu santuário`
+          : result.evolved
+            ? `${animal ? animal.name : "Seu companheiro"} agora é ${stageName(
+                result.currentStage,
+                animal?.gender
+              )}`
+            : null,
+        note: unlocked
+          ? unlocked.tagline
+          : result.evolved
+            ? null
+            : "Cada registro aproxima a próxima evolução.",
       },
       () => navigate("/hoje")
     );
@@ -108,6 +134,7 @@ export function renderMissionScreen(params) {
     className: "screen immersive-screen",
     children: [
       header,
+      hero,
       intro,
       createEl("div", { className: "mission-list", children: tiles }),
     ],

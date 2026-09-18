@@ -98,29 +98,7 @@
 }
 
 /*
-  Accent por animal. Aplicado no <body> (retema o app inteiro) e também
-  localmente em cards que mostram vários animais ao mesmo tempo.
+  Não há um bloco de CSS por animal: a cor de cada criatura vem do catálogo
+  em JS e é aplicada como --color-accent no contexto (ver accentStyle em
+  ui.js). É o que permite o catálogo crescer até 100 sem tocar no CSS.
 */
-[data-animal="raposa"] {
-  /* Fogo */
-  --color-accent: #ff7a3c;
-  --color-accent-strong: #ffb366;
-  --color-accent-soft: rgba(255, 122, 60, 0.18);
-  --color-accent-glow: rgba(255, 138, 61, 0.5);
-}
-
-[data-animal="axolote"] {
-  /* Água e cristal */
-  --color-accent: #9b8cfa;
-  --color-accent-strong: #c4b5fd;
-  --color-accent-soft: rgba(155, 140, 250, 0.18);
-  --color-accent-glow: rgba(167, 139, 250, 0.5);
-}
-
-[data-animal="capivara"] {
-  /* Terra e floresta */
-  --color-accent: #8fae5c;
-  --color-accent-strong: #c9d98a;
-  --color-accent-soft: rgba(143, 174, 92, 0.18);
-  --color-accent-glow: rgba(168, 201, 138, 0.45);
-}

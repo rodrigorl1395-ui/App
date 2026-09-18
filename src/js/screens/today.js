@@ -1,15 +1,9 @@
-import {
-  createEl,
-  createEmptyState,
-  createHabitRow,
-  createSectionHeader,
-  createCompanion,
-} from "../ui.js";
+import { createEl, createEmptyState, createHabitRow, createSectionHeader } from "../ui.js";
 import { navigate } from "../router.js";
-import { getAnimalById } from "../../data/animals.js";
 import { getHabits } from "../habits.js";
 import { isDoneToday } from "../missions.js";
-import { getStage, getNextStage, getStageProgress } from "../evolution.js";
+import { getCompanionState, getTotalXp } from "../companion.js";
+import { formatDateLong } from "../utils.js";
 
 function summaryText(done, total) {
   if (done === 0) return "Nenhum cumprido ainda hoje.";
@@ -17,24 +11,8 @@ function summaryText(done, total) {
   return `${done} de ${total} cumpridos hoje.`;
 }
 
-export function renderTodayScreen(state) {
-  const animal = getAnimalById(state.user?.selectedAnimalId);
+export function renderTodayScreen() {
   const habits = getHabits();
-  const xp = state.user?.xp || 0;
-
-  const stage = getStage(xp);
-  const nextStage = getNextStage(xp);
-
-  const companion = animal
-    ? createCompanion({
-        animal,
-        stageName: stage.name,
-        progress: getStageProgress(xp),
-        caption: nextStage
-          ? `${xp} de ${nextStage.minXp} XP para ${nextStage.name}`
-          : `${xp} XP na forma lendária`,
-      })
-    : null;
 
   const newHabitLink = createEl("button", {
     className: "link-button",
@@ -44,12 +22,17 @@ export function renderTodayScreen(state) {
   newHabitLink.addEventListener("click", () => navigate("/novo-habito"));
 
   const doneCount = habits.filter((habit) => isDoneToday(habit.id)).length;
-  const summary = habits.length
-    ? createEl("p", {
-        className: "tree-hint",
-        text: summaryText(doneCount, habits.length),
-      })
-    : null;
+
+  const heading = createEl("div", {
+    className: "today-heading",
+    children: [
+      createEl("h1", { className: "today-date", text: formatDateLong() }),
+      createEl("p", {
+        className: "today-summary",
+        text: habits.length ? summaryText(doneCount, habits.length) : `${getTotalXp()} XP acumulado`,
+      }),
+    ],
+  });
 
   const habitsContent = habits.length
     ? createEl("div", {
@@ -57,19 +40,17 @@ export function renderTodayScreen(state) {
         children: habits.map((habit) =>
           createHabitRow(habit, {
             done: isDoneToday(habit.id),
+            companion: getCompanionState(habit),
             onClick: () => navigate(`/missao?habit=${habit.id}`),
           })
         ),
       })
-    : createEmptyState("Nenhum hábito ainda. Crie o primeiro e plante sua primeira árvore.");
+    : createEmptyState(
+        "Nenhum hábito ainda. Cada hábito ganha uma criatura que cresce junto com ele."
+      );
 
   return createEl("div", {
     className: "screen",
-    children: [
-      companion,
-      createSectionHeader("Hábitos de hoje", newHabitLink),
-      summary,
-      habitsContent,
-    ],
+    children: [heading, createSectionHeader("Hábitos de hoje", newHabitLink), habitsContent],
   });
 }

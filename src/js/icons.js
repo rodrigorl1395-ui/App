@@ -15,12 +15,6 @@ const ICON_PATHS = {
     "M12 8c3.3 0 5.5 2.4 5.5 6S15 21 12 21s-5.5-3.4-5.5-7S8.7 8 12 8Z M12.5 7c0-2 1.5-3.5 3.5-3.5 0 2-1.5 3.5-3.5 3.5Z",
 };
 
-const ELEMENT_ICONS = {
-  fogo: "flame",
-  agua: "droplet",
-  terra: "sprout",
-};
-
 export function createIcon(name) {
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
@@ -31,8 +25,4 @@ export function createIcon(name) {
   path.setAttribute("d", ICON_PATHS[name] || ICON_PATHS.sprout);
   svg.appendChild(path);
   return svg;
-}
-
-export function createElementalIcon(element) {
-  return createIcon(ELEMENT_ICONS[element] || "leaf");
 }
