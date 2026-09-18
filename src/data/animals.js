@@ -32,9 +32,12 @@ export const CATEGORY_LABELS = {
 };
 
 /*
-  unlock: null       → disponível desde o começo
+  starter: true → uma das três iniciais. Escolhe-se UMA no começo, e as
+                  outras duas ficam perdidas para sempre: não há como
+                  conquistá-las depois. É o que dá peso à escolha.
   unlock: {category, days} → pede tantos dias cumpridos em hábitos daquela
-                             categoria (dias distintos, não registros)
+                  categoria (dias distintos, não registros), além do mínimo
+                  de uma semana de jogo exigido de toda conquista.
 */
 export const ANIMALS = [
   {
@@ -45,7 +48,7 @@ export const ANIMALS = [
     color: "#ff7a3c",
     tagline: "A faísca que te coloca em movimento.",
     personality: "Impulsiva e corajosa. Não espera o momento perfeito — ela cria o momento.",
-    unlock: null,
+    starter: true,
   },
   {
     id: "axolote",
@@ -55,7 +58,7 @@ export const ANIMALS = [
     color: "#9b8cfa",
     tagline: "A calma que enxerga com clareza.",
     personality: "Sereno e observador. Ensina que descansar também é progresso.",
-    unlock: null,
+    starter: true,
   },
   {
     id: "capivara",
@@ -65,7 +68,7 @@ export const ANIMALS = [
     color: "#8fae5c",
     tagline: "A raiz que sustenta cada dia.",
     personality: "Constante e paciente. Constrói devagar o que dura para sempre.",
-    unlock: null,
+    starter: true,
   },
   {
     id: "vagalume",

@@ -495,6 +495,13 @@
   opacity: 0.62;
 }
 
+/* Inicial não escolhida: não é "ainda não", é "nunca" — e a borda tracejada
+   diz isso sem precisar de mais texto. */
+.sanctuary-card.is-forfeited {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
 .sanctuary-body {
   display: flex;
   flex-direction: column;
@@ -533,6 +540,22 @@
 
 .companion-picker::-webkit-scrollbar {
   display: none;
+}
+
+.companion-picker.is-collapsed {
+  display: none;
+}
+
+.habit-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.habit-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-inline: var(--space-2);
 }
 
 .companion-option {

@@ -5,7 +5,7 @@
 import { getState, setState } from "./state.js";
 import { generateId, todayKey } from "./utils.js";
 import { getStage } from "./evolution.js";
-import { getHabitXp, getUnlockedAnimals, findNewlyUnlocked } from "./companion.js";
+import { getAnimalXp, getUnlockedAnimals, findNewlyUnlocked } from "./companion.js";
 
 export const MISSION_LEVELS = {
   minimal: { key: "minimal", label: "Mínima", xp: 10 },
@@ -32,12 +32,16 @@ export function isDoneToday(habitId) {
 */
 export function completeMission(habit, levelKey) {
   const level = MISSION_LEVELS[levelKey];
-  const previousXp = getHabitXp(habit.id);
+  // A evolução olha o XP da criatura (soma dos hábitos dela), não o do hábito.
+  const previousXp = getAnimalXp(habit.animalId);
   const previouslyUnlocked = new Set(getUnlockedAnimals().map((animal) => animal.id));
 
   const log = {
     id: generateId("log"),
     habitId: habit.id,
+    // Guardamos quem cuidava na hora: trocar de criatura não pode transferir
+    // o esforço já feito para quem acabou de chegar.
+    animalId: habit.animalId,
     date: todayKey(),
     level: level.key,
     value: habit.missions[level.key],

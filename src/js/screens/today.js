@@ -2,7 +2,7 @@ import { createEl, createEmptyState, createHabitRow, createSectionHeader } from 
 import { navigate } from "../router.js";
 import { getHabits } from "../habits.js";
 import { isDoneToday } from "../missions.js";
-import { getCompanionState, getTotalXp } from "../companion.js";
+import { getCompanionState } from "../companion.js";
 import { formatDateLong } from "../utils.js";
 
 function summaryText(done, total) {
@@ -29,7 +29,9 @@ export function renderTodayScreen() {
       createEl("h1", { className: "today-date", text: formatDateLong() }),
       createEl("p", {
         className: "today-summary",
-        text: habits.length ? summaryText(doneCount, habits.length) : `${getTotalXp()} XP acumulado`,
+        text: habits.length
+          ? summaryText(doneCount, habits.length)
+          : "Comece criando o primeiro hábito.",
       }),
     ],
   });

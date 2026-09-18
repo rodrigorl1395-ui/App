@@ -21,28 +21,49 @@ const ACTIVITY_BY_CATEGORY = {
 
 const WAITING = { verb: "esperando você", icon: "sprout", motion: "idle" };
 
+/*
+  Uma criatura por animal, não por hábito: quem cuida de três hábitos aparece
+  uma vez só, com as três árvores por perto. Ela só pratica quando todos os
+  hábitos dela estão cumpridos; faltando algum, fica esperando.
+*/
 export function getSceneCreatures() {
-  return getHabits()
-    .map((habit) => {
-      const companion = getCompanionState(habit);
-      if (!companion.animal) return null;
+  const byAnimal = new Map();
 
-      const done = isDoneToday(habit.id);
-      const activity = done ? ACTIVITY_BY_CATEGORY[habit.category] || ACTIVITY_BY_CATEGORY.custom : WAITING;
+  for (const habit of getHabits()) {
+    const companion = getCompanionState(habit);
+    if (!companion.animal) continue;
 
-      return {
-        habit,
+    if (!byAnimal.has(companion.animal.id)) {
+      byAnimal.set(companion.animal.id, {
         animal: companion.animal,
         stageLabel: companion.stageLabel,
         xp: companion.xp,
-        treeStage: getTreeStage(companion.xp),
-        done,
-        activity,
-        // Quem dorme não perambula.
-        wanders: activity.motion !== "sleep",
-      };
-    })
-    .filter(Boolean);
+        habits: [],
+        trees: [],
+      });
+    }
+
+    const entry = byAnimal.get(companion.animal.id);
+    entry.habits.push({ habit, done: isDoneToday(habit.id) });
+    entry.trees.push({ habit, stage: getTreeStage(companion.habitXp) });
+  }
+
+  return [...byAnimal.values()].map((entry) => {
+    const pending = entry.habits.find((item) => !item.done);
+    const activity = pending
+      ? WAITING
+      : ACTIVITY_BY_CATEGORY[entry.habits[0].habit.category] || ACTIVITY_BY_CATEGORY.custom;
+
+    return {
+      ...entry,
+      // Tocar leva à missão que ainda falta; se tudo foi feito, à primeira.
+      targetHabit: (pending || entry.habits[0]).habit,
+      done: !pending,
+      activity,
+      // Quem dorme não perambula.
+      wanders: activity.motion !== "sleep",
+    };
+  });
 }
 
 /*

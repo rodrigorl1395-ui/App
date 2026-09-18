@@ -1,8 +1,7 @@
 import { createEl, createCreatureBadge, accentStyle } from "../ui.js";
 import { navigate } from "../router.js";
 import { getState, setState } from "../state.js";
-import { getElement } from "../../data/animals.js";
-import { getUnlockedAnimals } from "../companion.js";
+import { ANIMALS, getElement } from "../../data/animals.js";
 
 export function renderChooseAnimalScreen() {
   let selectedId = null;
@@ -13,7 +12,7 @@ export function renderChooseAnimalScreen() {
       createEl("h1", { text: "Quem começa com você?" }),
       createEl("p", {
         className: "card-subtitle",
-        text: "Cada hábito seu terá uma criatura que cresce junto com ele. Esta é a primeira — outras se juntam conforme sua constância.",
+        text: "Ela vai cuidar dos seus primeiros hábitos e ficar mais forte com todos eles. Outras criaturas se conquistam com o tempo — mas estas três são só de início: escolhendo uma, as outras duas não voltam.",
       }),
     ],
   });
@@ -22,7 +21,7 @@ export function renderChooseAnimalScreen() {
 
   const list = createEl("div", {
     className: "animal-choice-list",
-    children: getUnlockedAnimals().map((animal) => {
+    children: ANIMALS.filter((animal) => animal.starter).map((animal) => {
       const body = createEl("div", {
         className: "animal-card-body",
         children: [

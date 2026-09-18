@@ -29,23 +29,27 @@ export function renderHomeScreen() {
   const positions = creatures.map((_, index) => getStartPosition(index, creatures.length));
   const timers = [];
 
-  creatures.forEach((creature, index) => {
-    const treeType = getTreeType(creature.habit.treeType);
-    const position = positions[index];
-    const treePosition = getTreePosition(index, creatures.length);
+  // Uma árvore por hábito, espalhadas ao fundo; as criaturas circulam na frente.
+  const allTrees = creatures.flatMap((creature) => creature.trees);
+  allTrees.forEach((item, treeIndex) => {
+    const treeType = getTreeType(item.habit.treeType);
+    const treePosition = getTreePosition(treeIndex, allTrees.length);
+    scene.appendChild(
+      createEl("div", {
+        className: "home-tree",
+        attrs: {
+          style: `left: ${treePosition.x}%; top: ${treePosition.y}%; --tree-scale: ${
+            0.75 + item.stage.stage * 0.14
+          }`,
+          title: `${item.habit.name} — ${treeType.name}, ${item.stage.name}`,
+        },
+        children: [createTree(item.stage.stage, treeType.leaf)],
+      })
+    );
+  });
 
-    // A árvore é a casa daquele hábito: fica plantada, a criatura circula.
-    const tree = createEl("div", {
-      className: "home-tree",
-      attrs: {
-        style: `left: ${treePosition.x}%; top: ${treePosition.y}%; --tree-scale: ${
-          0.75 + creature.treeStage.stage * 0.14
-        }`,
-        title: `${treeType.name} — ${creature.treeStage.name}`,
-      },
-      children: [createTree(creature.treeStage.stage, treeType.leaf)],
-    });
-    scene.appendChild(tree);
+  creatures.forEach((creature, index) => {
+    const position = positions[index];
 
     const orb = createEl("div", {
       className: "home-creature-orb",
@@ -74,12 +78,12 @@ export function renderHomeScreen() {
         style: `${accentStyle(creature.animal.color)}; left: ${position.x}%; top: ${
           position.y
         }%; --depth: ${depthScale(position.y)}`,
-        "aria-label": `${creature.animal.name}, ${creature.activity.verb}. Abrir missão de ${creature.habit.name}.`,
+        "aria-label": `${creature.animal.name}, ${creature.activity.verb}. Abrir missão de ${creature.targetHabit.name}.`,
       },
       children: [orb, bubble, createEl("span", { className: "home-creature-name", text: creature.animal.name })],
     });
 
-    el.addEventListener("click", () => navigate(`/missao?habit=${creature.habit.id}`));
+    el.addEventListener("click", () => navigate(`/missao?habit=${creature.targetHabit.id}`));
     scene.appendChild(el);
 
     if (creature.wanders) {
