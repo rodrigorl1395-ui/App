@@ -66,6 +66,11 @@
   }
 }
 
+@keyframes gift-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.25); opacity: 1; }
+}
+
 /* O orbe "acorda" quando o companheiro evolui. */
 @keyframes orb-awaken {
   0% {

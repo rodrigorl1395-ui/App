@@ -231,6 +231,35 @@ export function showCelebration({ xpEarned, message, note, evolutionText, animal
   document.body.appendChild(overlay);
 }
 
+/*
+  A criatura entregando um achado. Fecha no toque, e só então o item entra na
+  coleção — assim o presente é recebido, não aparece sozinho na lista.
+*/
+export function showDiscovery(discovery, animal, onCollect) {
+  const overlay = createEl("div", {
+    className: "celebration",
+    attrs: animal ? { style: accentStyle(animal.color) } : {},
+    children: [
+      createEl("div", { className: "discovery-orb", children: [createIcon(discovery.icon)] }),
+      createEl("p", { className: "celebration-message", text: `${animal?.name} encontrou algo.` }),
+      createEl("p", { className: "celebration-evolution", text: discovery.name }),
+      createEl("p", { className: "celebration-note", text: `"${discovery.story}"` }),
+      createEl("p", { className: "mission-xp", text: "Toque para guardar" }),
+    ],
+  });
+
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    overlay.remove();
+    if (onCollect) onCollect();
+  };
+
+  overlay.addEventListener("click", close);
+  document.body.appendChild(overlay);
+}
+
 export function createSectionHeader(title, action = null) {
   return createEl("div", {
     className: "section-header",

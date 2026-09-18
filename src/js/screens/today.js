@@ -5,6 +5,7 @@ import { isDoneToday } from "../missions.js";
 import { getCompanionState } from "../companion.js";
 import { getMood } from "../mood.js";
 import { getCurrentQuest } from "../quests.js";
+import { getPendingDiscovery } from "../discoveries.js";
 import { formatDateLong } from "../utils.js";
 
 function summaryText(done, total) {
@@ -21,6 +22,62 @@ function questLine(habit) {
   return createEl("p", {
     className: "tree-hint",
     text: `${current.quest.name} — ${current.main.current} de ${current.main.target}`,
+  });
+}
+
+/*
+  Cumprir o hábito levava a um beco sem saída: o dia acabava e não havia mais
+  nada a fazer. Aqui a tela oferece o que ainda tem vida — a criatura esperando
+  no Lar, um achado por receber, a história até agora.
+*/
+function renderNextSteps(habits, doneCount) {
+  if (!habits.length) return null;
+
+  const pendentes = [];
+  const comAchado = habits.filter((habit) => {
+    const animal = getCompanionState(habit).animal;
+    return getPendingDiscovery(habit, animal);
+  });
+
+  if (comAchado.length) {
+    pendentes.push({
+      text: `${getCompanionState(comAchado[0]).animal?.name} encontrou algo para você`,
+      action: "Ir ao Lar",
+      path: "/lar",
+    });
+  }
+
+  if (doneCount === habits.length) {
+    pendentes.push({
+      text: "Sua criatura está livre no Lar. Ela responde se você tocar.",
+      action: "Visitar o Lar",
+      path: "/lar",
+    });
+  }
+
+  pendentes.push({
+    text: "Veja a jornada, o calendário e a história do seu hábito.",
+    action: "Abrir perfil",
+    path: `/criatura?habit=${habits[0].id}`,
+  });
+
+  return createEl("section", {
+    className: "next-steps",
+    children: [
+      createEl("h2", { className: "section-title", text: "E agora" }),
+      ...pendentes.map((item) => {
+        const button = createEl("button", {
+          className: "next-step",
+          attrs: { type: "button" },
+          children: [
+            createEl("span", { className: "next-step-text", text: item.text }),
+            createEl("span", { className: "link-button", text: item.action }),
+          ],
+        });
+        button.addEventListener("click", () => navigate(item.path));
+        return button;
+      }),
+    ],
   });
 }
 
@@ -73,6 +130,11 @@ export function renderTodayScreen() {
 
   return createEl("div", {
     className: "screen",
-    children: [heading, createSectionHeader("Hábitos de hoje", newHabitLink), habitsContent],
+    children: [
+      heading,
+      createSectionHeader("Hábitos de hoje", newHabitLink),
+      habitsContent,
+      renderNextSteps(habits, doneCount),
+    ],
   });
 }

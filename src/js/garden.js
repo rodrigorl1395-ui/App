@@ -8,6 +8,7 @@ import { getHabits } from "./habits.js";
 import { isDoneToday } from "./missions.js";
 import { getCompanionState } from "./companion.js";
 import { getMood } from "./mood.js";
+import { getPendingDiscovery } from "./discoveries.js";
 import { getTreeStage } from "../data/trees.js";
 
 // O que a criatura faz quando o hábito do dia já foi cumprido.
@@ -49,6 +50,7 @@ export function getSceneCreatures() {
         habit,
         targetHabit: habit,
         animal: companion.animal,
+        pendingDiscovery: getPendingDiscovery(habit, companion.animal),
         stageLabel: companion.stageLabel,
         xp: companion.xp,
         tree: { habit, stage: getTreeStage(companion.habitXp) },

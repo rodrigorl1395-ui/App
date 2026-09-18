@@ -1,5 +1,6 @@
 import { createEl, createCompanion, accentStyle } from "../ui.js";
-import { createTree } from "../icons.js";
+import { createTree, createIcon } from "../icons.js";
+import { getCollectionFor } from "../discoveries.js";
 import { navigate } from "../router.js";
 import { getHabits } from "../habits.js";
 import { getCompanionState } from "../companion.js";
@@ -40,6 +41,7 @@ export function renderCreatureScreen(params) {
       renderIdentity(habit, companion, animal, tree, stats),
       renderHabitCard(habit, stats, tree),
       renderIndicators(stats, habit),
+      renderCollection(habit, animal),
       renderJourney(habit, animal),
       renderCalendar(habit),
       renderTimeline(habit, animal),
@@ -167,6 +169,33 @@ function renderIndicators(stats, habit) {
         ],
       })
     ),
+  });
+}
+
+// O que a criatura já trouxe. Fica logo abaixo dela porque é a prova mais
+// concreta de que ela esteve fazendo algo enquanto você vivia sua vida.
+function renderCollection(habit, animal) {
+  const items = getCollectionFor(habit, animal);
+  if (!items.length) return null;
+
+  return createEl("section", {
+    className: "collection",
+    children: [
+      createEl("h2", { className: "section-title", text: `Achados (${items.length})` }),
+      createEl("div", {
+        className: "collection-grid",
+        children: items.map((item) =>
+          createEl("article", {
+            className: "collection-item",
+            attrs: { title: item.story },
+            children: [
+              createEl("span", { className: "collection-icon", children: [createIcon(item.icon)] }),
+              createEl("span", { className: "collection-name", text: item.name }),
+            ],
+          })
+        ),
+      }),
+    ],
   });
 }
 
