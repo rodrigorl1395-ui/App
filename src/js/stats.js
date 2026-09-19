@@ -17,6 +17,12 @@ function restDaysOf(habitId) {
     .map((use) => use.date);
 }
 
+// Mesma razão do restDaysOf acima: lido direto do estado para não importar
+// missions.js aqui só por causa de uma leitura.
+function missesOf(habitId) {
+  return getState().misses.filter((miss) => miss.habitId === habitId);
+}
+
 export function getHabitLogs(habitId) {
   return getState()
     .logs.filter((log) => log.habitId === habitId)
@@ -181,6 +187,9 @@ export function getMonthCalendar(habitId, monthOffset = 0) {
   // O descanso declarado aparece como descanso, nunca como cumprido: é o que
   // mantém o calendário honesto mesmo com o poder em jogo.
   const rest = new Set(restDaysOf(habitId));
+  // E um dia admitido aparece como admitido — nem cumprido, nem apagado como
+  // se você não tivesse aparecido.
+  const admitted = new Set(missesOf(habitId).map((miss) => miss.date));
 
   const days = [];
   // Casas vazias até cair na coluna certa (semana começando na segunda).
@@ -190,7 +199,13 @@ export function getMonthCalendar(habitId, monthOffset = 0) {
     const key = `${base}-${String(day).padStart(2, "0")}`;
     const status =
       byDate.get(key) ||
-      (rest.has(key) ? "descanso" : key > todayKey() ? "futuro" : "vazio");
+      (rest.has(key)
+        ? "descanso"
+        : admitted.has(key)
+          ? "assumido"
+          : key > todayKey()
+            ? "futuro"
+            : "vazio");
     days.push({ day, date: key, status });
   }
 
@@ -212,7 +227,21 @@ export function getTimeline(habit, animal) {
     { date: habit.createdAt.slice(0, 10), text: "Você plantou esta árvore." },
   ];
 
-  if (!logs.length) return events;
+  /*
+    Um dia admitido também é história — prova de que você apareceu, mesmo
+    sem ter cumprido. Entram misturados aos eventos de progresso, ordenados
+    de novo por data no fim, porque as duas listas nascem separadas.
+  */
+  for (const miss of missesOf(habit.id)) {
+    events.push({
+      date: miss.date,
+      text: miss.note
+        ? `Você admitiu: "${miss.note}"`
+        : "Você apareceu e disse que aquele dia não ia dar.",
+    });
+  }
+
+  if (!logs.length) return sortEvents(events);
 
   let xp = 0;
   let stage = getStage(0).stage;
@@ -257,5 +286,14 @@ export function getTimeline(habit, animal) {
     }
   }
 
-  return events;
+  return sortEvents(events);
+}
+
+// Ordena por data mantendo a ordem relativa de eventos do mesmo dia — o que
+// já nasceu em sequência (ex.: XP e evolução no mesmo registro) continua assim.
+function sortEvents(events) {
+  return events
+    .map((event, index) => ({ event, index }))
+    .sort((a, b) => a.event.date.localeCompare(b.event.date) || a.index - b.index)
+    .map(({ event }) => event);
 }

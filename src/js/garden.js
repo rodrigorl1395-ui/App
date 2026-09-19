@@ -25,6 +25,7 @@ const ACTIVITY_BY_CATEGORY = {
 // Quando o hábito do dia ainda não veio, quem fala é o humor.
 const MOOD_ICON = {
   novo: "star",
+  sincera: "leaf",
   faminta: "apple",
   saudosa: "droplet",
   descansando: "moon",

@@ -77,6 +77,61 @@ export function isDoneToday(habitId) {
 }
 
 /*
+  Admitir que hoje não deu — o quarto tipo de registro do dia, ao lado do
+  combinado e da lembrança. Não é um poder: não protege sequência, não
+  gasta carga nenhuma, e qualquer um pode declarar quantas vezes quiser.
+  A única coisa que ele faz é trocar o silêncio por uma frase verdadeira.
+
+  Por isso ele nunca concorre com o descanso declarado (Maré Calma): aquele
+  poder já é a história "eu decidi descansar, e isso está certo". Esta é a
+  história "eu não consegui, e tudo bem dizer isso".
+*/
+function hasRestDayToday(habitId) {
+  const today = todayKey();
+  return getState().powerUses.some(
+    (use) => use.habitId === habitId && use.date === today && use.powerId === "mare-calma"
+  );
+}
+
+export function getMisses(habitId) {
+  return getState()
+    .misses.filter((miss) => miss.habitId === habitId)
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function getMissForToday(habitId) {
+  const today = todayKey();
+  return getState().misses.find((miss) => miss.habitId === habitId && miss.date === today) || null;
+}
+
+export function declareMiss(habitId, note = null) {
+  // Já cumpriu, ou já descansou: não há o que admitir hoje.
+  if (isDoneToday(habitId) || hasRestDayToday(habitId)) return null;
+
+  const today = todayKey();
+  const outros = getState().misses.filter(
+    (miss) => !(miss.habitId === habitId && miss.date === today)
+  );
+  const entry = {
+    id: generateId("miss"),
+    habitId,
+    date: today,
+    note: note?.trim() || null,
+  };
+  setState({ misses: [...outros, entry] });
+  return entry;
+}
+
+// Mudou de ideia, ou clicou sem querer: a admissão de hoje pode ser desfeita
+// a qualquer momento, sem deixar marca — ela só existe enquanto for verdade.
+export function undeclareMiss(habitId) {
+  const today = todayKey();
+  setState({
+    misses: getState().misses.filter((miss) => !(miss.habitId === habitId && miss.date === today)),
+  });
+}
+
+/*
   O nível sai do que foi feito, e não o contrário: quem correu 45 num plano de
   30 registrou um bônus, mesmo tendo digitado o valor à mão.
 */

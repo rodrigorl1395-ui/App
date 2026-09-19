@@ -40,6 +40,8 @@
   /* Cor — semântica */
   --color-success: #5fc79a;
   --color-danger: #e0705f;
+  /* Nem êxito, nem alarme: a cor de dizer a verdade sobre um dia difícil. */
+  --color-honest: #6fb8d1;
 
   /* Tipografia */
   --font-display: "Fraunces", Georgia, serif;

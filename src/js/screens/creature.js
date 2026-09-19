@@ -187,8 +187,10 @@ function renderStatus(view) {
   const linhas = [
     {
       rotulo: "Atividade de hoje",
-      valor: status.doneToday ? "Cumprida" : "Ainda não",
-      estado: status.doneToday ? "bom" : "atencao",
+      // "Hoje não deu" é diferente de "ainda não": é uma admissão, não um
+      // aviso — por isso tem cor própria, nem verde nem laranja de alerta.
+      valor: status.doneToday ? "Cumprida" : status.missToday ? "Hoje não deu" : "Ainda não",
+      estado: status.doneToday ? "bom" : status.missToday ? "sincero" : "atencao",
     },
     {
       rotulo: "Como ela está",
@@ -261,6 +263,9 @@ function renderStatus(view) {
         ],
       }),
       createEl("p", { className: "status-feeding", text: status.feeding }),
+      status.missNote
+        ? createEl("p", { className: "status-miss-note", text: `Você disse: "${status.missNote}"` })
+        : null,
     ],
   });
 }
@@ -488,6 +493,7 @@ function renderCalendar(view) {
           legendItem("cumprido", "cumprido"),
           legendItem("parcial", "só a mínima"),
           legendItem("descanso", "descanso"),
+          legendItem("assumido", "admitido"),
           legendItem("vazio", "sem registro"),
         ],
       }),

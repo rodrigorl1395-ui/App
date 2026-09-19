@@ -15,6 +15,9 @@ import {
   savePlan,
   saveReflection,
   getFruits,
+  getMissForToday,
+  declareMiss,
+  undeclareMiss,
 } from "../missions.js";
 import { getAnimalById } from "../../data/animals.js";
 import { getTreeType } from "../../data/trees.js";
@@ -323,6 +326,91 @@ function renderBefore(habit) {
       createEl("span", { className: "ritual-step", text: "Agora" }),
       createEl("div", { className: "mission-list", children: tiles }),
       realRow,
+      renderMissSection(habit),
+    ],
+  });
+}
+
+/*
+  Admitir que hoje não vai dar. Não é um poder — não protege sequência, não
+  gasta carga, e não substitui as missões acima: elas continuam abertas, para
+  quem mudar de ideia mais tarde. É só a opção de dizer a verdade em vez de
+  simplesmente sumir, que é o que o app faria da mesma forma no calendário.
+*/
+function renderMissSection(habit) {
+  const miss = getMissForToday(habit.id);
+  if (miss) return renderMissBanner(habit, miss);
+
+  // Já é dia de descanso declarado: essa já é a história de hoje, não faz
+  // sentido oferecer as duas ao mesmo tempo.
+  const descansando = getUseForToday(habit)?.powerId === "mare-calma";
+  if (descansando) return null;
+
+  const link = createEl("button", {
+    className: "link-button link-muted",
+    text: "Hoje não vai dar",
+    attrs: { type: "button" },
+  });
+
+  const noteInput = createEl("textarea", {
+    className: "input",
+    attrs: { rows: "2", maxlength: "140", placeholder: "Por quê? (pode deixar em branco)" },
+  });
+  const confirmButton = createEl("button", {
+    className: "button button-secondary",
+    text: "Confirmar",
+    attrs: { type: "button" },
+  });
+  const cancelButton = createEl("button", { className: "link-button", text: "Cancelar", attrs: { type: "button" } });
+
+  const form = createEl("div", {
+    className: "miss-declare-form",
+    children: [
+      createEl("p", { className: "mission-hint", text: "Sem problema. Dizer é melhor do que sumir." }),
+      noteInput,
+      createEl("div", { className: "ritual-actions", children: [cancelButton, confirmButton] }),
+    ],
+    attrs: { hidden: "" },
+  });
+
+  link.addEventListener("click", () => {
+    link.hidden = true;
+    form.hidden = false;
+    noteInput.focus();
+  });
+  cancelButton.addEventListener("click", () => {
+    form.hidden = true;
+    link.hidden = false;
+    noteInput.value = "";
+  });
+  confirmButton.addEventListener("click", () => {
+    declareMiss(habit.id, noteInput.value);
+    refresh();
+  });
+
+  return createEl("div", { className: "miss-declare", children: [link, form] });
+}
+
+function renderMissBanner(habit, miss) {
+  const undoButton = createEl("button", { className: "link-button", text: "Desfazer", attrs: { type: "button" } });
+  undoButton.addEventListener("click", () => {
+    undeclareMiss(habit.id);
+    refresh();
+  });
+
+  return createEl("section", {
+    className: "ritual-card is-miss",
+    children: [
+      createEl("span", { className: "ritual-step", text: "Você foi sincero" }),
+      createEl("p", {
+        className: "mission-hint",
+        text: miss.note ? `Você disse: "${miss.note}"` : "Você registrou que hoje não vai dar.",
+      }),
+      createEl("p", {
+        className: "mission-hint",
+        text: "As missões acima continuam abertas — se mudar de ideia, ainda dá tempo.",
+      }),
+      createEl("div", { className: "ritual-actions", children: [undoButton] }),
     ],
   });
 }

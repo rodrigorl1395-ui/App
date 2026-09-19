@@ -14,6 +14,7 @@ import {
   getActiveDays,
 } from "./companion.js";
 import { getMood } from "./mood.js";
+import { getMissForToday } from "./missions.js";
 import { todayKey } from "./utils.js";
 import { CATEGORY_LABELS } from "../data/animals.js";
 import { getTreeType } from "../data/trees.js";
@@ -119,12 +120,17 @@ export function getCreatureStatus(habit) {
   const stats = getHabitStats(habit);
   const vigor = getTreeVigor(habit.id);
   const doneToday = habitDates(habit.id).includes(todayKey());
+  // Só faz sentido perguntar se ela admitiu quando ainda não cumpriu: cumprir
+  // depois de admitir apaga a pergunta, não a admissão do histórico.
+  const miss = doneToday ? null : getMissForToday(habit.id);
 
   return {
     animal: companion.animal,
     mood: getMood(habit.id),
     stageLabel: companion.stageLabel,
     doneToday,
+    missToday: Boolean(miss),
+    missNote: miss?.note || null,
     streak: stats.currentStreak,
     weekDays: stats.weekDays,
     weeklyTarget: stats.weeklyTarget,

@@ -4,6 +4,7 @@
 // descansando, não morrendo. A ausência gera saudade, nunca culpa.
 
 import { getStreak, getDaysSinceLast } from "./stats.js";
+import { getMissForToday } from "./missions.js";
 
 export { getStreak, getDaysSinceLast };
 
@@ -11,12 +12,20 @@ export const MOODS = {
   novo: { id: "novo", label: "curiosa", motion: "idle" },
   radiante: { id: "radiante", label: "radiante", motion: "bounce" },
   alegre: { id: "alegre", label: "alegre", motion: "breathe" },
+  // Diferente de sumir: a criatura sabe que você esteve aqui hoje, mesmo sem
+  // ter cumprido — é o que a admissão ("hoje não vai dar") muda para ela.
+  sincera: { id: "sincera", label: "esperando amanhã", motion: "idle" },
   faminta: { id: "faminta", label: "com fome", motion: "idle" },
   saudosa: { id: "saudosa", label: "sentindo sua falta", motion: "idle" },
   descansando: { id: "descansando", label: "descansando", motion: "sleep" },
 };
 
 export function getMood(habitId) {
+  // O que aconteceu hoje fala mais alto que a média dos dias — mesmo num
+  // hábito recém-criado, sem nenhum dia cumprido ainda, admitir hoje já é
+  // diferente de nunca ter aparecido.
+  if (getMissForToday(habitId)) return MOODS.sincera;
+
   const days = getDaysSinceLast(habitId);
   if (days === null) return MOODS.novo;
   if (days === 0) return getStreak(habitId) >= 3 ? MOODS.radiante : MOODS.alegre;
@@ -39,6 +48,8 @@ export function getMoodMessage(animal, habitId) {
       return `${nome} está radiante: ${streak} dias seguidos.`;
     case "alegre":
       return `${nome} foi alimentada hoje.`;
+    case "sincera":
+      return `${nome} sabe que hoje não deu. Ela só está esperando amanhã.`;
     case "faminta":
       return `${nome} está com fome. Faz um dia.`;
     case "saudosa":
