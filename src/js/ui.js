@@ -276,3 +276,23 @@ export function createSectionHeader(title, action = null) {
     children: [createEl("h2", { className: "section-title", text: title }), action],
   });
 }
+
+/*
+  A porta entre Lar e Jardim: os dois lugares são o mesmo terreno, só que
+  divididos — um é onde os guardiões vivem, o outro é o que se planta do
+  lado. A porta fica colada na borda da cena, com um vislumbre do que tem
+  do outro lado, para a travessia parecer visitar o vizinho, não trocar de
+  tela. Cada cena põe a sua na borda que faz sentido (Lar → direita,
+  Jardim → esquerda), sempre olhando uma para a outra.
+*/
+export function createScenePortal({ href, label, side, icon }) {
+  return createEl("a", {
+    className: `scene-portal is-${side}`,
+    attrs: { href, "aria-label": `Ir para ${label}` },
+    children: [
+      createEl("span", { className: "scene-portal-icon", children: icon ? [icon] : [] }),
+      createEl("span", { className: "scene-portal-label", text: label }),
+      createEl("span", { className: "scene-portal-chevron", attrs: { "aria-hidden": "true" } }),
+    ],
+  });
+}

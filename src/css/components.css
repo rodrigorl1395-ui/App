@@ -590,6 +590,97 @@
   box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 
+/*
+  A porta para o lado de lá. Fica colada na borda, meio apagada, como um
+  vislumbre do terreno vizinho — não uma aba nova, uma travessia.
+*/
+.scene-portal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 22%;
+  min-width: 64px;
+  max-width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.scene-portal:hover,
+.scene-portal:active {
+  color: var(--color-text-primary);
+}
+
+.scene-portal.is-right {
+  right: 0;
+  border-left: 1px dashed var(--glass-border);
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--color-void) 55%, transparent) 55%,
+    color-mix(in srgb, var(--color-void) 78%, transparent)
+  );
+}
+
+.scene-portal.is-left {
+  left: 0;
+  border-right: 1px dashed var(--glass-border);
+  background: linear-gradient(
+    to left,
+    transparent,
+    color-mix(in srgb, var(--color-void) 55%, transparent) 55%,
+    color-mix(in srgb, var(--color-void) 78%, transparent)
+  );
+}
+
+.scene-portal-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--glass-fill-strong);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scene-portal-icon svg {
+  width: 17px;
+  height: 17px;
+  color: var(--color-text-secondary);
+}
+
+.scene-portal-label {
+  font-size: var(--fs-100);
+  font-weight: var(--fw-medium);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.scene-portal-chevron {
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  opacity: 0.7;
+}
+
+.scene-portal.is-right .scene-portal-chevron {
+  transform: rotate(45deg);
+}
+
+.scene-portal.is-left .scene-portal-chevron {
+  transform: rotate(-135deg);
+}
+
 /* O chão começa onde as criaturas passam a andar (GROUND_TOP em garden.js). */
 .home-ground {
   position: absolute;
@@ -2937,4 +3028,18 @@ textarea.input {
   font-size: var(--fs-100);
   color: var(--color-text-secondary);
   line-height: var(--lh-snug);
+}
+
+/* Aviso dentro da própria cena do Jardim, quando ainda não há nada plantado. */
+.garden-scene-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 26%;
+  text-align: center;
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
 }

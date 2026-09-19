@@ -1,4 +1,11 @@
-import { createEl, createEmptyState, createSectionHeader, accentStyle, showDiscovery } from "../ui.js";
+import {
+  createEl,
+  createEmptyState,
+  createSectionHeader,
+  createScenePortal,
+  accentStyle,
+  showDiscovery,
+} from "../ui.js";
 import { createIcon, createTree } from "../icons.js";
 import { navigate, refresh } from "../router.js";
 import {
@@ -38,6 +45,16 @@ export function renderHomeScreen() {
 
   const scene = createEl("div", { className: "home-scene" });
   scene.appendChild(createEl("div", { className: "home-ground" }));
+  // O Jardim é o terreno vizinho, não outra tela: a porta fica colada na
+  // borda da cena, com um vislumbre — brotar aqui, e há mais do outro lado.
+  scene.appendChild(
+    createScenePortal({
+      href: "#/jardim",
+      label: "Jardim",
+      side: "right",
+      icon: createIcon("sprout"),
+    })
+  );
 
   const positions = creatures.map((_, index) => getStartPosition(index, creatures.length));
   const bubbles = [];

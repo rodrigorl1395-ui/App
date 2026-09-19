@@ -6,11 +6,14 @@
   guardião morando. Duas cenas, dois motivos de visitar.
 */
 
-import { createEl, createSectionHeader, createEmptyState } from "../ui.js";
-import { createDwelling, createTree } from "../icons.js";
+import { createEl, createSectionHeader, createScenePortal } from "../ui.js";
+import { createDwelling, createTree, createIcon } from "../icons.js";
 import { refresh } from "../router.js";
 import { getDecorPosition } from "../garden.js";
 import { getCatalog, getSeedsAvailable, plantItem } from "../decor.js";
+import { getHabits } from "../habits.js";
+import { getCompanionState } from "../companion.js";
+import { getElement } from "../../data/animals.js";
 
 export function renderGardenScreen() {
   const seeds = getSeedsAvailable();
@@ -30,20 +33,39 @@ export function renderGardenScreen() {
   });
 }
 
-// A cena: só o que já foi plantado, espalhado do mesmo jeito que no Lar —
-// mesma receita visual, mas sem nenhum guardião andando por ela.
+// O ícone de quem está esperando do outro lado da porta: o elemento do
+// primeiro guardião, se já houver algum. É o que faz a travessia parecer
+// "ir visitar", e não abrir uma tela qualquer.
+function firstGuardianIcon() {
+  const habit = getHabits()[0];
+  const animal = habit ? getCompanionState(habit).animal : null;
+  return createIcon(animal ? getElement(animal.element).icon : "leaf");
+}
+
+/*
+  A cena: o mesmo terreno do Lar, com a porta de volta na borda esquerda —
+  sempre presente, plantado ou não, porque a travessia não depende de ter
+  algo para mostrar. Só o que está plantado muda; a porta, não.
+*/
 function renderScene(catalog) {
   const planted = catalog.filter((item) => item.ownedCount > 0);
   const plots = planted.flatMap((item) => Array(item.ownedCount).fill(item));
 
-  if (!plots.length) {
-    return createEmptyState(
-      "Seu jardim está vazio. Plante o primeiro item com as sementes que já tiver."
-    );
-  }
-
   const scene = createEl("div", { className: "home-scene garden-scene" });
   scene.appendChild(createEl("div", { className: "home-ground" }));
+  scene.appendChild(
+    createScenePortal({ href: "#/lar", label: "Lar", side: "left", icon: firstGuardianIcon() })
+  );
+
+  if (!plots.length) {
+    scene.appendChild(
+      createEl("p", {
+        className: "garden-scene-hint",
+        text: "Ainda não há nada plantado aqui.",
+      })
+    );
+    return scene;
+  }
 
   plots.forEach((item, index) => {
     const position = getDecorPosition(index, plots.length);
