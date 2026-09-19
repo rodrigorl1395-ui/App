@@ -2544,14 +2544,37 @@ textarea.input {
 .animal-card {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   text-align: left;
   transition: border-color var(--duration-base) var(--ease-standard),
     box-shadow var(--duration-base) var(--ease-standard),
     transform var(--duration-fast) var(--ease-standard);
+}
+
+.animal-card-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-size: var(--fs-100);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.animal-card-portrait {
+  padding: var(--space-3) 0;
+}
+
+.animal-card-portrait .creature-badge {
+  transform: scale(1.5);
 }
 
 .animal-card:active {
@@ -2618,8 +2641,10 @@ textarea.input {
 .animal-card-body {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-1);
-  flex: 1;
+  width: 100%;
+  text-align: center;
 }
 
 .animal-card-name {
@@ -2630,29 +2655,38 @@ textarea.input {
   line-height: 1.1;
 }
 
-.animal-card-element {
-  font-size: var(--fs-200);
-  font-weight: var(--fw-medium);
-  color: var(--color-accent-strong);
-}
-
 .animal-card-tagline {
   font-size: var(--fs-200);
   color: var(--color-text-secondary);
   line-height: var(--lh-snug);
+  margin-bottom: var(--space-2);
 }
 
-.animal-card-traits {
+.animal-card-fact {
   display: flex;
+  align-items: flex-start;
   gap: var(--space-2);
-  margin-top: var(--space-1);
-  flex-wrap: wrap;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
 }
 
-.animal-card-power-text {
+.animal-card-fact .chip-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.animal-card-fact-text {
   font-size: var(--fs-100);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   line-height: var(--lh-snug);
+}
+
+.animal-card-fact-text strong {
+  color: var(--color-text-primary);
+  font-weight: var(--fw-semibold);
 }
 
 /*

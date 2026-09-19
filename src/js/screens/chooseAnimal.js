@@ -1,4 +1,5 @@
 import { createEl, createCreatureBadge, accentStyle } from "../ui.js";
+import { createIcon } from "../icons.js";
 import { navigate } from "../router.js";
 import { getState, setState } from "../state.js";
 import { ANIMALS, getElement } from "../../data/animals.js";
@@ -24,37 +25,60 @@ export function renderChooseAnimalScreen() {
     className: "animal-choice-list",
     children: ANIMALS.filter((animal) => animal.starter).map((animal) => {
       const { power, categorias } = getGuardianDomain(animal);
+      const element = getElement(animal.element);
+
+      const typePill = createEl("span", {
+        className: "animal-card-type-pill",
+        attrs: { style: accentStyle(animal.color) },
+        children: [
+          createEl("span", { className: "chip-icon", children: [createIcon(element.icon)] }),
+          createEl("span", { text: `Tipo: ${element.label}` }),
+        ],
+      });
+
+      const portrait = createEl("div", {
+        className: "animal-card-portrait",
+        children: [createCreatureBadge({ animal, progress: 0 })],
+      });
+
+      const facts = [
+        power
+          ? createEl("div", {
+              className: "animal-card-fact",
+              children: [
+                createEl("span", { className: "chip-icon", children: [createIcon("star")] }),
+                createEl("span", {
+                  className: "animal-card-fact-text",
+                  children: [
+                    createEl("strong", { text: power.name }),
+                    document.createTextNode(` — ${power.description}`),
+                  ],
+                }),
+              ],
+            })
+          : null,
+        createEl("div", {
+          className: "animal-card-fact",
+          children: [
+            createEl("span", { className: "chip-icon", children: [createIcon("leaf")] }),
+            createEl("span", { className: "animal-card-fact-text", text: `Cuida de ${categorias}` }),
+          ],
+        }),
+      ];
 
       const body = createEl("div", {
         className: "animal-card-body",
         children: [
           createEl("span", { className: "animal-card-name", text: animal.name }),
-          createEl("span", {
-            className: "animal-card-element",
-            text: getElement(animal.element).label,
-          }),
-          createEl("span", { className: "animal-card-tagline", text: animal.tagline }),
-          createEl("div", {
-            className: "animal-card-traits",
-            children: [
-              createEl("span", { className: "chip", text: `Cuida de ${categorias}` }),
-              power ? createEl("span", { className: "chip", text: power.name }) : null,
-            ],
-          }),
-          power
-            ? createEl("span", { className: "animal-card-power-text", text: power.description })
-            : null,
+          createEl("p", { className: "animal-card-tagline", text: animal.tagline }),
+          ...facts,
         ],
       });
 
       const card = createEl("button", {
         className: "animal-card",
         attrs: { type: "button", style: accentStyle(animal.color) },
-        children: [
-          createCreatureBadge({ animal, progress: 0 }),
-          body,
-          createEl("span", { className: "animal-card-check" }),
-        ],
+        children: [typePill, portrait, body, createEl("span", { className: "animal-card-check" })],
       });
 
       card.addEventListener("click", () => selectAnimal(animal.id));
