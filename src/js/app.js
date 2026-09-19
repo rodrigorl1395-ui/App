@@ -12,6 +12,7 @@ import { renderSanctuaryScreen } from "./screens/sanctuary.js";
 import { renderHomeScreen } from "./screens/home.js";
 import { renderCreatureScreen } from "./screens/creature.js";
 import { renderEditHabitScreen } from "./screens/editHabit.js";
+import { renderGardenScreen } from "./screens/decor.js";
 import { renderSettingsScreen } from "./screens/settings.js";
 import { generateId } from "./utils.js";
 
@@ -46,6 +47,7 @@ function registerRoutes() {
   registerRoute("/missao", renderMissionScreen, { chromeless: true });
   registerRoute("/santuario", renderSanctuaryScreen);
   registerRoute("/lar", renderHomeScreen);
+  registerRoute("/jardim", renderGardenScreen);
   registerRoute("/criatura", renderCreatureScreen);
   registerRoute("/editar-habito", renderEditHabitScreen);
   registerRoute("/ajustes", renderSettingsScreen);

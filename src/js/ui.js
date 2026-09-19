@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { path: "/hoje", label: "Hoje", enabled: true },
   { path: "/habitos", label: "Hábitos", enabled: true },
   { path: "/lar", label: "Lar", enabled: true },
+  { path: "/jardim", label: "Jardim", enabled: true },
   { path: "/santuario", label: "Santuário", enabled: true },
 ];
 

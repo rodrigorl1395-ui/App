@@ -1,11 +1,10 @@
 import { createEl, createEmptyState, createSectionHeader, accentStyle, showDiscovery } from "../ui.js";
-import { createIcon, createTree, createDwelling } from "../icons.js";
+import { createIcon, createTree } from "../icons.js";
 import { navigate, refresh } from "../router.js";
 import {
   getSceneCreatures,
   getStartPosition,
   getTreePosition,
-  getDecorPosition,
   getFeedingSpot,
   getFeedingActivity,
   pickTarget,
@@ -15,7 +14,7 @@ import { vigorAmount } from "../master.js";
 import { getMoodMessage } from "../mood.js";
 import { getGreeting, getTouchLine } from "../dialogue.js";
 import { collectDiscovery } from "../discoveries.js";
-import { getCatalog, getSeedsAvailable, plantItem } from "../decor.js";
+import { getSeedsAvailable } from "../decor.js";
 import { getTreeType } from "../../data/trees.js";
 import { getElement } from "../../data/animals.js";
 
@@ -71,31 +70,6 @@ export function renderHomeScreen() {
           title: `${item.habit.name} — ${treeType.name}, ${item.stage.name}`,
         },
         children: [createTree(item.stage.stage, treeType.leaf, vigor)],
-      })
-    );
-  });
-
-  /*
-    Moradas e árvores plantadas com sementes: decoração pura, sem vigor nem
-    estágio — sempre "de pé", porque não representam esforço nenhum, só o
-    que já foi conquistado em outro lugar e trocado por beleza.
-  */
-  const garden = getCatalog().filter((item) => item.ownedCount > 0);
-  const gardenPlots = garden.flatMap((item) => Array(item.ownedCount).fill(item));
-  gardenPlots.forEach((item, index) => {
-    const position = getDecorPosition(index, gardenPlots.length);
-    scene.appendChild(
-      createEl("div", {
-        className: "home-decor",
-        attrs: {
-          style: `left: ${position.x}%; top: ${position.y}%; --decor-scale: ${
-            item.kind === "morada" ? item.scale : 0.9
-          }`,
-          title: item.name,
-        },
-        children: [
-          item.kind === "morada" ? createDwelling(item.color, item.scale) : createTree(4, item.color, 1),
-        ],
       })
     );
   });
@@ -297,71 +271,29 @@ export function renderHomeScreen() {
 
   return createEl("div", {
     className: "screen",
-    children: [createSectionHeader("Lar"), greeting, scene, legend, actions, renderGardenShop()],
+    children: [createSectionHeader("Lar"), greeting, scene, legend, actions, renderGardenNudge()],
   });
 }
 
 /*
-  O jardim: um segundo circuito de recompensa por cima do que já existe.
-  Sementes vêm de frutos guardados e de sequências longas — nunca de abrir o
-  app ou cumprir uma missão qualquer — e trocam por moradas e árvores só de
-  enfeite. Nada aqui dá XP, mexe em vigor ou em desbloqueio.
+  O Jardim virou uma tela própria — separado do Lar de propósito, já que um
+  é onde os guardiões vivem e o outro é só o que se planta por cima disso.
+  Aqui fica só um lembrete discreto de que há sementes esperando, para quem
+  ainda não descobriu a aba nova.
 */
-function renderGardenShop() {
+function renderGardenNudge() {
   const seeds = getSeedsAvailable();
-  const catalog = getCatalog();
+  if (!seeds) return null;
 
-  return createEl("section", {
-    className: "card garden-shop",
+  return createEl("a", {
+    className: "next-step",
+    attrs: { href: "#/jardim" },
     children: [
-      createEl("div", {
-        className: "section-header",
-        children: [
-          createEl("h2", { className: "card-title", text: "Jardim" }),
-          createEl("span", { className: "badge", text: `${seeds} ${seeds === 1 ? "semente" : "sementes"}` }),
-        ],
+      createEl("span", {
+        className: "next-step-text",
+        text: `${seeds} ${seeds === 1 ? "semente esperando" : "sementes esperando"} no Jardim.`,
       }),
-      createEl("p", {
-        className: "card-subtitle",
-        text: "Sementes vêm de frutos guardados e de sequências longas. Trocam por moradas e árvores só de enfeite — nada aqui mexe no seu progresso.",
-      }),
-      createEl("div", { className: "garden-catalog", children: catalog.map(renderCatalogItem) }),
-    ],
-  });
-}
-
-function renderCatalogItem(item) {
-  const preview = item.kind === "morada" ? createDwelling(item.color, item.scale) : createTree(4, item.color, 1);
-
-  const button = createEl("button", {
-    className: "button button-secondary",
-    text: item.affordable ? `Plantar · ${item.cost}` : `${item.cost} sementes`,
-    attrs: { type: "button" },
-  });
-  button.disabled = !item.affordable;
-  button.addEventListener("click", () => {
-    plantItem(item.id);
-    refresh();
-  });
-
-  return createEl("article", {
-    className: "garden-catalog-item",
-    children: [
-      createEl("div", { className: "garden-catalog-preview", children: [preview] }),
-      createEl("div", {
-        className: "garden-catalog-body",
-        children: [
-          createEl("span", { className: "garden-catalog-name", text: item.name }),
-          createEl("span", { className: "garden-catalog-story", text: item.story }),
-          item.ownedCount
-            ? createEl("span", {
-                className: "fruit-date",
-                text: `${item.ownedCount} no jardim`,
-              })
-            : null,
-        ],
-      }),
-      button,
+      createEl("span", { className: "link-button", text: "Ir ao Jardim" }),
     ],
   });
 }
