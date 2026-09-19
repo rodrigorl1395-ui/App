@@ -121,6 +121,23 @@
   filter: brightness(1.08);
 }
 
+/*
+  Botão secundário: o que já foi feito. Continua sendo um botão de verdade
+  (borda e preenchimento de vidro), só não disputa atenção com o que ainda
+  falta fazer. Estava sendo usado no Lar e no perfil sem nunca ter sido
+  definido — saía como texto solto.
+*/
+.button-secondary {
+  background: var(--glass-fill-strong);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.button-secondary:hover {
+  color: var(--color-text-primary);
+}
+
 .button-block {
   width: 100%;
 }
@@ -893,24 +910,190 @@ textarea.input {
   gap: var(--space-2);
 }
 
-.profile-guardian {
-  font-size: var(--fs-300);
+/*
+  Tira de fatos sob o orbe: guardiã, hábito e categoria. Substituiu cinco
+  parágrafos centralizados — os mesmos três fatos, numa linha que se lê de
+  relance em vez de um bloco de texto que concorre com o nome.
+*/
+.profile-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.profile-fact {
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-100);
+  color: var(--color-text-secondary);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.profile-fact:first-child {
+  color: var(--color-accent-strong);
+  border-color: color-mix(in srgb, var(--color-accent) 32%, var(--glass-border));
+}
+
+/*
+  Abas do perfil. A tira sangra até a borda da tela (margem negativa do
+  gutter) para que, grudada no topo, o conteúdo role atrás do vidro inteiro
+  e não apareça escorrendo pelas laterais.
+*/
+.profile-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  margin-inline: calc(var(--space-5) * -1);
+  padding-inline: var(--space-5);
+  background: color-mix(in srgb, var(--color-void) 88%, transparent);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.profile-tab {
+  flex: 1;
+  padding: var(--space-3) var(--space-1);
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.profile-tab.is-active {
+  color: var(--color-text-primary);
+}
+
+/* O sublinhado é o que ancora a aba: sem ele, "ativa" seria só uma cor. */
+.profile-tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  bottom: -1px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent-glow);
+}
+
+.profile-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/*
+  As três missões do dia lado a lado. A principal vem destacada porque é a
+  que define o dia; a mínima existe para os dias ruins e precisa estar à
+  vista, senão vira "se não posso fazer tudo, não faço nada".
+*/
+.mission-levels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.mission-level {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.mission-level.is-main {
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--glass-border));
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 24px var(--color-accent-soft);
+}
+
+.mission-level-label {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+.mission-level-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
   font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+.mission-level.is-main .mission-level-value {
   color: var(--color-accent-strong);
 }
 
-.profile-personality {
-  font-size: var(--fs-200);
-  color: var(--color-text-secondary);
-  line-height: var(--lh-snug);
-  max-width: 34ch;
+.mission-level-xp {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
 }
 
-.profile-mood {
-  font-size: var(--fs-200);
-  color: var(--color-text-primary);
-  line-height: var(--lh-snug);
-  max-width: 34ch;
+/* Indicadores em grupos: constância é uma pergunta, esforço é outra. */
+
+.indicator-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.indicator-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.indicator-group-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Frutos com o texto à vista: um fruto sem a lembrança é só um número. */
+
+.fruits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fruit-row {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  border-left: 2px solid var(--color-accent);
+}
+
+.fruit-icon {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--color-accent-strong);
+}
+
+.fruit-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.fruit-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
 }
 
 .week-bar {
@@ -1492,32 +1675,6 @@ textarea.input {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-}
-
-.power-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-accent-soft);
-  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
-  max-width: 34ch;
-}
-
-.power-badge-name {
-  font-family: var(--font-display);
-  font-size: var(--fs-300);
-  font-weight: var(--fw-semibold);
-  color: var(--color-accent-strong);
-}
-
-.power-badge-text {
-  font-size: var(--fs-200);
-  color: var(--color-text-secondary);
-  text-align: center;
-  line-height: var(--lh-snug);
 }
 
 /* Descanso no calendário: nem cumprido, nem falha. */
@@ -2277,6 +2434,13 @@ textarea.input {
   background: linear-gradient(90deg, var(--glow-teal), #5fc79a);
   box-shadow: 0 0 12px rgba(29, 125, 140, 0.55);
   transition: width var(--duration-slow) var(--ease-emphasized);
+}
+
+/* A fala de humor da criatura, no cartão "Quem é". */
+.creature-mood {
+  font-size: var(--fs-300);
+  color: var(--color-accent-strong);
+  line-height: var(--lh-snug);
 }
 
 .status-feeding {
