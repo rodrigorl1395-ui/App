@@ -42,10 +42,11 @@ export function savePlan(habitId, text) {
 
 // Como a pessoa se sentiu. Fica junto da lembrança, no registro do dia.
 export const FEELINGS = [
-  { id: "leve", label: "Leve" },
-  { id: "forte", label: "Forte" },
-  { id: "dificil", label: "Foi difícil" },
-  { id: "valeu", label: "Valeu a pena" },
+  { id: "facil", label: "Fácil" },
+  { id: "normal", label: "Normal" },
+  { id: "dificil", label: "Difícil" },
+  { id: "muito-bom", label: "Muito bom" },
+  { id: "cansativo", label: "Cansativo" },
 ];
 
 // A lembrança vai no registro do dia: é o fruto daquele dia.
@@ -104,7 +105,24 @@ export function getMissForToday(habitId) {
   return getState().misses.find((miss) => miss.habitId === habitId && miss.date === today) || null;
 }
 
-export function declareMiss(habitId, note = null) {
+// Motivo opcional de um dia admitido. Curto de propósito — pedir uma
+// justificativa detalhada transformaria uma confissão em prestação de
+// contas, e "prefiro não responder" precisa ser uma resposta tão válida
+// quanto qualquer outra.
+export const MISS_REASONS = [
+  { id: "cansaco", label: "Cansaço" },
+  { id: "tempo", label: "Falta de tempo" },
+  { id: "dor", label: "Dor ou indisposição" },
+  { id: "imprevisto", label: "Imprevisto" },
+  { id: "outro", label: "Outro" },
+  { id: "nao-responder", label: "Prefiro não responder" },
+];
+
+export function getMissReasonLabel(id) {
+  return MISS_REASONS.find((reason) => reason.id === id)?.label || null;
+}
+
+export function declareMiss(habitId, { reason = null, note = null } = {}) {
   // Já cumpriu, ou já descansou: não há o que admitir hoje.
   if (isDoneToday(habitId) || hasRestDayToday(habitId)) return null;
 
@@ -116,6 +134,7 @@ export function declareMiss(habitId, note = null) {
     id: generateId("miss"),
     habitId,
     date: today,
+    reason,
     note: note?.trim() || null,
   };
   setState({ misses: [...outros, entry] });

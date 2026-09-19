@@ -18,6 +18,8 @@ import {
   getMissForToday,
   declareMiss,
   undeclareMiss,
+  MISS_REASONS,
+  getMissReasonLabel,
 } from "../missions.js";
 import { getAnimalById } from "../../data/animals.js";
 import { getTreeType } from "../../data/trees.js";
@@ -352,9 +354,24 @@ function renderMissSection(habit) {
     attrs: { type: "button" },
   });
 
+  let reason = null;
+  const reasonChips = new Map();
+  const reasonRow = createEl("div", {
+    className: "chip-row",
+    children: MISS_REASONS.map((option) => {
+      const chip = createEl("button", { className: "chip", text: option.label, attrs: { type: "button" } });
+      chip.addEventListener("click", () => {
+        reason = reason === option.id ? null : option.id;
+        reasonChips.forEach((el, id) => el.classList.toggle("is-selected", id === reason));
+      });
+      reasonChips.set(option.id, chip);
+      return chip;
+    }),
+  });
+
   const noteInput = createEl("textarea", {
     className: "input",
-    attrs: { rows: "2", maxlength: "140", placeholder: "Por quê? (pode deixar em branco)" },
+    attrs: { rows: "2", maxlength: "140", placeholder: "Mais alguma coisa? (opcional)" },
   });
   const confirmButton = createEl("button", {
     className: "button button-secondary",
@@ -366,7 +383,8 @@ function renderMissSection(habit) {
   const form = createEl("div", {
     className: "miss-declare-form",
     children: [
-      createEl("p", { className: "mission-hint", text: "Sem problema. Dizer é melhor do que sumir." }),
+      createEl("p", { className: "mission-hint", text: "Um dia difícil não apaga sua caminhada." }),
+      reasonRow,
       noteInput,
       createEl("div", { className: "ritual-actions", children: [cancelButton, confirmButton] }),
     ],
@@ -376,15 +394,16 @@ function renderMissSection(habit) {
   link.addEventListener("click", () => {
     link.hidden = true;
     form.hidden = false;
-    noteInput.focus();
   });
   cancelButton.addEventListener("click", () => {
     form.hidden = true;
     link.hidden = false;
+    reason = null;
+    reasonChips.forEach((el) => el.classList.remove("is-selected"));
     noteInput.value = "";
   });
   confirmButton.addEventListener("click", () => {
-    declareMiss(habit.id, noteInput.value);
+    declareMiss(habit.id, { reason, note: noteInput.value });
     refresh();
   });
 
@@ -398,14 +417,15 @@ function renderMissBanner(habit, miss) {
     refresh();
   });
 
+  const motivo = getMissReasonLabel(miss.reason);
+
   return createEl("section", {
     className: "ritual-card is-miss",
     children: [
       createEl("span", { className: "ritual-step", text: "Você foi sincero" }),
-      createEl("p", {
-        className: "mission-hint",
-        text: miss.note ? `Você disse: "${miss.note}"` : "Você registrou que hoje não vai dar.",
-      }),
+      createEl("p", { className: "mission-hint", text: "Um dia difícil não apaga sua caminhada." }),
+      motivo ? createEl("p", { className: "mission-hint", text: `Motivo: ${motivo}` }) : null,
+      miss.note ? createEl("p", { className: "mission-hint", text: `"${miss.note}"` }) : null,
       createEl("p", {
         className: "mission-hint",
         text: "As missões acima continuam abertas — se mudar de ideia, ainda dá tempo.",

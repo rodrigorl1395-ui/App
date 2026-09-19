@@ -12,9 +12,45 @@ function resumoText() {
   return `${state.habits.length} hábito(s), ${state.logs.length} registro(s), ${state.collected.length} achado(s) guardado(s).`;
 }
 
+// Nome opcional: sem ele, a tela Hoje e as saudações seguem funcionando
+// normalmente, só sem o toque pessoal. Ninguém é obrigado a passar por
+// aqui antes de usar o app.
+function renderNameCard() {
+  const nameInput = createEl("input", {
+    className: "input",
+    attrs: { type: "text", id: "user-name", placeholder: "Como posso te chamar?", maxlength: "40" },
+  });
+  nameInput.value = getState().user?.name || "";
+
+  const saved = createEl("p", { className: "form-hint" });
+  let timer = null;
+  nameInput.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const name = nameInput.value.trim();
+      setState({ user: { ...getState().user, name: name || null } });
+      saved.textContent = name ? "Guardado." : "";
+    }, 400);
+  });
+
+  return createEl("section", {
+    className: "card",
+    children: [
+      createEl("h2", { className: "card-title", text: "Seu nome" }),
+      createEl("p", {
+        className: "card-subtitle",
+        text: "Usado só na saudação da tela Hoje. É opcional.",
+      }),
+      nameInput,
+      saved,
+    ],
+  });
+}
+
 export function renderSettingsScreen() {
   const status = createEl("p", { className: "form-hint" });
   const resumo = createEl("p", { className: "tree-hint", text: resumoText() });
+  const nameCard = renderNameCard();
 
   const exportButton = createEl("button", {
     className: "button button-secondary button-block",
@@ -122,6 +158,7 @@ export function renderSettingsScreen() {
         ],
       }),
       resumo,
+      nameCard,
       backup,
       danger,
     ],

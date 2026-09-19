@@ -338,14 +338,235 @@
   gap: var(--space-1);
 }
 
+.today-greeting {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+}
+
 .today-date {
   font-size: var(--fs-600);
   font-weight: var(--fw-semibold);
 }
 
+.today-heading-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
 .today-summary {
   font-size: var(--fs-200);
   color: var(--color-text-secondary);
+}
+
+/* Baixinho de propósito: é contexto, não é algo para comemorar sozinho. */
+.today-journey-day {
+  flex-shrink: 0;
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+/*
+  Resumo do Mestre — uma porta de entrada, não o retrato inteiro. Uma tira
+  fina de vidro, deliberadamente menor e mais quieta que o cartão da missão
+  logo abaixo: ela não pode competir por atenção com o que fazer agora.
+*/
+.master-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  text-decoration: none;
+  color: inherit;
+}
+
+.master-strip-identity {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.master-strip-name {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-300);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.master-strip-rank {
+  flex-shrink: 0;
+  font-size: var(--fs-100);
+  color: var(--color-accent-strong);
+}
+
+.master-strip-numbers {
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.master-strip-stat {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+/*
+  A missão do dia — colapsada, aberta e concluída
+
+  focus-card é sempre o cartão mais forte da tela (.card-accent já dá o
+  brilho de destaque); os três modificadores só trocam o tom: neutro para
+  "dia completo", acolhedor para "dia de recuperação", nenhum para o normal.
+*/
+.focus-card {
+  gap: var(--space-4);
+}
+
+.focus-card.is-complete {
+  border-color: color-mix(in srgb, var(--color-success) 34%, var(--glass-border));
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 32px color-mix(in srgb, var(--color-success) 18%, transparent);
+}
+
+.focus-card.is-recovery {
+  border-color: color-mix(in srgb, var(--color-honest) 34%, var(--glass-border));
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 32px color-mix(in srgb, var(--color-honest) 18%, transparent);
+}
+
+.focus-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.focus-identity-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.focus-animal-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.focus-area {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.focus-profile-link {
+  flex-shrink: 0;
+}
+
+.focus-mission-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.focus-mission-line .mission-level-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+}
+
+.focus-open-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Quando e onde: chips que quebram linha, nunca rolam escondidas. */
+.focus-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.quick-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.focus-levels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.focus-real-row {
+  display: flex;
+}
+
+.focus-real-row[hidden] {
+  display: none;
+}
+
+.focus-real-row .input {
+  flex: 1;
+}
+
+.focus-miss {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+/* Conclusão */
+
+.focus-card.is-conclusion {
+  border-color: color-mix(in srgb, var(--color-success) 30%, var(--glass-border));
+}
+
+.conclusion-xp {
+  font-family: var(--font-display);
+  font-size: var(--fs-700);
+  font-weight: var(--fw-semibold);
+  color: var(--color-success);
+}
+
+.conclusion-evolution {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-strong);
+}
+
+.conclusion-percent {
+  font-size: var(--fs-300);
+  color: var(--color-text-primary);
+}
+
+/* Hábitos secundários: presentes, mas visivelmente em segundo plano. */
+.secondary-habits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.habit-item.is-secondary {
+  opacity: 0.86;
+}
+
+.habit-item.is-secondary .habit-row {
+  padding: var(--space-3) var(--space-4);
 }
 
 .habit-companion {
@@ -1775,6 +1996,16 @@ textarea.input {
   border-radius: var(--radius-md);
   background: var(--glass-fill);
   border: 1px solid var(--glass-border);
+}
+
+/*
+  O atributo hidden nativo perde para qualquer display declarado num seletor
+  de mesma origem e mesma especificidade — regra de cascata, não de
+  especificidade. Sem isto, form.hidden = true não escondia nada: o
+  formulário ficava sempre visível, sobrepondo o link que deveria abri-lo.
+*/
+.miss-declare-form[hidden] {
+  display: none;
 }
 
 .miss-declare-form .ritual-actions {
