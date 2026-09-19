@@ -1,9 +1,9 @@
 import { createEl } from "../ui.js";
-import { createIcon } from "../icons.js";
+import { createGuardianArt } from "../guardianArt.js";
 import { createProfessorScene } from "../illustrations.js";
 import { navigate } from "../router.js";
 import { ONBOARDING_STEPS, TEAM } from "../../data/onboarding.js";
-import { getAnimalById, getElement } from "../../data/animals.js";
+import { getAnimalById } from "../../data/animals.js";
 
 /*
   O onboarding é um monólogo do professor em etapas. Cada passo troca só o
@@ -132,7 +132,7 @@ function renderTeam(team) {
         children: [
           createEl("span", {
             className: "team-orb",
-            children: [createIcon(getElement(item.animal.element).icon)],
+            children: [createGuardianArt(item.animal.id)],
           }),
           createEl("span", { className: "team-name", text: item.animal.name }),
           createEl("span", { className: "team-area", text: item.area }),

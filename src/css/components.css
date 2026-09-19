@@ -257,13 +257,6 @@
     inset 0 10px 22px rgba(255, 255, 255, 0.16);
 }
 
-.companion-orb svg {
-  width: 50px;
-  height: 50px;
-  color: var(--color-text-on-accent);
-  opacity: 0.7;
-}
-
 .companion-name {
   font-family: var(--font-display);
   font-size: var(--fs-700);
@@ -312,13 +305,6 @@
   box-shadow: 0 0 22px var(--color-accent-glow), inset 0 -6px 14px rgba(0, 0, 0, 0.35);
 }
 
-.creature-badge-orb svg {
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-on-accent);
-  opacity: 0.7;
-}
-
 .creature-badge.is-locked .creature-badge-orb {
   background: var(--glass-fill-strong);
   box-shadow: inset 0 1px 0 var(--glass-highlight);
@@ -326,9 +312,15 @@
 }
 
 .creature-badge.is-locked .creature-badge-orb svg {
-  color: var(--color-text-tertiary);
   opacity: 0.5;
 }
+
+/* Arte do guardião: um SVG por espécie, desenhado à mão, preenchendo o
+   orbe inteiro no lugar do glifo genérico do elemento. */
+.guardian-art { width: 82%; height: 82%; overflow: visible; color: #211a22; filter: drop-shadow(0 2px 3px rgba(0,0,0,.22)); }
+.creature-badge-orb .guardian-art { width: 78%; height: 78%; }
+.companion-orb .guardian-art { width: 86%; height: 86%; }
+.celebration-orb .guardian-art { width: 88%; height: 88%; }
 
 /* Tela Hoje */
 
@@ -748,13 +740,6 @@
       color-mix(in srgb, var(--color-accent) 62%, #000) 100%
     );
   box-shadow: 0 0 26px var(--color-accent-glow), inset 0 -6px 14px rgba(0, 0, 0, 0.35);
-}
-
-.home-creature-orb svg {
-  width: 19px;
-  height: 19px;
-  color: var(--color-text-on-accent);
-  opacity: 0.7;
 }
 
 .home-creature-name {
@@ -2171,13 +2156,6 @@ textarea.input {
   animation: orb-awaken 1.6s var(--ease-emphasized);
 }
 
-.celebration-orb svg {
-  width: 46px;
-  height: 46px;
-  color: var(--color-text-on-accent);
-  opacity: 0.7;
-}
-
 .celebration-xp {
   font-family: var(--font-display);
   font-size: var(--fs-700);
@@ -2483,13 +2461,6 @@ textarea.input {
     var(--color-accent) 70%
   );
   box-shadow: 0 0 16px color-mix(in srgb, var(--color-accent) 45%, transparent);
-}
-
-.team-orb svg {
-  width: 16px;
-  height: 16px;
-  color: var(--color-text-on-accent);
-  opacity: 0.7;
 }
 
 .team-name {

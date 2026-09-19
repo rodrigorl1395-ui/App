@@ -2,7 +2,7 @@
 // apenas montam DOM a partir de dados simples.
 
 import { createIcon } from "./icons.js";
-import { getElement } from "../data/animals.js";
+import { createGuardianArt } from "./guardianArt.js";
 
 export function createEl(tag, { className, text, attrs = {}, children = [] } = {}) {
   const el = document.createElement(tag);
@@ -143,7 +143,7 @@ export function createCreatureBadge({ animal, progress, locked = false }) {
     attrs: { style: accentStyle(animal.color) },
     children: [
       locked ? null : createProgressRing(progress),
-      createOrb("creature-badge-orb", animal.element),
+      createOrb("creature-badge-orb", animal),
     ],
   });
 }
@@ -174,7 +174,7 @@ export function createCompanion({ animal, stageName, progress, caption }) {
     children: [
       createEl("div", {
         className: "companion-ring",
-        children: [createProgressRing(progress), createOrb("companion-orb", animal.element)],
+        children: [createProgressRing(progress), createOrb("companion-orb", animal)],
       }),
       createEl("p", { className: "companion-name", text: animal.name }),
       createEl("p", { className: "companion-stage", text: stageName }),
@@ -183,9 +183,9 @@ export function createCompanion({ animal, stageName, progress, caption }) {
   });
 }
 
-// O glifo do orbe vem do elemento definido no catálogo — fonte única.
-function createOrb(className, element) {
-  return createEl("div", { className, children: [createIcon(getElement(element).icon)] });
+// A arte do orbe é a do próprio guardião — não mais o glifo genérico do elemento.
+function createOrb(className, animal) {
+  return createEl("div", { className, children: [createGuardianArt(animal.id)] });
 }
 
 function createProgressRing(progress) {
@@ -220,7 +220,7 @@ export function showCelebration({ xpEarned, message, note, evolutionText, animal
     className: "celebration",
     attrs: animal ? { style: accentStyle(animal.color) } : {},
     children: [
-      animal ? createOrb("celebration-orb", animal.element) : null,
+      animal ? createOrb("celebration-orb", animal) : null,
       createEl("p", { className: "celebration-xp", text: `+${xpEarned} XP` }),
       createEl("p", { className: "celebration-message", text: message }),
       evolutionText ? createEl("p", { className: "celebration-evolution", text: evolutionText }) : null,

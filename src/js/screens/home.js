@@ -7,6 +7,7 @@ import {
   showDiscovery,
 } from "../ui.js";
 import { createIcon } from "../icons.js";
+import { createGuardianArt } from "../guardianArt.js";
 import { navigate, refresh } from "../router.js";
 import {
   getSceneCreatures,
@@ -19,7 +20,6 @@ import { getMoodMessage } from "../mood.js";
 import { getGreeting, getTouchLine } from "../dialogue.js";
 import { collectDiscovery } from "../discoveries.js";
 import { getSeedsAvailable } from "../decor.js";
-import { getElement } from "../../data/animals.js";
 
 const WANDER_MIN_MS = 3200;
 const WANDER_MAX_MS = 7000;
@@ -63,7 +63,7 @@ export function renderHomeScreen() {
 
     const orb = createEl("div", {
       className: "home-creature-orb",
-      children: [createIcon(getElement(creature.animal.element).icon)],
+      children: [createGuardianArt(creature.animal.id)],
     });
 
     const bubble = createEl("div", {
