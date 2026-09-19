@@ -105,17 +105,6 @@ export function getDecorPosition(index, total) {
 }
 
 /*
-  Onde a criatura para quando vai comer: ao pé da própria árvore, um pouco à
-  frente para não ficar escondida atrás do tronco.
-*/
-export function getFeedingSpot(treePosition) {
-  return {
-    x: clamp(treePosition.x + 7, 12, 88),
-    y: clamp(treePosition.y + 9, GROUND_TOP + 2, GROUND_BOTTOM),
-  };
-}
-
-/*
   O que ela faz ao chegar na árvore. É aqui que a ideia fecha: o dia cumprido
   regou a árvore, a árvore deu fruto, e o fruto é a comida. Sem o dia, ela
   chega e não encontra nada — e isso aparece na cena, não num aviso.

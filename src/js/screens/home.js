@@ -6,23 +6,19 @@ import {
   accentStyle,
   showDiscovery,
 } from "../ui.js";
-import { createIcon, createTree } from "../icons.js";
+import { createIcon } from "../icons.js";
 import { navigate, refresh } from "../router.js";
 import {
   getSceneCreatures,
   getStartPosition,
-  getTreePosition,
-  getFeedingSpot,
   getFeedingActivity,
   pickTarget,
   depthScale,
 } from "../garden.js";
-import { vigorAmount } from "../master.js";
 import { getMoodMessage } from "../mood.js";
 import { getGreeting, getTouchLine } from "../dialogue.js";
 import { collectDiscovery } from "../discoveries.js";
 import { getSeedsAvailable } from "../decor.js";
-import { getTreeType } from "../../data/trees.js";
 import { getElement } from "../../data/animals.js";
 
 const WANDER_MIN_MS = 3200;
@@ -36,9 +32,7 @@ export function renderHomeScreen() {
       className: "screen",
       children: [
         createSectionHeader("Lar"),
-        createEmptyState(
-          "Seu lar está vazio. Cada hábito traz uma criatura para morar aqui, com a própria árvore."
-        ),
+        createEmptyState("Seu lar está vazio. Cada hábito traz uma criatura para morar aqui."),
       ],
     });
   }
@@ -63,33 +57,6 @@ export function renderHomeScreen() {
   const activities = creatures.map((creature) => creature.activity);
   const passeios = creatures.map(() => 0);
   const timers = [];
-
-  /*
-    Uma árvore por hábito, espalhadas ao fundo; as criaturas circulam na frente
-    e vêm até aqui para comer. A árvore murcha à vista conforme o vigor cai —
-    é o único "medidor" da cena, e ele se enche cumprindo o hábito.
-  */
-  const allTrees = creatures.map((creature) => creature.tree);
-  const treePositions = allTrees.map((_, index) => getTreePosition(index, allTrees.length));
-  const feedingSpots = treePositions.map(getFeedingSpot);
-
-  allTrees.forEach((item, treeIndex) => {
-    const treeType = getTreeType(item.habit.treeType);
-    const treePosition = treePositions[treeIndex];
-    const vigor = vigorAmount(item.vigor);
-    scene.appendChild(
-      createEl("div", {
-        className: `home-tree${vigor < 0.5 ? " is-murcha" : ""}`,
-        attrs: {
-          style: `left: ${treePosition.x}%; top: ${treePosition.y}%; --tree-scale: ${
-            0.75 + item.stage.stage * 0.14
-          }`,
-          title: `${item.habit.name} — ${treeType.name}, ${item.stage.name}`,
-        },
-        children: [createTree(item.stage.stage, treeType.leaf, vigor)],
-      })
-    );
-  });
 
   creatures.forEach((creature, index) => {
     const position = positions[index];
@@ -162,23 +129,21 @@ export function renderHomeScreen() {
     Passeio: um alvo novo de tempos em tempos e o CSS faz a viagem. Sem loop
     de animação em JS — barato o suficiente para rodar num celular fraco.
 
-    A cada três paradas ela vai até a própria árvore comer. É onde a ideia
-    fecha na tela: se o dia foi cumprido, a árvore está regada e tem fruto; se
-    não, ela chega lá e não acha nada. A pessoa vê a consequência andando,
-    sem precisar ler número nenhum.
+    A árvore de cada hábito mora no Jardim agora, não aqui — mas o estado
+    dela continua aparecendo na criatura: a cada três paradas, o balão conta
+    como anda a fome dela (comendo bem, com sede, dormindo com fome), o
+    mesmo estado que a árvore de lá está mostrando.
   */
   function scheduleWander(el, index) {
     const delay = WANDER_MIN_MS + Math.random() * (WANDER_MAX_MS - WANDER_MIN_MS);
     const timer = setTimeout(() => {
       passeios[index] += 1;
-      const vaiComer = passeios[index] % 3 === 0;
+      const checaFome = passeios[index] % 3 === 0;
 
-      const target = vaiComer
-        ? feedingSpots[index]
-        : pickTarget(
-            positions[index],
-            positions.filter((_, i) => i !== index)
-          );
+      const target = pickTarget(
+        positions[index],
+        positions.filter((_, i) => i !== index)
+      );
 
       positions[index] = target;
       el.style.left = `${target.x}%`;
@@ -188,9 +153,8 @@ export function renderHomeScreen() {
       setActivity(
         el,
         index,
-        vaiComer ? getFeedingActivity(creatures[index]) : creatures[index].activity
+        checaFome ? getFeedingActivity(creatures[index]) : creatures[index].activity
       );
-      el.classList.toggle("is-feeding", vaiComer);
 
       scheduleWander(el, index);
     }, delay);
@@ -281,7 +245,7 @@ export function renderHomeScreen() {
         className: "tree-hint",
         text: `${regadas} de ${creatures.length} ${
           creatures.length === 1 ? "árvore regada" : "árvores regadas"
-        } hoje. Cumprir o hábito é a água — a árvore murcha quando você some, e volta a ficar de pé quando você volta.`,
+        } hoje. Cumprir o hábito é a água — visite o Jardim para ver como cada uma está.`,
       }),
     ],
   });
