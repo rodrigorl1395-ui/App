@@ -48,6 +48,26 @@ export const POWERS = {
     story: "Ver um pedaço do caminho adiante não é trapaça. É motivo.",
     availableWhen: "sempre",
   },
+  ar: {
+    id: "sopro-claro",
+    name: "Sopro Claro",
+    element: "ar",
+    verb: "Clarear",
+    description:
+      "Escolhe qual hábito abre a tela Hoje, em vez da ordem automática. Vale até o fim do dia.",
+    story: "Saber por onde começar já resolve metade do dia.",
+    availableWhen: "sempre",
+  },
+  espirito: {
+    id: "fio-de-sentido",
+    name: "Fio de Sentido",
+    element: "espirito",
+    verb: "Lembrar",
+    description:
+      "Traz de volta uma lembrança que você guardou num dia bom, escolhida ao acaso do seu próprio histórico.",
+    story: "Nos dias em que o porquê some, quem responde é você mesmo, de outro dia.",
+    availableWhen: "sempre",
+  },
 };
 
 // Uma carga a cada tantos dias cumpridos: o poder é conquistado, não dado.

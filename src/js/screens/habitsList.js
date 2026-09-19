@@ -12,7 +12,16 @@ import { getHabits, removeHabit } from "../habits.js";
 import { getCompanionState, getAvailableAnimals } from "../companion.js";
 import { getMood } from "../mood.js";
 import { getFruits } from "../missions.js";
-import { getMasterProfile, getTreeVigor, describeVigor, vigorAmount } from "../master.js";
+import {
+  getMasterProfile,
+  getTreeVigor,
+  describeVigor,
+  vigorAmount,
+  getLifeRadar,
+  readLifeRadar,
+  RADAR_WINDOW,
+} from "../master.js";
+import { createLifeRadar } from "../radar.js";
 import { getTreeType, getTreeStage } from "../../data/trees.js";
 
 export function renderHabitsScreen() {
@@ -111,7 +120,33 @@ function renderMaster() {
           })
         ),
       }),
+      renderRadar(),
       renderForcas(perfil),
+    ],
+  });
+}
+
+/*
+  A roda da vida. Fica no Perfil do Mestre porque é o único lugar que fala do
+  jogador inteiro — cada criatura conta um hábito, esta roda conta a vida em
+  volta deles.
+*/
+function renderRadar() {
+  const axes = getLifeRadar();
+  const leitura = readLifeRadar(axes);
+
+  return createEl("div", {
+    className: "master-radar",
+    children: [
+      createEl("div", {
+        className: "section-header",
+        children: [
+          createEl("h3", { className: "master-radar-title", text: "Sua roda da vida" }),
+          createEl("span", { className: "badge", text: `últimos ${RADAR_WINDOW} dias` }),
+        ],
+      }),
+      createLifeRadar(axes),
+      createEl("p", { className: "tree-hint", text: leitura.text }),
     ],
   });
 }

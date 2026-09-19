@@ -14,6 +14,9 @@ export const TREE_TYPES = {
   bonsai: { id: "bonsai", name: "Bonsai", guardianOf: "do Equilíbrio", leaf: "#6fae8f" },
   noturna: { id: "noturna", name: "Árvore Noturna", guardianOf: "do Descanso", leaf: "#8a8fd9" },
   frutifera: { id: "frutifera", name: "Árvore Frutífera", guardianOf: "do Cuidado", leaf: "#e0705f" },
+  cedro: { id: "cedro", name: "Cedro do Ofício", guardianOf: "do Ofício", leaf: "#a3b18a" },
+  florada: { id: "florada", name: "Árvore em Flor", guardianOf: "do Afeto", leaf: "#f0c987" },
+  sagrada: { id: "sagrada", name: "Árvore Sagrada", guardianOf: "do Sentido", leaf: "#b39ddb" },
   comum: { id: "comum", name: "Muda do seu jeito", guardianOf: "do seu Caminho", leaf: "#8fae5c" },
 };
 

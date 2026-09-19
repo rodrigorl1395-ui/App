@@ -16,7 +16,7 @@ import {
 import { getMood } from "./mood.js";
 import { getMissForToday } from "./missions.js";
 import { todayKey } from "./utils.js";
-import { CATEGORY_LABELS } from "../data/animals.js";
+import { CATEGORY_LABELS, CATEGORY_ELEMENT, ELEMENTS, ELEMENT_ORDER } from "../data/animals.js";
 import { getTreeType } from "../data/trees.js";
 
 /*
@@ -195,5 +195,88 @@ export function getMasterProfile() {
     maisDesenvolvida: porXp[0] || null,
     maisForte: areas.length > 1 ? porConsistencia[0] : null,
     maisFraca: areas.length > 1 ? porConsistencia[porConsistencia.length - 1] : null,
+  };
+}
+
+/*
+  O radar da vida: um eixo por elemento, e cada elemento é uma área da vida.
+
+  A medida é quantos dias distintos dos últimos 30 você cumpriu algum hábito
+  daquela área — não XP acumulado. XP guarda o que você já foi; dias recentes
+  mostram como você está. Uma área abandonada encolhe sozinha, que é
+  exatamente o que um retrato honesto precisa fazer.
+
+  started separa duas ausências que não são a mesma coisa: quem nunca criou
+  um hábito daquela área (nada a cobrar) e quem criou e parou (aí sim o zero
+  quer dizer alguma coisa).
+*/
+export const RADAR_WINDOW = 30;
+
+export function getLifeRadar() {
+  const state = getState();
+  const elementOfHabit = new Map(
+    state.habits.map((habit) => [habit.id, CATEGORY_ELEMENT[habit.category] || null])
+  );
+
+  const limite = new Date(`${todayKey()}T00:00:00`);
+  limite.setDate(limite.getDate() - (RADAR_WINDOW - 1));
+  const inicio = limite.toISOString().slice(0, 10);
+
+  const diasPorElemento = new Map(ELEMENT_ORDER.map((id) => [id, new Set()]));
+  const habitosPorElemento = new Map(ELEMENT_ORDER.map((id) => [id, 0]));
+
+  for (const [, element] of elementOfHabit) {
+    if (element && habitosPorElemento.has(element)) {
+      habitosPorElemento.set(element, habitosPorElemento.get(element) + 1);
+    }
+  }
+
+  for (const log of state.logs) {
+    if (log.date < inicio) continue;
+    const element = elementOfHabit.get(log.habitId);
+    if (!element || !diasPorElemento.has(element)) continue;
+    diasPorElemento.get(element).add(log.date);
+  }
+
+  return ELEMENT_ORDER.map((id) => {
+    const days = diasPorElemento.get(id).size;
+    return {
+      ...ELEMENTS[id],
+      days,
+      habits: habitosPorElemento.get(id),
+      started: habitosPorElemento.get(id) > 0,
+      ratio: Math.min(1, days / RADAR_WINDOW),
+    };
+  });
+}
+
+/*
+  A leitura do radar em uma frase. Comparar áreas só faz sentido entre as que
+  a pessoa realmente começou — apontar "você está fraco em propósito" para
+  quem nunca teve um hábito de propósito seria cobrar uma dívida inventada.
+*/
+export function readLifeRadar(axes = getLifeRadar()) {
+  const ativos = axes.filter((axis) => axis.started);
+  if (!ativos.length) return { text: "Seu primeiro hábito abre a primeira área da roda.", kind: "vazio" };
+
+  const ordenados = [...ativos].sort((a, b) => b.days - a.days);
+  const forte = ordenados[0];
+  const fraca = ordenados[ordenados.length - 1];
+  const vazias = axes.filter((axis) => !axis.started);
+
+  if (ativos.length === 1) {
+    return {
+      kind: "unico",
+      text: `Você está cuidando de ${forte.area.toLowerCase()}. As outras ${vazias.length} áreas ainda não têm nenhum hábito.`,
+    };
+  }
+
+  if (forte.days === fraca.days) {
+    return { kind: "equilibrio", text: "Suas áreas estão andando no mesmo passo neste mês." };
+  }
+
+  return {
+    kind: "desequilibrio",
+    text: `Este mês pendeu para ${forte.short.toLowerCase()} (${forte.days} ${forte.days === 1 ? "dia" : "dias"}). ${fraca.short} é onde você menos apareceu (${fraca.days}).`,
   };
 }

@@ -13,6 +13,11 @@ const ICON_PATHS = {
   moon: "M20 13.5A8.5 8.5 0 1 1 10.5 4a6.6 6.6 0 0 0 9.5 9.5Z",
   apple:
     "M12 8c3.3 0 5.5 2.4 5.5 6S15 21 12 21s-5.5-3.4-5.5-7S8.7 8 12 8Z M12.5 7c0-2 1.5-3.5 3.5-3.5 0 2-1.5 3.5-3.5 3.5Z",
+  // Ar: três correntes de vento, a do meio mais longa.
+  wind:
+    "M2 6h10a2 2 0 1 0-2-2H8a4 4 0 1 1 4 4H2V6Z M2 11h14a2 2 0 1 1-2 2h-2a4 4 0 1 0 4-4H2v2Z M2 16h7a2 2 0 1 1-2 2H5a4 4 0 1 0 4-4H2v2Z",
+  // Espírito: faísca de quatro pontas, distinta da estrela de cinco.
+  spark: "M12 2c1.2 5 2.8 6.8 8 8-5.2 1.2-6.8 3-8 8-1.2-5-2.8-6.8-8-8 5.2-1.2 6.8-3 8-8Z",
 };
 
 export function createIcon(name) {

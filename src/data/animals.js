@@ -5,29 +5,99 @@
 // saem dela por color-mix, para o catálogo escalar até 100 sem inchar o CSS.
 // A arte final de cada criatura entra depois, por assetKey.
 
+/*
+  Seis elementos, e cada um é uma área da vida.
+
+  Não são só cores: o elemento é o eixo que o radar do Mestre mede. Por isso
+  cada um carrega a área que representa (o que ele significa na vida real) e
+  a essência (o que ele treina em você). Uma área sem nenhum hábito aparece
+  vazia no radar — e isso é informação, não defeito.
+
+  A ordem aqui é a ordem do radar, no sentido horário a partir do topo.
+*/
 export const ELEMENTS = {
-  fogo: { id: "fogo", label: "Fogo", icon: "flame" },
-  agua: { id: "agua", label: "Água", icon: "droplet" },
-  terra: { id: "terra", label: "Terra", icon: "sprout" },
-  luz: { id: "luz", label: "Luz", icon: "star" },
+  fogo: {
+    id: "fogo",
+    label: "Fogo",
+    icon: "flame",
+    area: "Corpo e energia",
+    short: "Corpo",
+    essence: "Vitalidade e força",
+    color: "#ff7a3c",
+  },
+  agua: {
+    id: "agua",
+    label: "Água",
+    icon: "droplet",
+    area: "Emoções e descanso",
+    short: "Emoções",
+    essence: "Equilíbrio e fluxo",
+    color: "#5fc2d9",
+  },
+  ar: {
+    id: "ar",
+    label: "Ar",
+    icon: "wind",
+    area: "Mente e clareza",
+    short: "Mente",
+    essence: "Foco e lucidez",
+    color: "#9ec7e8",
+  },
+  terra: {
+    id: "terra",
+    label: "Terra",
+    icon: "sprout",
+    area: "Trabalho e ordem",
+    short: "Trabalho",
+    essence: "Estabilidade e constância",
+    color: "#8fae5c",
+  },
+  luz: {
+    id: "luz",
+    label: "Luz",
+    icon: "star",
+    area: "Relações e conexão",
+    short: "Relações",
+    essence: "Afeto e presença",
+    color: "#f2c14e",
+  },
+  espirito: {
+    id: "espirito",
+    label: "Espírito",
+    icon: "spark",
+    area: "Propósito e sentido",
+    short: "Propósito",
+    essence: "Significado e direção",
+    color: "#b39ddb",
+  },
 };
+
+// A ordem dos eixos do radar — declarada uma vez, para a roda não depender
+// da ordem de declaração de um objeto.
+export const ELEMENT_ORDER = ["fogo", "agua", "ar", "terra", "luz", "espirito"];
 
 // Cada categoria de hábito alimenta um elemento. É isso que faz a coleção
 // virar um retrato do que a pessoa realmente pratica.
 export const CATEGORY_ELEMENT = {
   movimento: "fogo",
+  corpo: "fogo",
   recuperacao: "agua",
-  corpo: "terra",
-  equilibrio: "terra",
-  mente: "luz",
+  equilibrio: "agua",
+  mente: "ar",
+  trabalho: "terra",
+  relacoes: "luz",
+  proposito: "espirito",
 };
 
 export const CATEGORY_LABELS = {
   movimento: "movimento",
-  recuperacao: "recuperação",
   corpo: "corpo",
+  recuperacao: "descanso",
   equilibrio: "equilíbrio",
   mente: "mente",
+  trabalho: "trabalho",
+  relacoes: "relações",
+  proposito: "propósito",
   custom: "livre",
 };
 
@@ -74,7 +144,7 @@ export const ANIMALS = [
     id: "vagalume",
     gender: "m",
     name: "Vagalume",
-    element: "luz",
+    element: "ar",
     color: "#e8d35f",
     tagline: "A primeira luz de quem estuda no escuro.",
     personality: "Pequeno e teimoso. Brilha mesmo quando ninguém está vendo.",
@@ -104,7 +174,7 @@ export const ANIMALS = [
     id: "tatu",
     gender: "m",
     name: "Tatu",
-    element: "terra",
+    element: "fogo",
     color: "#b08d57",
     tagline: "Couraça de quem cuida do próprio corpo.",
     personality: "Cava fundo e se protege. Cuidar de si é uma forma de armadura.",
@@ -114,7 +184,7 @@ export const ANIMALS = [
     id: "ourico",
     gender: "m",
     name: "Ouriço",
-    element: "terra",
+    element: "agua",
     color: "#7d9b6a",
     tagline: "Quem aprendeu a se recolher sem se fechar.",
     personality: "Encontra equilíbrio entre proteger-se e continuar andando.",
@@ -124,11 +194,31 @@ export const ANIMALS = [
     id: "coruja",
     gender: "f",
     name: "Coruja",
-    element: "luz",
+    element: "ar",
     color: "#c3b8e8",
     tagline: "Enxerga o que o cansaço esconde.",
     personality: "Guarda o que aprendeu. Onde havia dúvida, agora há repertório.",
     unlock: { category: "mente", days: 30 },
+  },
+  {
+    id: "lontra",
+    gender: "f",
+    name: "Lontra",
+    element: "luz",
+    color: "#f2c14e",
+    tagline: "Não solta a mão de quem gosta.",
+    personality: "Dorme de mãos dadas para não se perder na correnteza. Sozinha ela flutua; junto, ela brinca.",
+    unlock: { category: "relacoes", days: 15 },
+  },
+  {
+    id: "cervo",
+    gender: "m",
+    name: "Cervo",
+    element: "espirito",
+    color: "#b39ddb",
+    tagline: "Sabe para onde vai, mesmo devagar.",
+    personality: "Anda em silêncio e sem pressa. Os chifres crescem como galhos: o tempo trabalha a favor dele.",
+    unlock: { category: "proposito", days: 15 },
   },
   {
     id: "lince",

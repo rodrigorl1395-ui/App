@@ -3044,6 +3044,71 @@ textarea.input {
   font-size: var(--fs-100);
 }
 
+/* Roda da vida: seis eixos, um por elemento. */
+
+.master-radar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--glass-border);
+}
+
+.master-radar-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.life-radar {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.life-radar-ring {
+  fill: none;
+  stroke: var(--glass-border);
+  stroke-width: 1;
+}
+
+.life-radar-ring:last-of-type {
+  fill: rgba(255, 255, 255, 0.02);
+}
+
+.life-radar-spoke {
+  stroke: var(--glass-border);
+  stroke-width: 1;
+}
+
+/* A forma preenchida é translúcida de propósito: a teia atrás precisa
+   continuar legível para o valor ter escala. */
+.life-radar-shape {
+  fill: color-mix(in srgb, var(--color-accent, #8fae5c) 26%, transparent);
+  stroke: var(--color-accent, #8fae5c);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.life-radar-label {
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  fill: var(--color-text-secondary);
+}
+
+.life-radar-value {
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+}
+
+.life-radar-label.is-empty,
+.life-radar-value.is-empty {
+  fill: var(--color-text-tertiary);
+  opacity: 0.7;
+  font-weight: var(--fw-medium);
+}
+
 .master-areas {
   display: flex;
   flex-direction: column;
