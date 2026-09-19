@@ -17,8 +17,8 @@ export const DECOR_ITEMS = [
     kind: "morada",
     name: "Cabana Simples",
     cost: 2,
-    color: "#c9a26a",
     scale: 0.85,
+    build: { floors: 1, width: 2, depth: 2 },
     story: "Pequena, mas de pé. Todo jardim começa com um teto.",
   },
   {
@@ -26,8 +26,8 @@ export const DECOR_ITEMS = [
     kind: "morada",
     name: "Casa de Pedra",
     cost: 5,
-    color: "#9aa0ab",
-    scale: 1.05,
+    scale: 1,
+    build: { floors: 1, width: 3, depth: 3 },
     story: "Mais firme que a cabana. Leva tempo para erguer uma assim.",
   },
   {
@@ -35,8 +35,8 @@ export const DECOR_ITEMS = [
     kind: "morada",
     name: "Torre Pequena",
     cost: 9,
-    color: "#8a7ca8",
-    scale: 1.25,
+    scale: 1.1,
+    build: { floors: 2, width: 2, depth: 2 },
     story: "Vê o jardim inteiro daqui de cima.",
   },
   {

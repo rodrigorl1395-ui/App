@@ -713,6 +713,13 @@
   pointer-events: none;
 }
 
+/* Moradas isométricas são bem mais largas que altas — a caixa acompanha a
+   proporção da casa gerada em vez de espremê-la numa silhueta de árvore. */
+.home-decor.is-building {
+  width: 96px;
+  height: 62px;
+}
+
 .home-creature {
   position: absolute;
   display: flex;
@@ -2974,6 +2981,11 @@ textarea.input {
   width: 40px;
   height: 50px;
   flex-shrink: 0;
+}
+
+.garden-catalog-preview.is-building {
+  width: 56px;
+  height: 40px;
 }
 
 .garden-catalog-body {

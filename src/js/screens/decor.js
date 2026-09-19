@@ -9,10 +9,11 @@
 */
 
 import { createEl, createSectionHeader, createScenePortal } from "../ui.js";
-import { createDwelling, createTree, createIcon } from "../icons.js";
+import { createTree, createIcon } from "../icons.js";
+import { createIsoDwelling } from "../isoBuildings.js";
 import { refresh } from "../router.js";
 import { getSceneCreatures, getTreePosition, getDecorPosition } from "../garden.js";
-import { getCatalog, getSeedsAvailable, plantItem } from "../decor.js";
+import { getCatalog, getGarden, getSeedsAvailable, plantItem } from "../decor.js";
 import { getHabits } from "../habits.js";
 import { getCompanionState } from "../companion.js";
 import { getElement } from "../../data/animals.js";
@@ -54,8 +55,13 @@ function firstGuardianIcon() {
 */
 function renderScene(catalog) {
   const trees = getSceneCreatures().map((creature) => creature.tree);
-  const planted = catalog.filter((item) => item.ownedCount > 0);
-  const plots = planted.flatMap((item) => Array(item.ownedCount).fill(item));
+  // Cada morada usa o id do próprio registro plantado como semente, não o id
+  // do catálogo — assim duas cabanas compradas viram duas casas diferentes,
+  // e cada uma mantém a mesma forma para sempre, mesmo depois de recarregar.
+  const byId = new Map(catalog.map((item) => [item.id, item]));
+  const plots = getGarden()
+    .map((planted) => ({ item: byId.get(planted.itemId), plantedId: planted.id }))
+    .filter((plot) => plot.item);
 
   const scene = createEl("div", { className: "home-scene garden-scene" });
   scene.appendChild(createEl("div", { className: "home-ground" }));
@@ -88,19 +94,20 @@ function renderScene(catalog) {
     return scene;
   }
 
-  plots.forEach((item, index) => {
+  plots.forEach(({ item, plantedId }, index) => {
     const position = getDecorPosition(index, plots.length);
+    const isBuilding = item.kind === "morada";
     scene.appendChild(
       createEl("div", {
-        className: "home-decor",
+        className: `home-decor${isBuilding ? " is-building" : ""}`,
         attrs: {
           style: `left: ${position.x}%; top: ${position.y}%; --decor-scale: ${
-            item.kind === "morada" ? item.scale : 0.9
+            isBuilding ? item.scale : 0.9
           }`,
           title: item.name,
         },
         children: [
-          item.kind === "morada" ? createDwelling(item.color, item.scale) : createTree(4, item.color, 1),
+          isBuilding ? createIsoDwelling(plantedId, item.build) : createTree(4, item.color, 1),
         ],
       })
     );
@@ -135,7 +142,8 @@ function renderShop(seeds, catalog) {
 }
 
 function renderCatalogItem(item) {
-  const preview = item.kind === "morada" ? createDwelling(item.color, item.scale) : createTree(4, item.color, 1);
+  const isBuilding = item.kind === "morada";
+  const preview = isBuilding ? createIsoDwelling(item.id, item.build) : createTree(4, item.color, 1);
 
   const button = createEl("button", {
     className: "button button-secondary",
@@ -151,7 +159,10 @@ function renderCatalogItem(item) {
   return createEl("article", {
     className: "garden-catalog-item",
     children: [
-      createEl("div", { className: "garden-catalog-preview", children: [preview] }),
+      createEl("div", {
+        className: `garden-catalog-preview${isBuilding ? " is-building" : ""}`,
+        children: [preview],
+      }),
       createEl("div", {
         className: "garden-catalog-body",
         children: [
