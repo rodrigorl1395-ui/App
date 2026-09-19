@@ -610,6 +610,18 @@
   pointer-events: none;
 }
 
+/* Itens do jardim: mesma família visual da árvore, um degrau mais quietos —
+   são pano de fundo, nunca o que a cena está pedindo que você olhe. */
+.home-decor {
+  position: absolute;
+  width: 60px;
+  height: 76px;
+  transform: translate(-50%, -78%) scale(var(--decor-scale, 1));
+  transform-origin: bottom center;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 .home-creature {
   position: absolute;
   display: flex;
@@ -2839,4 +2851,57 @@ textarea.input {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+}
+
+/*
+  Loja do Jardim — no Lar. Cada linha é preview + nome + história + botão,
+  a mesma receita de outras listas do app (área do Mestre, achados).
+*/
+.garden-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.garden-catalog-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.garden-catalog-preview {
+  width: 40px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.garden-catalog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.garden-catalog-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.garden-catalog-story {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.garden-catalog-item .button {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-100);
+  white-space: nowrap;
 }

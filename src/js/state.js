@@ -11,6 +11,7 @@ function getInitialState() {
     collected: [],
     powerUses: [],
     misses: [],
+    garden: [],
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

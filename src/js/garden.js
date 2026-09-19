@@ -91,6 +91,20 @@ export function getTreePosition(index, total) {
 }
 
 /*
+  Itens do jardim (moradas, árvores decorativas) ficam mais perto das bordas
+  e um pouco atrás das árvores dos hábitos — presença de fundo, nunca
+  competindo com o que é funcional. Não precisam de precisão contra
+  sobreposição: a cena já é estilizada, e um pouco de encontro entre eles
+  parece composição, não bug.
+*/
+export function getDecorPosition(index, total) {
+  const spread = 80 / Math.max(total, 1);
+  const x = 8 + spread * (index + 0.5) + (index % 2 === 0 ? -4 : 4);
+  const y = GROUND_TOP - 4 + ((index * 11) % 10);
+  return { x: clamp(x, 6, 92), y };
+}
+
+/*
   Onde a criatura para quando vai comer: ao pé da própria árvore, um pouco à
   frente para não ficar escondida atrás do tronco.
 */
