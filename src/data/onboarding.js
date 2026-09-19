@@ -11,7 +11,7 @@ export const ONBOARDING_STEPS = [
     title: "A Academia dos Pequenos Hábitos",
     speech:
       "Bem-vindo à Academia dos Pequenos Hábitos. Você não precisa mudar tudo de uma vez. Grandes transformações começam com pequenas ações repetidas todos os dias.",
-    body: "Eu sou seu guia por aqui. Atrás de mim estão os mestres de cada área da vida — e um deles vai começar esta jornada com você.",
+    body: "Eu sou seu guia por aqui. Atrás de mim estão os guardiões de cada área da vida — e um deles vai começar esta jornada com você.",
     cta: "Como funciona",
   },
   {
@@ -38,14 +38,14 @@ export const ONBOARDING_STEPS = [
         idea: "No estudo dela, virar automático levou 66 dias na mediana — mas variou de 18 a 254. Não existe prazo fixo, e atrasar não significa falhar.",
       },
     ],
-    cta: "E os animais?",
+    cta: "E os guardiões?",
   },
   {
     id: "animais",
-    title: "Cada mestre cuida de uma área",
+    title: "Cada guardião cuida de uma área",
     speech:
-      "Escolher um animal é escolher um hábito. Ele cresce com o que você faz de verdade — e só com isso.",
-    body: "Um animal cuida de um hábito só. Quando você quiser assumir mais um, vai precisar conquistar o próximo mestre com a sua constância.",
+      "Escolher um guardião é escolher um hábito. Ele cresce com o que você faz de verdade — e só com isso.",
+    body: "Um guardião cuida de um hábito só. Quando você quiser assumir mais um, vai precisar conquistar o próximo guardião com a sua constância.",
     cta: "Como eu registro",
   },
   {
@@ -68,7 +68,7 @@ export const ONBOARDING_STEPS = [
     speech:
       "Você não precisa dominar todos os hábitos hoje. Precisa apenas começar com um. Uma missão. Um dia. Depois, outro. Está pronto para se tornar um mestre dos pequenos hábitos?",
     body: null,
-    cta: "Escolher meu primeiro mestre",
+    cta: "Escolher meu primeiro guardião",
   },
 ];
 

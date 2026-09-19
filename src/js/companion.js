@@ -6,8 +6,10 @@
 // e apagar um registro corrige o progresso sozinho.
 
 import { getState } from "./state.js";
-import { ANIMALS, CATEGORY_ELEMENT, getAnimalById } from "../data/animals.js";
+import { ANIMALS, CATEGORY_ELEMENT, CATEGORY_LABELS, getAnimalById } from "../data/animals.js";
 import { getStage, getNextStage, getStageProgress, stageName } from "./evolution.js";
+import { HABIT_TEMPLATES } from "../data/habits.js";
+import { getPowerForElement } from "../data/powers.js";
 
 // Nenhuma criatura se conquista antes de uma semana de jogo de verdade.
 export const MIN_ACTIVE_DAYS = 7;
@@ -55,8 +57,23 @@ export function getActiveDays() {
   return new Set(getState().logs.map((log) => log.date)).size;
 }
 
+/*
+  O nome que aparece em toda a interface — perfil, diálogo, Lar, missão —
+  vem daqui: se a pessoa batizou o guardião, é o nome dela que se mostra; do
+  contrário, o nome da espécie (Raposa, Axolote...) segue fazendo esse papel.
+  species guarda o nome original para quem quiser dizer "sua Raposa" mesmo
+  depois de batizada.
+
+  Resolver aqui, uma vez só, é o que evita espalhar "habit.guardianName ||
+  animal.name" pelos vinte e tantos lugares que já leem animal.name.
+*/
+function resolveAnimal(habit, animal) {
+  if (!animal) return null;
+  return { ...animal, species: animal.name, name: habit.guardianName || animal.name };
+}
+
 export function getCompanionState(habit) {
-  const animal = getAnimalById(habit.animalId);
+  const animal = resolveAnimal(habit, getAnimalById(habit.animalId));
   const xp = animal ? getAnimalXp(animal.id) : 0;
   const stage = getStage(xp);
   return {
@@ -146,4 +163,19 @@ export function findNewlyUnlocked(previouslyUnlockedIds) {
 
 export function getSuggestedElement(category) {
   return CATEGORY_ELEMENT[category] || null;
+}
+
+/*
+  O que um guardião guarda: o poder dele e as áreas de hábito que cuida.
+  Usado nas duas telas onde a pessoa escolhe entre guardiões — a escolha do
+  inicial e o seletor de um hábito novo — para responder "o que ele faz por
+  mim" antes de escolher, não só depois.
+*/
+export function getGuardianDomain(animal) {
+  const power = getPowerForElement(animal.element);
+  const matching = HABIT_TEMPLATES.filter(
+    (item) => CATEGORY_ELEMENT[item.category] === animal.element
+  );
+  const categorias = [...new Set(matching.map((item) => CATEGORY_LABELS[item.category]))].join(" e ");
+  return { power, categorias };
 }

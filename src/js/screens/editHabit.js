@@ -1,11 +1,13 @@
 import { createEl } from "../ui.js";
 import { navigate } from "../router.js";
 import { getHabits, updateHabit } from "../habits.js";
+import { getCompanionState } from "../companion.js";
 
 /*
-  Só o que dá para mudar sem reescrever a história: nome, unidade, metas e
-  quantos dias por semana. A criatura e a categoria ficam de fora — elas
-  definem o elemento e já geraram registros, conquistas e achados.
+  Só o que dá para mudar sem reescrever a história: nome do hábito, nome do
+  guardião, unidade, metas e quantos dias por semana. A espécie do guardião
+  e a categoria ficam de fora — elas definem o elemento e já geraram
+  registros, conquistas e achados.
 */
 const MISSION_FIELDS = [
   { key: "minimal", label: "Mínima" },
@@ -20,11 +22,19 @@ export function renderEditHabitScreen(params) {
     return createEl("div", { className: "screen" });
   }
 
+  const companion = getCompanionState(habit);
+
   const nameInput = createEl("input", {
     className: "input",
     attrs: { type: "text", id: "edit-name" },
   });
   nameInput.value = habit.name;
+
+  const guardianNameInput = createEl("input", {
+    className: "input",
+    attrs: { type: "text", id: "edit-guardian-name", maxlength: "24", placeholder: companion.animal?.species },
+  });
+  guardianNameInput.value = habit.guardianName || "";
 
   const unitInput = createEl("input", { className: "input", attrs: { type: "text", id: "edit-unit" } });
   unitInput.value = habit.unit;
@@ -62,6 +72,21 @@ export function renderEditHabitScreen(params) {
         children: [
           createEl("label", { className: "form-label", text: "Nome", attrs: { for: "edit-name" } }),
           nameInput,
+        ],
+      }),
+      createEl("div", {
+        className: "form-field",
+        children: [
+          createEl("label", {
+            className: "form-label",
+            text: "Nome do guardião (opcional)",
+            attrs: { for: "edit-guardian-name" },
+          }),
+          guardianNameInput,
+          createEl("span", {
+            className: "form-hint",
+            text: "Em branco, ele segue com o nome da espécie.",
+          }),
         ],
       }),
       createEl("div", {
@@ -122,6 +147,7 @@ export function renderEditHabitScreen(params) {
 
     updateHabit(habit.id, {
       name,
+      guardianName: guardianNameInput.value.trim() || null,
       unit: unitInput.value.trim() || "vezes",
       missions,
       weeklyTarget: Math.min(7, Math.max(1, Number(weeklyInput.value) || 7)),

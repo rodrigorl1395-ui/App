@@ -17,6 +17,7 @@ export function createHabit({
   category,
   animalId,
   weeklyTarget = 7,
+  guardianName = null,
 }) {
   const habit = {
     id: generateId("habit"),
@@ -31,6 +32,9 @@ export function createHabit({
     // Quantos dias por semana a pessoa se compromete — é a base do progresso
     // semanal e evita tratar como falha um dia que nunca foi planejado.
     weeklyTarget,
+    // O nome que a pessoa deu ao guardião. Null mantém o nome da espécie
+    // (Raposa, Axolote...) — batizar é opcional, nunca obrigatório.
+    guardianName,
     createdAt: new Date().toISOString(),
   };
   setState({ habits: [...getHabits(), habit] });

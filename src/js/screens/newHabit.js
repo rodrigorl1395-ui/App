@@ -3,9 +3,9 @@ import { createIcon } from "../icons.js";
 import { navigate } from "../router.js";
 import { HABIT_TEMPLATES, CUSTOM_TEMPLATE } from "../../data/habits.js";
 import { getTreeType } from "../../data/trees.js";
-import { CATEGORY_ELEMENT, CATEGORY_LABELS, getElement } from "../../data/animals.js";
+import { CATEGORY_ELEMENT, getElement } from "../../data/animals.js";
 import { createHabit } from "../habits.js";
-import { getAvailableAnimals } from "../companion.js";
+import { getAvailableAnimals, getGuardianDomain } from "../companion.js";
 
 const MISSION_FIELDS = [
   { key: "minimal", label: "Mínima", hint: "O menor passo que mantém o vínculo." },
@@ -72,6 +72,28 @@ export function renderNewHabitScreen(params = {}) {
   });
 
   const animalHint = createEl("p", { className: "tree-hint" });
+  const guardianPower = createEl("div", { className: "guardian-power" });
+
+  const guardianNameInput = createEl("input", {
+    className: "input",
+    attrs: { type: "text", id: "guardian-name", maxlength: "24" },
+  });
+  const guardianNameField = createEl("div", {
+    className: "form-field",
+    children: [
+      createEl("label", {
+        className: "form-label",
+        text: "Nome do guardião (opcional)",
+        attrs: { for: "guardian-name" },
+      }),
+      guardianNameInput,
+      createEl("span", {
+        className: "form-hint",
+        text: "Em branco, ele segue com o nome da espécie.",
+      }),
+    ],
+  });
+
   const chipRow = createEl("div", { className: "chip-row" });
   const chips = new Map();
 
@@ -173,13 +195,22 @@ export function renderNewHabitScreen(params = {}) {
     animalCards.forEach((card, id) => card.classList.toggle("is-selected", id === option.id));
 
     const element = getElement(option.element);
-    const matching = HABIT_TEMPLATES.filter(
-      (item) => CATEGORY_ELEMENT[item.category] === option.element
-    );
-    const categorias = [...new Set(matching.map((item) => CATEGORY_LABELS[item.category]))].join(" e ");
+    const { power, categorias } = getGuardianDomain(option);
 
     animalHint.textContent = `${option.name} é de ${element.label.toLowerCase()} e cuida de hábitos de ${categorias}.`;
 
+    guardianPower.replaceChildren(
+      power
+        ? createEl("span", { className: "guardian-power-name", text: power.name })
+        : null,
+      power ? createEl("span", { className: "guardian-power-text", text: power.description }) : null
+    );
+
+    guardianNameInput.placeholder = option.name;
+
+    const matching = HABIT_TEMPLATES.filter(
+      (item) => CATEGORY_ELEMENT[item.category] === option.element
+    );
     chips.clear();
     chipRow.replaceChildren();
     for (const item of [...matching, CUSTOM_TEMPLATE]) {
@@ -245,6 +276,7 @@ export function renderNewHabitScreen(params = {}) {
       category: template.category,
       animalId: animal.id,
       weeklyTarget: Math.min(7, Math.max(1, Number(weeklyInput.value) || 7)),
+      guardianName: guardianNameInput.value.trim() || null,
     });
     navigate("/hoje");
   }
@@ -258,6 +290,8 @@ export function renderNewHabitScreen(params = {}) {
       createEl("h3", { className: "form-section-title", text: "Quem vai cuidar dele" }),
       animalPicker,
       animalHint,
+      guardianPower,
+      guardianNameField,
       chipRow,
       form,
     ],

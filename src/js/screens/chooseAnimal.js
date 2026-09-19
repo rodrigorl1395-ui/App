@@ -2,6 +2,7 @@ import { createEl, createCreatureBadge, accentStyle } from "../ui.js";
 import { navigate } from "../router.js";
 import { getState, setState } from "../state.js";
 import { ANIMALS, getElement } from "../../data/animals.js";
+import { getGuardianDomain } from "../companion.js";
 
 export function renderChooseAnimalScreen() {
   let selectedId = null;
@@ -12,7 +13,7 @@ export function renderChooseAnimalScreen() {
       createEl("h1", { text: "Quem começa com você?" }),
       createEl("p", {
         className: "card-subtitle",
-        text: "Ela vai cuidar dos seus primeiros hábitos e ficar mais forte com todos eles. Outras criaturas se conquistam com o tempo — mas estas três são só de início: escolhendo uma, as outras duas não voltam.",
+        text: "Ele vai cuidar do seu primeiro hábito e ficar mais forte com ele. Outros guardiões se conquistam com o tempo — mas estes três são só de início: escolhendo um, os outros dois não voltam.",
       }),
     ],
   });
@@ -22,6 +23,8 @@ export function renderChooseAnimalScreen() {
   const list = createEl("div", {
     className: "animal-choice-list",
     children: ANIMALS.filter((animal) => animal.starter).map((animal) => {
+      const { power, categorias } = getGuardianDomain(animal);
+
       const body = createEl("div", {
         className: "animal-card-body",
         children: [
@@ -31,6 +34,16 @@ export function renderChooseAnimalScreen() {
             text: getElement(animal.element).label,
           }),
           createEl("span", { className: "animal-card-tagline", text: animal.tagline }),
+          createEl("div", {
+            className: "animal-card-traits",
+            children: [
+              createEl("span", { className: "chip", text: `Cuida de ${categorias}` }),
+              power ? createEl("span", { className: "chip", text: power.name }) : null,
+            ],
+          }),
+          power
+            ? createEl("span", { className: "animal-card-power-text", text: power.description })
+            : null,
         ],
       });
 
@@ -52,7 +65,7 @@ export function renderChooseAnimalScreen() {
 
   const confirmButton = createEl("button", {
     className: "button button-primary button-block",
-    text: "Começar com esta criatura",
+    text: "Começar com este guardião",
     attrs: { type: "button" },
   });
   confirmButton.disabled = true;
@@ -66,7 +79,11 @@ export function renderChooseAnimalScreen() {
         createdAt: state.user?.createdAt || new Date().toISOString(),
       },
     });
-    navigate("/hoje");
+    // Escolher o guardião sem ainda ter um hábito para ele cuidar deixava a
+    // tela Hoje vazia logo de cara. Encadear direto para "Novo hábito", já
+    // com ele pré-selecionado, é a própria pergunta "qual o primeiro hábito
+    // que eu quero acompanhar?" — sem precisar de uma tela extra para isso.
+    navigate(`/novo-habito?animal=${selectedId}`);
   });
 
   function selectAnimal(id) {

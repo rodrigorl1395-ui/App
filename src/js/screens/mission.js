@@ -21,7 +21,6 @@ import {
   MISS_REASONS,
   getMissReasonLabel,
 } from "../missions.js";
-import { getAnimalById } from "../../data/animals.js";
 import { getTreeType } from "../../data/trees.js";
 import { fillNames } from "../../data/quests.js";
 import {
@@ -538,7 +537,7 @@ function formatFruitDate(dateKey) {
 function complete(habit, levelKey, value = null) {
   const questsBefore = getConqueredIds(habit);
   const result = completeMission(habit, levelKey, value);
-  const animal = getAnimalById(habit.animalId);
+  const animal = getCompanionState(habit).animal;
   const unlocked = result.unlockedAnimals[0];
   const conquered = findNewlyConquered(habit, questsBefore)[0];
 

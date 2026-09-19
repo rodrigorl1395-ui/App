@@ -120,7 +120,7 @@ function renderReferences(references) {
   });
 }
 
-// Os mestres e a área de cada um: é aqui que "escolher o animal é escolher o
+// Os guardiões e a área de cada um: é aqui que "escolher o guardião é escolher o
 // hábito" deixa de ser abstrato.
 function renderTeam(team) {
   return createEl("div", {

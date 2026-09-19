@@ -64,10 +64,15 @@ export function renderSanctuaryScreen() {
     const { note } = describe(animal, unlock);
     const ratio = unlockRatio(unlock);
 
-    const lines = [createEl("span", { className: "sanctuary-name", text: animal.name })];
+    // Batizada, é o nome dela que aparece — a espécie vira legenda, não título.
+    const displayName = habit?.guardianName || animal.name;
+    const lines = [createEl("span", { className: "sanctuary-name", text: displayName })];
 
     if (unlock.unlocked && habit) {
       lines.push(
+        habit.guardianName
+          ? createEl("span", { className: "sanctuary-lock", text: animal.name })
+          : null,
         createEl("span", {
           className: "sanctuary-stage",
           text: stageName(getStage(xp), animal.gender),
