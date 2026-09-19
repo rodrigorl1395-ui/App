@@ -3,6 +3,7 @@ import { ANIMALS, CATEGORY_LABELS, getElement } from "../../data/animals.js";
 import {
   getUnlockProgress,
   getAnimalXp,
+  getHabitOfAnimal,
   getHabitsOfAnimal,
   getActiveDays,
   getUnlockableAnimals,
@@ -29,6 +30,20 @@ function describe(animal, unlock) {
   return { stage: null, note: `${unlock.current} de ${unlock.required} dias de ${categoria}` };
 }
 
+/*
+  O quanto falta para desbloquear, sempre olhando para o que realmente está
+  travando: enquanto a semana de jogo não fecha, é ela que importa — mostrar
+  a constância na categoria antes disso confundiria (podia estar em 100% e
+  seguir trancada). Depois da semana, quem manda é a categoria.
+*/
+function unlockRatio(unlock) {
+  if (unlock.kind !== "earned" || unlock.unlocked) return null;
+  const ratio = unlock.needsMorePlay
+    ? unlock.activeDays / unlock.minActiveDays
+    : unlock.current / unlock.required;
+  return Math.max(0, Math.min(1, ratio));
+}
+
 export function renderSanctuaryScreen() {
   const unlockable = getUnlockableAnimals();
   const conquered = unlockable.filter((animal) => getUnlockProgress(animal).unlocked).length;
@@ -45,12 +60,13 @@ export function renderSanctuaryScreen() {
   const cards = ANIMALS.map((animal) => {
     const unlock = getUnlockProgress(animal);
     const xp = getAnimalXp(animal.id);
-    const inUse = getHabitsOfAnimal(animal.id).length > 0;
+    const habit = getHabitsOfAnimal(animal.id).length ? getHabitOfAnimal(animal.id) : null;
     const { note } = describe(animal, unlock);
+    const ratio = unlockRatio(unlock);
 
     const lines = [createEl("span", { className: "sanctuary-name", text: animal.name })];
 
-    if (unlock.unlocked && inUse) {
+    if (unlock.unlocked && habit) {
       lines.push(
         createEl("span", {
           className: "sanctuary-stage",
@@ -61,27 +77,52 @@ export function renderSanctuaryScreen() {
     } else if (unlock.unlocked) {
       lines.push(
         createEl("span", { className: "sanctuary-stage", text: getElement(animal.element).label }),
-        createEl("span", { className: "sanctuary-xp", text: note || "Sem hábito ainda" })
+        // Pronta e livre: dizer isso como convite, não como pendência.
+        createEl("span", { className: "sanctuary-xp is-ready", text: "Pronta — toque para dar um hábito a ela" })
       );
     } else {
       lines.push(createEl("span", { className: "sanctuary-lock", text: note }));
+      if (ratio !== null) {
+        lines.push(
+          createEl("div", {
+            className: "sanctuary-progress",
+            children: [
+              createEl("span", {
+                className: "sanctuary-progress-fill",
+                attrs: { style: `width: ${Math.round(ratio * 100)}%` },
+              }),
+            ],
+          })
+        );
+      }
     }
 
     const classes = ["sanctuary-card"];
     if (!unlock.unlocked) classes.push("is-locked");
     if (unlock.forfeited) classes.push("is-forfeited");
+    // Um empurrão visual só para quem está mesmo perto — longe disso o brilho
+    // vira ruído em vez de motivação.
+    if (ratio !== null && ratio >= 0.7) classes.push("is-close");
 
-    return createEl("div", {
+    const badge = createCreatureBadge({
+      animal,
+      progress: unlock.unlocked && habit ? getStageProgress(xp) : 0,
+      locked: !unlock.unlocked,
+    });
+    const body = createEl("div", { className: "sanctuary-body", children: lines });
+
+    // Só vira link quando há algo real para fazer: ver o perfil de quem já
+    // cuida de um hábito, ou começar um para quem está livre e pronta.
+    const href = unlock.unlocked
+      ? habit
+        ? `#/criatura?habit=${habit.id}`
+        : `#/novo-habito?animal=${animal.id}`
+      : null;
+
+    return createEl(href ? "a" : "div", {
       className: classes.join(" "),
-      attrs: { style: accentStyle(animal.color) },
-      children: [
-        createCreatureBadge({
-          animal,
-          progress: unlock.unlocked && inUse ? getStageProgress(xp) : 0,
-          locked: !unlock.unlocked,
-        }),
-        createEl("div", { className: "sanctuary-body", children: lines }),
-      ],
+      attrs: { style: accentStyle(animal.color), ...(href ? { href } : {}) },
+      children: [badge, body],
     });
   });
 

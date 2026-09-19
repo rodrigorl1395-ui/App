@@ -13,7 +13,7 @@ const MISSION_FIELDS = [
   { key: "bonus", label: "Bônus", hint: "Quando o dia render mais que o esperado." },
 ];
 
-export function renderNewHabitScreen() {
+export function renderNewHabitScreen(params = {}) {
   const available = getAvailableAnimals();
 
   const backLink = createEl("a", { className: "link-button", text: "Voltar", attrs: { href: "#/hoje" } });
@@ -47,7 +47,10 @@ export function renderNewHabitScreen() {
     });
   }
 
-  let animal = available[0];
+  // Vindo do Santuário com uma criatura recém-livre, é ela quem já aparece
+  // selecionada — sem isso a pessoa clicaria "pronta" e cairia numa tela
+  // que escolheu outra por conta própria.
+  let animal = available.find((option) => option.id === params.animal) || available[0];
   let template = null;
 
   const animalCards = new Map();
