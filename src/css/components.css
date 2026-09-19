@@ -2195,6 +2195,290 @@ textarea.input {
   gap: var(--space-4);
 }
 
+/*
+  Novo hábito em passos: uma pergunta por tela, com o progresso à vista.
+  A barra existe para responder "quanto falta" antes que a pessoa se pergunte.
+*/
+
+.wizard-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wizard-progress-label {
+  font-size: var(--fs-100);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+.wizard-progress-bars {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.wizard-progress-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+  transition: background var(--duration-base) var(--ease-standard);
+}
+
+.wizard-progress-bar.is-done {
+  background: var(--color-accent-strong, var(--color-text-secondary));
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.wizard-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--lh-snug);
+}
+
+.wizard-subtitle {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
+  margin-top: calc(var(--space-3) * -1);
+}
+
+.wizard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.wizard-actions .button {
+  flex: 1;
+  max-width: 62%;
+}
+
+/* Modelos de hábito: grade com nome e tamanho padrão à vista, em vez da
+   fileira rolável sem rótulo que a pessoa nem percebia que era escolhível. */
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  text-align: left;
+  background: var(--glass-fill);
+  border: 1.5px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.template-card:active {
+  transform: scale(0.98);
+}
+
+.template-card.is-selected {
+  border-color: var(--habit-color, var(--color-text-secondary));
+}
+
+.template-icon {
+  display: flex;
+  color: var(--habit-color, var(--color-text-secondary));
+}
+
+.template-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.template-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--lh-snug);
+}
+
+.template-goal {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+/* Metas: três linhas com − e +, em vez de três campos numéricos crus. O
+   stepper mantém mínima ≤ principal ≤ bônus sozinho, então não há erro
+   possível para mostrar depois. */
+
+.goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.goal-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.goal-row.is-main {
+  border-color: color-mix(in srgb, var(--color-accent, #8fae5c) 36%, var(--glass-border));
+}
+
+.goal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.goal-label {
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.goal-hint {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.goal-xp {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.stepper-button {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-fill-strong);
+  color: var(--color-text-primary);
+  font-size: var(--fs-300);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.stepper-button:active {
+  border-color: var(--color-text-secondary);
+}
+
+.goal-value {
+  min-width: 72px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+/* Resumo: as três decisões, tomadas em telas diferentes, aparecem juntas
+   uma vez antes do botão que cria. */
+
+.wizard-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft, var(--glass-fill));
+  border: 1px solid color-mix(in srgb, var(--color-accent, #8fae5c) 30%, transparent);
+}
+
+.wizard-summary-line {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
+}
+
+.wizard-summary-line:first-of-type {
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+/* Slot vazio não pode cobrar o gap do passo enquanto não há resumo. */
+.wizard-summary-slot:empty {
+  display: none;
+}
+
+/* Sete opções numa linha só: o padding padrão do chip estoura em telas
+   estreitas e joga o último dia para uma segunda linha sozinho. */
+.week-picker .chip {
+  flex: 1;
+  justify-content: center;
+  padding: var(--space-2) 0;
+}
+
+/* Guardião já resolvido lá atrás: aparece como fato, não como pergunta. */
+
+.wizard-guardian {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wizard-guardian-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.wizard-guardian-chip .link-button {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.wizard-guardian-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wizard-guardian-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.wizard-guardian-role {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
 .form-field {
   display: flex;
   flex-direction: column;
