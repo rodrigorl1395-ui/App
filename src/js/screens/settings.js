@@ -1,6 +1,8 @@
 import { createEl } from "../ui.js";
 import { getState, hydrate, setState } from "../state.js";
 import { todayKey } from "../utils.js";
+import { getHabits } from "../habits.js";
+import { checkDevPassword, simulateDays, advanceTime, getDevLogCount, clearDevData } from "../dev.js";
 
 /*
   Tudo vive no navegador. Limpar os dados do site, trocar de aparelho ou usar
@@ -43,6 +45,158 @@ function renderNameCard() {
       }),
       nameInput,
       saved,
+    ],
+  });
+}
+
+/*
+  Modo dev: gera e envelhece dados reais só para testar mais rápido — nunca
+  inventa um número solto. Atrás de senha porque não é para uso do dia a
+  dia, só para quem está mexendo no app.
+*/
+function renderDevPanel() {
+  const passwordInput = createEl("input", {
+    className: "input",
+    attrs: { type: "password", placeholder: "Senha do modo dev", autocomplete: "off" },
+  });
+  const unlockButton = createEl("button", {
+    className: "button button-secondary",
+    text: "Desbloquear",
+    attrs: { type: "button" },
+  });
+  const gateHint = createEl("p", { className: "form-hint" });
+  const gate = createEl("div", {
+    children: [
+      createEl("div", { className: "form-row", children: [passwordInput, unlockButton] }),
+      gateHint,
+    ],
+  });
+
+  const habits = getHabits();
+  const habitSelect = createEl("select", {
+    className: "input",
+    children: [
+      createEl("option", { text: "Todos os hábitos", attrs: { value: "all" } }),
+      ...habits.map((habit) =>
+        createEl("option", { text: habit.name, attrs: { value: habit.id } })
+      ),
+    ],
+  });
+
+  const daysInput = createEl("input", {
+    className: "input",
+    attrs: { type: "number", min: "1", max: "120", value: "7" },
+  });
+  const reflectionsCheck = createEl("input", { attrs: { type: "checkbox", id: "dev-reflections" } });
+  reflectionsCheck.checked = true;
+  const simulateButton = createEl("button", {
+    className: "button button-primary",
+    text: "Simular dias cumpridos",
+    attrs: { type: "button" },
+  });
+  simulateButton.disabled = !habits.length;
+
+  const advanceInput = createEl("input", {
+    className: "input",
+    attrs: { type: "number", min: "1", max: "365", value: "3" },
+  });
+  const advanceButton = createEl("button", {
+    className: "button button-secondary",
+    text: "Adiantar todo o histórico",
+    attrs: { type: "button" },
+  });
+
+  const clearButton = createEl("button", {
+    className: "button button-secondary link-danger",
+    text: "Remover registros de teste",
+    attrs: { type: "button" },
+  });
+
+  const devStatus = createEl("p", { className: "form-hint" });
+  function refreshStatus() {
+    const count = getDevLogCount();
+    devStatus.textContent = count
+      ? `${count} registro(s) de teste ativo(s) agora.`
+      : "Nenhum registro de teste ativo agora.";
+  }
+
+  simulateButton.addEventListener("click", () => {
+    const days = Number(daysInput.value) || 0;
+    const { added } = simulateDays(habitSelect.value, days, {
+      withReflections: reflectionsCheck.checked,
+    });
+    devStatus.textContent = `${added} dia(s) simulado(s). XP, sequência, sementes e evolução recalculam sozinhos a partir daqui — atualize a tela para ver.`;
+  });
+
+  advanceButton.addEventListener("click", () => {
+    const days = Number(advanceInput.value) || 0;
+    advanceTime(days);
+    devStatus.textContent = `Histórico adiantado ${days} dia(s). Nada novo foi inventado — só envelheceu o que já existia.`;
+  });
+
+  clearButton.addEventListener("click", () => {
+    const { removed } = clearDevData();
+    refreshStatus();
+    if (removed) devStatus.textContent = `${removed} registro(s) de teste removido(s).`;
+  });
+
+  const controls = createEl("div", {
+    className: "dev-controls",
+    children: [
+      createEl("p", {
+        className: "card-subtitle",
+        text: "Sementes e XP não têm campo próprio para editar — eles sempre vêm dos registros. O botão abaixo gera dias cumpridos de verdade para adiantá-los.",
+      }),
+      createEl("label", { className: "form-label", text: "Hábito" }),
+      habitSelect,
+      createEl("label", { className: "form-label", text: "Dias" }),
+      daysInput,
+      createEl("label", {
+        className: "form-row",
+        children: [
+          reflectionsCheck,
+          createEl("span", { text: "Incluir reflexões (gera sementes)" }),
+        ],
+      }),
+      simulateButton,
+      createEl("hr"),
+      createEl("label", { className: "form-label", text: "Adiantar o tempo (dias)" }),
+      advanceInput,
+      advanceButton,
+      createEl("p", {
+        className: "form-hint",
+        text: "Envelhece hábitos, registros, sequências e o jardim — bom para testar árvore com sede ou o mês seguinte no calendário. Baixe um backup antes, se quiser voltar atrás.",
+      }),
+      createEl("hr"),
+      clearButton,
+      devStatus,
+    ],
+  });
+  controls.style.display = "none";
+
+  unlockButton.addEventListener("click", () => {
+    if (checkDevPassword(passwordInput.value)) {
+      gate.style.display = "none";
+      controls.style.display = "flex";
+      refreshStatus();
+    } else {
+      gateHint.textContent = "Senha incorreta.";
+    }
+  });
+  passwordInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") unlockButton.click();
+  });
+
+  return createEl("section", {
+    className: "card dev-panel",
+    children: [
+      createEl("h2", { className: "card-title", text: "Modo dev" }),
+      createEl("p", {
+        className: "card-subtitle",
+        text: "Só para testar o app mais rápido. Fica atrás de senha porque mexe em dados de verdade.",
+      }),
+      gate,
+      controls,
     ],
   });
 }
@@ -161,6 +315,7 @@ export function renderSettingsScreen() {
       nameCard,
       backup,
       danger,
+      renderDevPanel(),
     ],
   });
 }

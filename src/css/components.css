@@ -2248,6 +2248,23 @@ textarea.input {
   gap: var(--space-3);
 }
 
+.dev-controls {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.dev-controls .form-row {
+  align-items: center;
+}
+
+.dev-panel hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--glass-border);
+  margin: var(--space-2) 0;
+}
+
 .form-error:empty {
   display: none;
 }
