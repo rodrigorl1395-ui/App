@@ -39,3 +39,18 @@ export function getTreeType(id) {
 export function getTreeStage(xp) {
   return TREE_STAGES.reduce((current, stage) => (xp >= stage.minXp ? stage : current), TREE_STAGES[0]);
 }
+
+/*
+  Quanto falta da árvore para o próximo estágio, de 0 a 1. É a única leitura
+  de "crescimento" que não inventa número nenhum: sai do XP daquele hábito,
+  medido entre o degrau em que a árvore está e o próximo.
+*/
+export function getTreeStageProgress(xp) {
+  const stage = getTreeStage(xp);
+  const next = TREE_STAGES.find((item) => item.minXp > xp) || null;
+  return {
+    stage,
+    next,
+    progress: next ? (xp - stage.minXp) / (next.minXp - stage.minXp) : 1,
+  };
+}

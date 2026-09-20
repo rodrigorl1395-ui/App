@@ -94,6 +94,36 @@ export function getTreePosition(index, total) {
 }
 
 /*
+  Canteiros: dois por fileira, de trás para frente. Quem está na frente fica
+  mais embaixo e maior, quem está atrás sobe e encolhe — é a profundidade
+  que faz o jardim parecer um terreno, e não uma prateleira. A fileira da
+  frente é desencontrada da de trás para nenhum canteiro esconder o outro.
+*/
+export function getPlotPosition(index, total) {
+  const porFileira = 2;
+  const fileira = Math.floor(index / porFileira);
+  const fileiras = Math.max(1, Math.ceil(total / porFileira));
+  const naFileira = index % porFileira;
+
+  // Uma fileira só: os canteiros ficam na faixa da frente, centralizados.
+  const profundidade = fileiras === 1 ? 1 : fileira / (fileiras - 1);
+  // O terreno inteiro é usado, do fundo até quase a borda de baixo — senão
+  // sobra meia cena de chão vazio embaixo dos canteiros. A cena do Jardim
+  // tem menos céu que a do Lar, então a faixa começa mais alto.
+  const y = 46 + profundidade * 44;
+
+  const desencontro = fileira % 2 === 0 ? 0 : 9;
+  const x = 28 + naFileira * 44 + desencontro;
+
+  return {
+    x: clamp(x, 20, 80),
+    y,
+    // Fundo menor, frente maior: a mesma escala que as criaturas usam.
+    scale: 0.66 + profundidade * 0.4,
+  };
+}
+
+/*
   Itens do jardim (moradas, árvores decorativas) ficam mais perto das bordas
   e um pouco atrás das árvores dos hábitos — presença de fundo, nunca
   competindo com o que é funcional. Não precisam de precisão contra

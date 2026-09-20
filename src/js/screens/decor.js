@@ -9,20 +9,22 @@
 */
 
 import { createEl, createSectionHeader, createScenePortal } from "../ui.js";
-import { createTree, createIcon } from "../icons.js";
+import { createTree, createIcon, createGardenBed } from "../icons.js";
 import { createIsoDwelling } from "../isoBuildings.js";
 import { refresh } from "../router.js";
-import { getSceneCreatures, getTreePosition, getDecorPosition } from "../garden.js";
+import { getSceneCreatures, getPlotPosition, getDecorPosition } from "../garden.js";
 import { getCatalog, getGarden, getSeedsAvailable, plantItem } from "../decor.js";
 import { getHabits } from "../habits.js";
 import { getCompanionState } from "../companion.js";
+import { getHabitStats } from "../stats.js";
 import { getElement } from "../../data/animals.js";
-import { getTreeType } from "../../data/trees.js";
-import { vigorAmount } from "../master.js";
+import { getTreeType, getTreeStageProgress } from "../../data/trees.js";
+import { vigorAmount, describeVigor, getTreeVigor } from "../master.js";
 
 export function renderGardenScreen() {
   const seeds = getSeedsAvailable();
   const catalog = getCatalog();
+  const habits = getHabits();
 
   return createEl("div", {
     className: "screen",
@@ -30,10 +32,98 @@ export function renderGardenScreen() {
       createSectionHeader("Jardim"),
       createEl("p", {
         className: "tree-hint",
-        text: "A árvore de cada guardião mora aqui — é nela que o hábito cumprido vira água. O que você planta com sementes é só enfeite, ao lado.",
+        text: "Cada hábito tem o seu canteiro. Cumprir o hábito é a água — o que você planta com sementes é só enfeite, ao lado.",
       }),
       renderScene(catalog),
+      habits.length ? renderPlotCards(habits) : null,
       renderShop(seeds, catalog),
+    ],
+  });
+}
+
+/*
+  A ficha de cada canteiro: as três barras que a cena não tem espaço para
+  mostrar legível. Todas saem do histórico, nenhuma é enfeite —
+
+    Água        vigor, que cai com os dias sem regar
+    Sol         consistência, a fatia de dias combinados que você cumpriu
+    Crescimento quanto falta de XP daquele hábito para o próximo estágio
+
+  Não existe uma quarta barra porque não existe um quarto número real.
+*/
+function renderPlotCards(habits) {
+  return createEl("section", {
+    className: "card garden-plots",
+    children: [
+      createEl("div", {
+        className: "section-header",
+        children: [
+          createEl("h2", { className: "card-title", text: "Seus canteiros" }),
+          createEl("span", {
+            className: "badge",
+            text: `${habits.length} ${habits.length === 1 ? "árvore" : "árvores"}`,
+          }),
+        ],
+      }),
+      ...habits.map(renderPlotCard),
+    ],
+  });
+}
+
+function renderPlotCard(habit) {
+  const companion = getCompanionState(habit);
+  const stats = getHabitStats(habit);
+  const tree = getTreeType(habit.treeType);
+  const { stage, next, progress } = getTreeStageProgress(companion.habitXp);
+  const vigorBruto = getTreeVigor(habit.id);
+  const vigor = vigorAmount(vigorBruto);
+
+  const barras = [
+    { rotulo: "Água", valor: Math.round(vigor * 100), classe: "is-agua" },
+    { rotulo: "Sol", valor: Math.round(stats.consistency), classe: "is-sol" },
+    { rotulo: "Crescimento", valor: Math.round(progress * 100), classe: "is-crescimento" },
+  ];
+
+  return createEl("a", {
+    className: "plot-card",
+    attrs: { href: `#/criatura?habit=${habit.id}` },
+    children: [
+      createEl("span", {
+        className: `plot-card-art${vigor < 0.5 ? " is-murcha" : ""}`,
+        children: [createTree(stage.stage, tree.leaf, vigor)],
+      }),
+      createEl("div", {
+        className: "plot-card-body",
+        children: [
+          createEl("span", { className: "plot-card-name", text: habit.name }),
+          createEl("span", {
+            className: "plot-card-stage",
+            text: next ? `${tree.name} · ${stage.name}` : `${tree.name} · ${stage.name}, no topo`,
+          }),
+          createEl("div", {
+            className: "plot-bars",
+            children: barras.map((barra) =>
+              createEl("div", {
+                className: "plot-bar",
+                children: [
+                  createEl("span", { className: "plot-bar-label", text: barra.rotulo }),
+                  createEl("span", {
+                    className: "plot-bar-track",
+                    children: [
+                      createEl("span", {
+                        className: `plot-bar-fill ${barra.classe}`,
+                        attrs: { style: `width: ${Math.max(2, barra.valor)}%` },
+                      }),
+                    ],
+                  }),
+                  createEl("span", { className: "plot-bar-value", text: `${barra.valor}%` }),
+                ],
+              })
+            ),
+          }),
+          createEl("span", { className: "plot-card-note", text: describeVigor(vigorBruto) }),
+        ],
+      }),
     ],
   });
 }
@@ -69,20 +159,32 @@ function renderScene(catalog) {
     createScenePortal({ href: "#/lar", label: "Lar", side: "left", icon: firstGuardianIcon() })
   );
 
+  /*
+    Cada árvore num canteiro seu, com a placa do nome do hábito. A placa é o
+    que faltava: antes dava para ver que havia árvores, mas não qual era de
+    qual hábito — e o nome só existia como title, que no celular ninguém vê.
+  */
   trees.forEach((item, index) => {
     const treeType = getTreeType(item.habit.treeType);
-    const position = getTreePosition(index, trees.length);
+    const position = getPlotPosition(index, trees.length);
     const vigor = vigorAmount(item.vigor);
+
     scene.appendChild(
       createEl("div", {
-        className: `home-tree${vigor < 0.5 ? " is-murcha" : ""}`,
+        className: "garden-plot",
         attrs: {
-          style: `left: ${position.x}%; top: ${position.y}%; --tree-scale: ${
-            0.75 + item.stage.stage * 0.14
-          }`,
+          style: `left: ${position.x}%; top: ${position.y}%; --plot-scale: ${position.scale.toFixed(2)}`,
           title: `${item.habit.name} — ${treeType.name}, ${item.stage.name}`,
         },
-        children: [createTree(item.stage.stage, treeType.leaf, vigor)],
+        children: [
+          createEl("span", { className: "garden-plot-bed", children: [createGardenBed()] }),
+          createEl("span", {
+            className: `garden-plot-tree${vigor < 0.5 ? " is-murcha" : ""}`,
+            attrs: { style: `--tree-scale: ${(0.75 + item.stage.stage * 0.14).toFixed(2)}` },
+            children: [createTree(item.stage.stage, treeType.leaf, vigor)],
+          }),
+          createEl("span", { className: "garden-plot-sign", text: item.habit.name }),
+        ],
       })
     );
   });

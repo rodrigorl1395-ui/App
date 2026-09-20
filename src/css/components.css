@@ -683,14 +683,58 @@
   border-top: 1px solid rgba(143, 174, 92, 0.22);
 }
 
-.home-tree {
+/*
+  Canteiro: a árvore do hábito plantada numa moldura de madeira, com a placa
+  do nome na frente. O canteiro inteiro escala pela profundidade (quem está
+  na frente é maior), e a árvore escala de novo por dentro, pelo estágio —
+  as duas coisas são independentes e precisam continuar sendo.
+*/
+.garden-plot {
   position: absolute;
+  width: 120px;
+  transform: translate(-50%, -100%) scale(var(--plot-scale, 1));
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+
+.garden-plot-bed {
+  display: block;
+  width: 100%;
+}
+
+.garden-plot-tree {
+  position: absolute;
+  left: 50%;
+  bottom: 21px;
   width: 74px;
   height: 92px;
-  transform: translate(-50%, -78%) scale(var(--tree-scale, 1));
+  transform: translateX(-50%) scale(var(--tree-scale, 1));
   transform-origin: bottom center;
-  opacity: 0.9;
-  pointer-events: none;
+}
+
+.garden-plot-tree.is-murcha {
+  opacity: 0.62;
+  filter: saturate(0.6);
+}
+
+.garden-plot-sign {
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  max-width: 106px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #8a6440;
+  border: 1px solid #6d4c2f;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  color: #f7efe3;
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Itens do jardim: mesma família visual da árvore, um degrau mais quietos —
@@ -3431,11 +3475,6 @@ textarea.input {
 }
 
 /* A árvore com sede perde o brilho na cena, além de encolher a copa. */
-.home-tree.is-murcha {
-  opacity: 0.62;
-  filter: saturate(0.6);
-}
-
 .home-legend {
   display: flex;
   flex-direction: column;
@@ -3460,6 +3499,112 @@ textarea.input {
   border-radius: var(--radius-md);
   background: var(--glass-fill);
   border: 1px solid var(--glass-border);
+}
+
+/* Fichas dos canteiros: a leitura que a cena não tem espaço para mostrar. */
+
+.garden-plots {
+  gap: var(--space-3);
+}
+
+.plot-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.plot-card-art {
+  flex-shrink: 0;
+  width: 46px;
+  height: 58px;
+}
+
+.plot-card-art.is-murcha {
+  opacity: 0.62;
+  filter: saturate(0.6);
+}
+
+.plot-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.plot-card-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.plot-card-stage {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+.plot-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: var(--space-2) 0 var(--space-1);
+}
+
+.plot-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.plot-bar-label {
+  width: 74px;
+  flex-shrink: 0;
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+.plot-bar-track {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+  overflow: hidden;
+}
+
+.plot-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.plot-bar-fill.is-agua {
+  background: #5fc2d9;
+}
+
+.plot-bar-fill.is-sol {
+  background: #f2c14e;
+}
+
+.plot-bar-fill.is-crescimento {
+  background: #8fae5c;
+}
+
+.plot-bar-value {
+  width: 34px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: var(--fs-100);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.plot-card-note {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
 }
 
 .garden-catalog-preview {
@@ -3528,6 +3673,20 @@ textarea.input {
 }
 
 /* Aviso dentro da própria cena do Jardim, quando ainda não há nada plantado. */
+/*
+  A cena do Jardim é mais baixa e tem menos céu que a do Lar: aqui o que
+  importa é o terreno, e as criaturas não perambulam por cima dele. Com a
+  altura do Lar sobrava meia tela de chão vazio embaixo dos canteiros.
+*/
+.garden-scene {
+  height: 46vh;
+  min-height: 300px;
+}
+
+.garden-scene .home-ground {
+  inset: 24% 0 0 0;
+}
+
 .garden-scene-hint {
   position: absolute;
   inset: 0;
