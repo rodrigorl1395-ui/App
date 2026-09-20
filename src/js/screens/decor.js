@@ -9,10 +9,11 @@
 */
 
 import { createEl, createSectionHeader, createScenePortal } from "../ui.js";
-import { createTree, createIcon, createGardenBed } from "../icons.js";
+import { createTree, createIcon } from "../icons.js";
 import { createIsoDwelling } from "../isoBuildings.js";
-import { refresh } from "../router.js";
-import { getSceneCreatures, getPlotPosition, getDecorPosition } from "../garden.js";
+import { createGarden3D } from "../garden3d.js";
+import { navigate, refresh } from "../router.js";
+import { getSceneCreatures } from "../garden.js";
 import { getCatalog, getGarden, getSeedsAvailable, plantItem } from "../decor.js";
 import { getHabits } from "../habits.js";
 import { getCompanionState } from "../companion.js";
@@ -143,79 +144,89 @@ function firstGuardianIcon() {
   cima. A porta de volta ao Lar fica sempre na borda esquerda, plantado ou
   não, porque a travessia não devia depender de ter algo para mostrar.
 */
-function renderScene(catalog) {
-  const trees = getSceneCreatures().map((creature) => creature.tree);
-  // Cada morada usa o id do próprio registro plantado como semente, não o id
-  // do catálogo — assim duas cabanas compradas viram duas casas diferentes,
-  // e cada uma mantém a mesma forma para sempre, mesmo depois de recarregar.
-  const byId = new Map(catalog.map((item) => [item.id, item]));
-  const plots = getGarden()
-    .map((planted) => ({ item: byId.get(planted.itemId), plantedId: planted.id }))
-    .filter((plot) => plot.item);
+/*
+  A cena em 3D. O canvas entra num contêiner próprio e é montado depois que
+  o elemento existe no documento (antes disso ele não tem tamanho, e o
+  renderizador nasceria de zero por zero).
 
-  const scene = createEl("div", { className: "home-scene garden-scene" });
-  scene.appendChild(createEl("div", { className: "home-ground" }));
-  scene.appendChild(
+  O descarte importa mais do que parece: cada visita ao Jardim cria um
+  contexto WebGL, e o navegador dá poucos. Sem devolver o contexto ao sair,
+  depois de algumas idas e vindas o jardim simplesmente apaga.
+*/
+function renderScene3D(trees, decor) {
+  const palco = createEl("div", { className: "garden-3d" });
+  palco.appendChild(
     createScenePortal({ href: "#/lar", label: "Lar", side: "left", icon: firstGuardianIcon() })
   );
 
-  /*
-    Cada árvore num canteiro seu, com a placa do nome do hábito. A placa é o
-    que faltava: antes dava para ver que havia árvores, mas não qual era de
-    qual hábito — e o nome só existia como title, que no celular ninguém vê.
-  */
-  trees.forEach((item, index) => {
-    const treeType = getTreeType(item.habit.treeType);
-    const position = getPlotPosition(index, trees.length);
-    const vigor = vigorAmount(item.vigor);
+  let jardim = null;
 
-    scene.appendChild(
-      createEl("div", {
-        className: "garden-plot",
-        attrs: {
-          style: `left: ${position.x}%; top: ${position.y}%; --plot-scale: ${position.scale.toFixed(2)}`,
-          title: `${item.habit.name} — ${treeType.name}, ${item.stage.name}`,
-        },
-        children: [
-          createEl("span", { className: "garden-plot-bed", children: [createGardenBed()] }),
-          createEl("span", {
-            className: `garden-plot-tree${vigor < 0.5 ? " is-murcha" : ""}`,
-            attrs: { style: `--tree-scale: ${(0.75 + item.stage.stage * 0.14).toFixed(2)}` },
-            children: [createTree(item.stage.stage, treeType.leaf, vigor)],
-          }),
-          createEl("span", { className: "garden-plot-sign", text: item.habit.name }),
-        ],
-      })
-    );
+  const montar = () => {
+    if (jardim || !palco.isConnected || !palco.clientWidth) return false;
+    jardim = createGarden3D(palco, {
+      trees,
+      decor,
+      onPick: (habitId) => navigate(`/criatura?habit=${habitId}`),
+    });
+    /*
+      Sem WebGL não há jardim, e inventar um desenho pior no lugar seria
+      esconder o problema. As fichas logo abaixo já dizem tudo que a cena
+      diria — nome, estágio, água, sol e crescimento de cada árvore.
+    */
+    if (!jardim) {
+      palco.appendChild(
+        createEl("p", {
+          className: "garden-scene-hint",
+          text: "Este aparelho não consegue desenhar o jardim em 3D. Suas árvores continuam logo abaixo.",
+        })
+      );
+    }
+    return true;
+  };
+
+  // O router insere a tela inteira de uma vez; o observador serve para
+  // montar assim que ela entra e descartar assim que ela sai.
+  const observador = new MutationObserver(() => {
+    if (palco.isConnected) {
+      montar();
+    } else if (jardim) {
+      jardim.dispose();
+      jardim = null;
+      observador.disconnect();
+    }
   });
+  observador.observe(document.body, { childList: true, subtree: true });
+  requestAnimationFrame(montar);
 
-  if (!plots.length && !trees.length) {
-    scene.appendChild(
-      createEl("p", { className: "garden-scene-hint", text: "Ainda não há nada plantado aqui." })
-    );
-    return scene;
-  }
+  return palco;
+}
 
-  plots.forEach(({ item, plantedId }, index) => {
-    const position = getDecorPosition(index, plots.length);
-    const isBuilding = item.kind === "morada";
-    scene.appendChild(
-      createEl("div", {
-        className: `home-decor${isBuilding ? " is-building" : ""}`,
-        attrs: {
-          style: `left: ${position.x}%; top: ${position.y}%; --decor-scale: ${
-            isBuilding ? item.scale : 0.9
-          }`,
-          title: item.name,
-        },
-        children: [
-          isBuilding ? createIsoDwelling(plantedId, item.build) : createTree(4, item.color, 1),
-        ],
-      })
-    );
-  });
+/*
+  O que vai para dentro do jardim: uma árvore por hábito, com a cor da folha
+  do tipo de árvore dele, e o que foi plantado com sementes espalhado em
+  volta. O vigor cru vira número aqui (uma árvore nunca regada não está
+  murcha, só ainda não foi regada uma vez).
+*/
+function renderScene(catalog) {
+  const trees = getSceneCreatures().map((creature) => ({
+    habit: creature.tree.habit,
+    stage: creature.tree.stage,
+    vigor: vigorAmount(creature.tree.vigor),
+    leaf: getTreeType(creature.tree.habit.treeType).leaf,
+  }));
 
-  return scene;
+  const byId = new Map(catalog.map((item) => [item.id, item]));
+  const decor = getGarden()
+    .map((planted) => ({ item: byId.get(planted.itemId), plantedId: planted.id }))
+    .filter((plot) => plot.item)
+    .map(({ item, plantedId }) => ({
+      id: plantedId,
+      kind: item.kind,
+      color: item.color || "#c9a26a",
+      scale: item.scale || 1,
+    }));
+
+  return renderScene3D(trees, decor);
 }
 
 /*

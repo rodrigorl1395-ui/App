@@ -683,79 +683,6 @@
   border-top: 1px solid rgba(143, 174, 92, 0.22);
 }
 
-/*
-  Canteiro: a árvore do hábito plantada numa moldura de madeira, com a placa
-  do nome na frente. O canteiro inteiro escala pela profundidade (quem está
-  na frente é maior), e a árvore escala de novo por dentro, pelo estágio —
-  as duas coisas são independentes e precisam continuar sendo.
-*/
-.garden-plot {
-  position: absolute;
-  width: 120px;
-  transform: translate(-50%, -100%) scale(var(--plot-scale, 1));
-  transform-origin: bottom center;
-  pointer-events: none;
-}
-
-.garden-plot-bed {
-  display: block;
-  width: 100%;
-}
-
-.garden-plot-tree {
-  position: absolute;
-  left: 50%;
-  bottom: 21px;
-  width: 74px;
-  height: 92px;
-  transform: translateX(-50%) scale(var(--tree-scale, 1));
-  transform-origin: bottom center;
-}
-
-.garden-plot-tree.is-murcha {
-  opacity: 0.62;
-  filter: saturate(0.6);
-}
-
-.garden-plot-sign {
-  position: absolute;
-  left: 50%;
-  bottom: -7px;
-  transform: translateX(-50%);
-  max-width: 106px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: #8a6440;
-  border: 1px solid #6d4c2f;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-  color: #f7efe3;
-  font-size: 10px;
-  font-weight: var(--fw-semibold);
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Itens do jardim: mesma família visual da árvore, um degrau mais quietos —
-   são pano de fundo, nunca o que a cena está pedindo que você olhe. */
-.home-decor {
-  position: absolute;
-  width: 60px;
-  height: 76px;
-  transform: translate(-50%, -78%) scale(var(--decor-scale, 1));
-  transform-origin: bottom center;
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-/* Moradas isométricas são bem mais largas que altas — a caixa acompanha a
-   proporção da casa gerada em vez de espremê-la numa silhueta de árvore. */
-.home-decor.is-building {
-  width: 96px;
-  height: 62px;
-}
-
 .home-creature {
   position: absolute;
   display: flex;
@@ -3674,17 +3601,34 @@ textarea.input {
 
 /* Aviso dentro da própria cena do Jardim, quando ainda não há nada plantado. */
 /*
-  A cena do Jardim é mais baixa e tem menos céu que a do Lar: aqui o que
-  importa é o terreno, e as criaturas não perambulam por cima dele. Com a
-  altura do Lar sobrava meia tela de chão vazio embaixo dos canteiros.
+  O palco do jardim em 3D. O canvas preenche a caixa inteira; a porta para o
+  Lar fica por cima dele, em DOM, para continuar sendo um link de verdade.
 */
-.garden-scene {
-  height: 46vh;
-  min-height: 300px;
+.garden-3d {
+  position: relative;
+  height: 52vh;
+  min-height: 320px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  background: #16241f;
+  touch-action: none;
 }
 
-.garden-scene .home-ground {
-  inset: 24% 0 0 0;
+.garden-3d-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+  Sobre o jardim 3D a porta é só o botão: a divisória tracejada foi feita
+  para a cena chapada do Lar e, por cima de uma cena com profundidade, lê
+  como um risco na tela. O gradiente fica, porque é ele que destaca o botão.
+*/
+.garden-3d .scene-portal.is-left {
+  border-right: none;
 }
 
 .garden-scene-hint {
