@@ -261,17 +261,36 @@ function identityBlock(habit, companion) {
   });
 }
 
+/*
+  Quando o que aconteceu foi exatamente o combinado, não devia existir uma
+  tela no meio do caminho perguntando isso de novo. "Cumprir hoje" registra
+  a missão principal direto daqui — um toque a menos entre "fiz" e "está
+  registrado". Quem fez diferente do planejado, ou quer combinar quando e
+  onde antes, ainda tem "Ajustar" para abrir o painel completo.
+*/
 function renderCollapsedFocus(habit, dayStatus) {
   const companion = getCompanionState(habit);
   const stats = getHabitStats(habit);
   const existingPlan = getPlanForToday(habit.id);
 
-  const startButton = createEl("button", {
+  const doneButton = createEl("button", {
     className: "button button-primary button-block",
-    text: "Começar missão",
+    text: "Cumpri hoje",
     attrs: { type: "button" },
   });
-  startButton.addEventListener("click", () => {
+  doneButton.addEventListener("click", () => {
+    lastResult = completeMission(habit, "main");
+    openHabitId = habit.id;
+    step = "concluido";
+    refresh();
+  });
+
+  const adjustButton = createEl("button", {
+    className: "link-button link-muted",
+    text: "Fiz diferente, ou quero combinar antes",
+    attrs: { type: "button" },
+  });
+  adjustButton.addEventListener("click", () => {
     openHabit(habit.id);
     refresh();
   });
@@ -302,7 +321,8 @@ function renderCollapsedFocus(habit, dayStatus) {
       existingPlan
         ? createEl("p", { className: "form-hint", text: `Combinado: ${existingPlan.text}` })
         : null,
-      startButton,
+      doneButton,
+      adjustButton,
     ],
   });
 }

@@ -25,6 +25,7 @@ const ACTIVITY_BY_CATEGORY = {
 // Quando o hábito do dia ainda não veio, quem fala é o humor.
 const MOOD_ICON = {
   novo: "star",
+  insatisfeita: "leaf",
   sincera: "leaf",
   faminta: "apple",
   saudosa: "droplet",
@@ -33,8 +34,9 @@ const MOOD_ICON = {
 
 /*
   Cada criatura cuida de um hábito, então há uma criatura por hábito na cena.
-  Cumpriu hoje, ela pratica o que o hábito treina; não cumpriu, o humor é que
-  manda — com fome, com saudade ou descansando.
+  Cumpriu no mínimo, ela mostra que sabia que dava mais — a mesma regra de
+  "não pune o histórico" não significa fingir que não fez diferença nenhuma.
+  Só cumprindo de verdade (principal ou bônus) ela comemora.
 */
 export function getSceneCreatures() {
   return getHabits()
@@ -44,7 +46,8 @@ export function getSceneCreatures() {
 
       const done = isDoneToday(habit.id);
       const mood = getMood(habit.id);
-      const activity = done
+      const comemorando = done && mood.id !== "insatisfeita";
+      const activity = comemorando
         ? ACTIVITY_BY_CATEGORY[habit.category] || ACTIVITY_BY_CATEGORY.custom
         : { verb: mood.label, icon: MOOD_ICON[mood.id] || "sprout", motion: mood.motion };
 

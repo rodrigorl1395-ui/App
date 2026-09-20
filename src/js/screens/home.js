@@ -230,15 +230,19 @@ export function renderHomeScreen() {
     button.addEventListener("click", () => navigate(`/missao?habit=${creatures[index].habit.id}`));
   });
 
-  const faminta = creatures.find((creature) => !creature.done);
+  // Cumprir no mínimo aguou a árvore, mas não deixa a criatura em paz de
+  // verdade — por isso ela entra aqui junto de quem nem cumpriu ainda.
+  const precisaAtencao = creatures.find(
+    (creature) => !creature.done || creature.mood.id === "insatisfeita"
+  );
   const regadas = creatures.filter((creature) => creature.done).length;
   const legend = createEl("div", {
     className: "home-legend",
     children: [
       createEl("p", {
         className: "tree-hint",
-        text: faminta
-          ? getMoodMessage(faminta.animal, faminta.habit.id)
+        text: precisaAtencao
+          ? getMoodMessage(precisaAtencao.animal, precisaAtencao.habit.id)
           : "Todo mundo comeu hoje. O lar está em paz.",
       }),
       createEl("p", {
