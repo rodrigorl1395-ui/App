@@ -51,3 +51,19 @@ export function updateHabit(id, changes) {
 export function removeHabit(id) {
   setState({ habits: getHabits().filter((habit) => habit.id !== id) });
 }
+
+/*
+  A ordem da lista é a própria ordem de habits[] — ninguém reordena por
+  importância, horário ou nome em lugar nenhum do app. Por isso reordenar à
+  mão aqui já basta: a missão do dia, a lista em Meus hábitos e as posições
+  no Lar e no Jardim seguem essa mesma ordem sozinhas.
+*/
+export function reorderHabits(orderedIds) {
+  const byId = new Map(getHabits().map((habit) => [habit.id, habit]));
+  const reordered = orderedIds.map((id) => byId.get(id)).filter(Boolean);
+  // Um hábito fora da lista recebida (não deveria acontecer) fica no fim,
+  // em vez de sumir da lista por causa de uma ordem incompleta.
+  const incluidos = new Set(orderedIds);
+  const resto = getHabits().filter((habit) => !incluidos.has(habit.id));
+  setState({ habits: [...reordered, ...resto] });
+}

@@ -2120,6 +2120,120 @@ textarea.input {
 
 /* Comemoração */
 
+/* Reordenar hábitos à mão */
+
+.reorder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(6, 9, 18, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: celebration-in var(--duration-base) var(--ease-emphasized);
+}
+
+.reorder-panel {
+  width: 100%;
+  max-width: 480px;
+  max-height: 86vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--glass-fill-strong, var(--glass-fill));
+  border: 1px solid var(--glass-border);
+  border-bottom: none;
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.reorder-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.reorder-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.reorder-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 60px;
+  flex: 0 0 60px;
+  padding: 0 var(--space-2);
+  background: var(--glass-fill);
+  border-bottom: 1px solid var(--glass-border);
+  touch-action: none;
+}
+
+.reorder-row:first-child {
+  border-top: 1px solid var(--glass-border);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.reorder-row:last-child {
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.reorder-row.is-dragging {
+  z-index: 2;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.reorder-handle {
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--fs-400);
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+}
+
+.reorder-art {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-fill-strong, var(--glass-fill));
+  pointer-events: none;
+}
+
+.reorder-art .guardian-art {
+  width: 78%;
+  height: 78%;
+}
+
+.reorder-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-300);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.reorder-done {
+  margin-top: var(--space-2);
+}
+
 .celebration {
   position: fixed;
   inset: 0;

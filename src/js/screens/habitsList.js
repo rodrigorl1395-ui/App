@@ -9,6 +9,7 @@ import {
 import { createTree } from "../icons.js";
 import { navigate, refresh } from "../router.js";
 import { getHabits, removeHabit } from "../habits.js";
+import { showReorderHabits } from "./reorderHabits.js";
 import { getCompanionState, getAvailableAnimals } from "../companion.js";
 import { getMood } from "../mood.js";
 import { getFruits } from "../missions.js";
@@ -40,12 +41,29 @@ export function renderHabitsScreen() {
     ? createEl("div", { className: "habit-list", children: habits.map(renderHabitItem) })
     : createEmptyState("Nenhum hábito ainda. Cada criatura cuida de um, e cresce com ele.");
 
+  const reorderButton = createEl("button", {
+    className: "link-button",
+    text: "Reordenar",
+    attrs: { type: "button" },
+  });
+  reorderButton.addEventListener("click", () => {
+    showReorderHabits(() => refresh());
+  });
+
   return createEl("div", {
     className: "screen",
     children: [
       createSectionHeader("Meus hábitos"),
       habits.length ? renderMaster() : null,
-      habits.length ? createEl("h2", { className: "section-title", text: "Suas criaturas" }) : null,
+      habits.length
+        ? createEl("div", {
+            className: "section-header",
+            children: [
+              createEl("h2", { className: "section-title", text: "Suas criaturas" }),
+              habits.length > 1 ? reorderButton : null,
+            ],
+          })
+        : null,
       content,
       newButton,
     ],
