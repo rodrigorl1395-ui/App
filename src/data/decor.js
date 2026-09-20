@@ -18,7 +18,6 @@ export const DECOR_ITEMS = [
     name: "Cabana Simples",
     cost: 2,
     scale: 0.85,
-    build: { floors: 1, width: 2, depth: 2 },
     story: "Pequena, mas de pé. Todo jardim começa com um teto.",
   },
   {
@@ -27,7 +26,6 @@ export const DECOR_ITEMS = [
     name: "Casa de Pedra",
     cost: 5,
     scale: 1,
-    build: { floors: 1, width: 3, depth: 3 },
     story: "Mais firme que a cabana. Leva tempo para erguer uma assim.",
   },
   {
@@ -36,7 +34,6 @@ export const DECOR_ITEMS = [
     name: "Torre Pequena",
     cost: 9,
     scale: 1.1,
-    build: { floors: 2, width: 2, depth: 2 },
     story: "Vê o jardim inteiro daqui de cima.",
   },
   {
