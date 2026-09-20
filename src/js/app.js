@@ -15,6 +15,11 @@ import { renderEditHabitScreen } from "./screens/editHabit.js";
 import { renderGardenScreen, renderHomeScreen } from "./screens/garden.js";
 import { renderSettingsScreen } from "./screens/settings.js";
 import { renderToolsScreen } from "./screens/tools.js";
+import { guardApp } from "./screens/apps/kit.js";
+import { renderGymApp } from "./screens/apps/gym.js";
+import { renderMoneyApp } from "./screens/apps/money.js";
+import { renderJournalApp } from "./screens/apps/journal.js";
+import { renderReadingApp } from "./screens/apps/reading.js";
 import { generateId } from "./utils.js";
 
 // Antes de tudo, sem esperar o resto do estado hidratar: evita o flash do
@@ -60,6 +65,13 @@ function registerRoutes() {
   registerRoute("/editar-habito", renderEditHabitScreen);
   registerRoute("/ajustes", renderSettingsScreen);
   registerRoute("/ferramentas", renderToolsScreen);
+
+  // Os apps que as ferramentas destravam. Cada um é uma rota própria, e
+  // guardApp recusa quem chegou pela URL sem ter conquistado a ferramenta.
+  registerRoute("/app/academia", guardApp("coach-academia", renderGymApp));
+  registerRoute("/app/financas", guardApp("radar-compras", renderMoneyApp));
+  registerRoute("/app/diario", guardApp("bullet-journal", renderJournalApp));
+  registerRoute("/app/leitura", guardApp("apoiador-leitura", renderReadingApp));
   setNotFound(renderTodayScreen);
 
   setGuard((path) => {

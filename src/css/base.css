@@ -55,8 +55,8 @@ body::before {
     radial-gradient(38% 30% at 20% 12%, var(--glow-violet), transparent 70%),
     radial-gradient(42% 32% at 85% 32%, var(--glow-teal), transparent 72%),
     radial-gradient(45% 35% at 50% 92%, var(--glow-ember), transparent 75%);
-  opacity: 0.32;
-  filter: blur(60px);
+  opacity: 0.17;
+  filter: blur(80px);
   pointer-events: none;
 }
 

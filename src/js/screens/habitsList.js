@@ -53,22 +53,18 @@ export function renderHabitsScreen() {
   return createEl("div", {
     className: "screen",
     children: [
+      /*
+        A tela se chama "Meus hábitos": ela precisa entregar os hábitos
+        primeiro. O Perfil do Mestre é a leitura do conjunto — vem depois
+        da lista, não na frente dela.
+      */
       createSectionHeader(
         "Meus hábitos",
-        createEl("a", { className: "link-button", text: "Ferramentas", attrs: { href: "#/ferramentas" } })
+        habits.length > 1 ? reorderButton : null
       ),
-      habits.length ? renderMaster() : null,
-      habits.length
-        ? createEl("div", {
-            className: "section-header",
-            children: [
-              createEl("h2", { className: "section-title", text: "Suas criaturas" }),
-              habits.length > 1 ? reorderButton : null,
-            ],
-          })
-        : null,
       content,
       newButton,
+      habits.length ? renderMaster() : null,
     ],
   });
 }

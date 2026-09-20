@@ -13,7 +13,7 @@
 .input,
 .mission-tile,
 .animal-card {
-  background: var(--glass-fill);
+  background: color-mix(in srgb, var(--color-deep) 76%, transparent);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
@@ -114,7 +114,14 @@
 .button-primary {
   background: var(--color-accent);
   color: var(--color-text-on-accent);
-  box-shadow: 0 8px 28px var(--color-accent-glow);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+/* Dentro de um app, o primário veste a cor daquele app: é o que faz a
+   academia parecer a academia, e não mais uma tela do mesmo azul. */
+.app-screen .button-primary {
+  background: var(--color-app);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-app) 30%, transparent);
 }
 
 .button-primary:hover {
@@ -373,9 +380,8 @@
 */
 .master-strip {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-1);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   background: var(--glass-fill);
@@ -387,6 +393,7 @@
 .master-strip-identity {
   display: flex;
   align-items: baseline;
+  justify-content: space-between;
   gap: var(--space-2);
   min-width: 0;
 }
@@ -408,7 +415,6 @@
 }
 
 .master-strip-numbers {
-  flex-shrink: 0;
   display: flex;
   gap: var(--space-3);
 }
@@ -3878,93 +3884,628 @@ textarea.input {
   line-height: var(--lh-snug);
 }
 
-/* Ferramentas: objetos com efeito real — o cartão existe para o conteúdo
-   ser lido, não só para mostrar que foi obtido. */
+/* ------------------------------------------------------------------ */
+/* Apps — a gaveta e as telas de cada ferramenta                       */
+/* ------------------------------------------------------------------ */
 
-.tool-list {
+/*
+  Gaveta: ladrilhos quadrados, como qualquer tela inicial de celular. O
+  ícone vem na cor do app e a terceira linha é o estado de hoje, não uma
+  promessa do que ele faz.
+*/
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.app-tile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  text-align: left;
+  transition: transform var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
 }
 
-.tool-card-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+.app-tile:active {
+  transform: scale(0.97);
 }
 
-.tool-card-icon {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-full);
+.app-tile-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-accent-soft, var(--glass-fill-strong));
-  color: var(--color-accent-strong, var(--color-text-secondary));
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-app) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-app) 34%, transparent);
+  color: var(--color-app);
 }
 
-.tool-card-icon svg {
+.app-tile-icon svg {
   width: 22px;
   height: 22px;
 }
 
-.tool-card-title {
+.app-tile-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.app-tile-status {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+/* Cabeçalho de um app aberto: voltar, ícone e nome. */
+.app-screen {
+  --color-app: var(--color-accent);
+}
+
+.app-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-back {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+}
+
+.app-back-arrow {
+  width: 8px;
+  height: 8px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(1px, -1px);
+}
+
+.app-topbar-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-app) 20%, transparent);
+  color: var(--color-app);
+}
+
+.app-topbar-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.app-topbar-body {
   display: flex;
   flex-direction: column;
-  gap: 1px;
   min-width: 0;
 }
 
-.tool-card-category {
+.app-topbar-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  font-weight: var(--fw-semibold);
+}
+
+.app-topbar-subtitle {
   font-size: var(--fs-100);
   color: var(--color-text-tertiary);
 }
 
-.tool-content {
+.app-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.app-stat {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.app-stat-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  overflow-wrap: anywhere;
+  font-weight: var(--fw-semibold);
+  color: var(--color-app);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.app-stat-label {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.app-card {
+  gap: var(--space-3);
+}
+
+.app-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.app-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.tool-content-item {
+.app-list.is-quiet {
+  opacity: 0.6;
+}
+
+.app-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  text-align: left;
+  width: 100%;
+}
+
+.app-row-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-app, var(--color-accent)) 18%, transparent);
+  color: var(--color-app, var(--color-accent));
+}
+
+.app-row-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.app-row-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1px;
+  text-align: left;
+}
+
+.app-row-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.app-row-note {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.app-row-value {
+  flex-shrink: 0;
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.app-icon-button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--glass-fill-strong);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+}
+
+.app-icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.app-icon-button.is-danger {
+  color: var(--color-danger);
+}
+
+.app-icon-button.is-prev svg {
+  transform: rotate(180deg);
+}
+
+.app-field-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.app-field-row .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-empty {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px dashed var(--glass-border);
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+  text-align: center;
+}
+
+.app-progress {
+  display: block;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+  overflow: hidden;
+}
+
+.app-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-app, var(--color-accent));
+}
+
+/* Academia */
+
+.workout-plan {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.workout-plan-head {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.workout-plan .button {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-200);
+}
+
+.exercise-card {
+  gap: var(--space-3);
+}
+
+.exercise-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* As séries: alvos grandes, porque se marca isso com a mão suada e o
+   celular escorregando no banco do supino. */
+.set-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.set-chip {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.set-chip:active {
+  transform: scale(0.94);
+}
+
+.set-chip.is-done {
+  background: color-mix(in srgb, var(--color-app) 26%, transparent);
+  border-color: var(--color-app);
+  color: var(--color-app);
+}
+
+/* Dinheiro */
+
+.money-rule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.money-rule-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.money-rule-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.money-rule-name {
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.money-rule-value {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.money-rule-value.is-over {
+  color: var(--color-danger);
+}
+
+/* A barra com a marca da meta: a régua do 50/30/20 fica visível na própria
+   barra, senão a porcentagem não quer dizer nada. */
+.money-bar {
+  position: relative;
+  display: block;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--glass-border);
+  overflow: hidden;
+}
+
+.money-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.money-bar-meta {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--color-text-primary);
+  opacity: 0.55;
+}
+
+.money-income {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.money-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+}
+
+.wish-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wish-row.is-ready .app-row {
+  border-color: color-mix(in srgb, var(--color-app) 45%, transparent);
+}
+
+.wish-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.wish-actions .button {
+  flex: 1;
+  padding: var(--space-2);
+  font-size: var(--fs-200);
+}
+
+.wish-clock {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  padding-left: var(--space-3);
+}
+
+/* Diário */
+
+.journal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   background: var(--glass-fill);
   border: 1px solid var(--glass-border);
 }
 
-.tool-content-title {
+.journal-nav-label {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.journal-line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-1);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.journal-line:last-child {
+  border-bottom: none;
+}
+
+.journal-mark {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--glass-fill-strong);
+  color: var(--color-app);
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+}
+
+.journal-mark.is-done {
+  background: color-mix(in srgb, var(--color-app) 26%, transparent);
+}
+
+.journal-text {
+  font-size: var(--fs-300);
+  color: var(--color-text-primary);
+  line-height: var(--lh-snug);
+}
+
+.journal-line.is-done .journal-text {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+/* Leitura */
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.book-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.book-foot .button {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-100);
+}
+
+/* A ficha de método, dobrada por padrão: está ali para consulta, não para
+   ocupar a tela toda vez que o app abre. */
+.method-card {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.method-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-secondary);
+}
+
+.method-chevron {
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.method-toggle.is-open .method-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+.method-body[hidden] {
+  display: none;
+}
+
+.method-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.method-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+}
+
+.method-item-title {
   font-size: var(--fs-200);
   font-weight: var(--fw-semibold);
   color: var(--color-text-primary);
 }
 
-.tool-content-text {
+.method-item-text {
   font-size: var(--fs-100);
   color: var(--color-text-secondary);
   line-height: var(--lh-snug);
-}
-
-.tool-shop-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--glass-fill-strong);
-  color: var(--color-text-secondary);
-}
-
-.tool-shop-icon svg {
-  width: 20px;
-  height: 20px;
 }
 
 .garden-catalog-item .button {

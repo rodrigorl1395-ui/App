@@ -1,8 +1,12 @@
-// O Lar: o que cada criatura está fazendo, e onde.
+// O que cada criatura está fazendo no mundo.
 //
 // O comportamento não é decorativo — ele conta o estado real do hábito.
 // Cumpriu hoje, a criatura pratica aquilo que o hábito treina; não cumpriu,
 // ela fica esperando por você.
+//
+// O posicionamento em si mora em world/scene.js: quando o Lar e o Jardim
+// viraram o mesmo terreno, o desenho passou para o canvas e este arquivo
+// ficou só com a pergunta de negócio ("como ela está hoje?").
 
 import { getHabits } from "./habits.js";
 import { isDoneToday } from "./missions.js";
@@ -67,77 +71,4 @@ export function getSceneCreatures() {
       };
     })
     .filter(Boolean);
-}
-
-/*
-  Todo mundo vive no chão, na metade de baixo da cena. Espalhamos em x e
-  escalonamos o y para ninguém nascer alinhado como vitrine — quem está mais
-  embaixo aparece maior, o que dá a sensação de profundidade.
-*/
-export const GROUND_TOP = 38;
-export const GROUND_BOTTOM = 86;
-
-export function getStartPosition(index, total) {
-  const spread = 72 / Math.max(total, 1);
-  const x = 14 + spread * (index + 0.5) + (index % 2 === 0 ? 3 : -3);
-  const y = GROUND_TOP + 4 + ((index * 13) % (GROUND_BOTTOM - GROUND_TOP - 8));
-  return { x: clamp(x, 12, 88), y };
-}
-
-// Árvores ficam plantadas mais ao fundo, atrás de onde as criaturas andam.
-export function getTreePosition(index, total) {
-  const spread = 76 / Math.max(total, 1);
-  return {
-    x: clamp(12 + spread * (index + 0.5), 10, 90),
-    y: GROUND_TOP - 2 + ((index * 9) % 16),
-  };
-}
-
-/*
-  O que ela faz ao chegar na árvore. É aqui que a ideia fecha: o dia cumprido
-  regou a árvore, a árvore deu fruto, e o fruto é a comida. Sem o dia, ela
-  chega e não encontra nada — e isso aparece na cena, não num aviso.
-*/
-export function getFeedingActivity(creature) {
-  const vigor = vigorAmount(creature.tree.vigor);
-  if (creature.done) return { verb: "comendo os frutos", icon: "apple", motion: "bounce" };
-  if (vigor >= 0.5) return { verb: "procurando fruto", icon: "leaf", motion: "idle" };
-  if (vigor >= 0.3) return { verb: "com sede pela árvore", icon: "droplet", motion: "idle" };
-  return { verb: "dormindo nas raízes", icon: "moon", motion: "sleep" };
-}
-
-// Quanto mais perto do rodapé, maior a criatura.
-export function depthScale(y) {
-  const t = (y - GROUND_TOP) / (GROUND_BOTTOM - GROUND_TOP);
-  return 0.82 + t * 0.38;
-}
-
-// Alvo aleatório dentro da cena, às vezes perto de outra criatura — é o que
-// faz elas parecerem se encontrar, sem precisar de IA nenhuma.
-export function pickTarget(current, others) {
-  const nearSomeone = others.length > 0 && Math.random() < 0.3;
-
-  if (nearSomeone) {
-    const friend = others[Math.floor(Math.random() * others.length)];
-    // Para do lado, nunca por cima: sem distância mínima os orbes empilham e
-    // o encontro parece defeito em vez de interação.
-    const side = Math.random() < 0.5 ? -1 : 1;
-    return {
-      x: clamp(friend.x + side * randomBetween(11, 17), 12, 88),
-      y: clamp(friend.y + randomBetween(-4, 4), GROUND_TOP + 2, GROUND_BOTTOM),
-    };
-  }
-
-  return {
-    x: clamp(current.x + randomBetween(-28, 28), 12, 88),
-    y: clamp(current.y + randomBetween(-12, 12), GROUND_TOP + 2, GROUND_BOTTOM),
-  };
-}
-
-function randomBetween(min, max) {
-  return min + Math.random() * (max - min);
-}
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
 }

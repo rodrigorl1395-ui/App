@@ -8,11 +8,17 @@
 
   source: "loja" (compra com sementes) ou "achado" (destrava sozinha quando
   o histórico do hábito daquela categoria cumpre requires, como os achados).
+
+  app: a rota que a ferramenta abre. Uma ferramenta obtida não é um texto
+  guardado numa lista — é um app inteiro que passa a existir (a academia
+  com séries e cargas, o radar com os gastos do mês). O content abaixo vira
+  a ficha de método dentro do próprio app, onde ele é útil.
 */
 
 export const TOOLS = [
   {
     id: "bullet-journal",
+    app: { route: "/app/diario", icon: "notebook", tagline: "Tarefas, notas e eventos do dia" },
     name: "Bullet Journal",
     category: "mente",
     icon: "book",
@@ -31,6 +37,7 @@ export const TOOLS = [
   },
   {
     id: "apoiador-leitura",
+    app: { route: "/app/leitura", icon: "book", tagline: "Livros, páginas e sessões" },
     name: "Apoiador de Leitura",
     category: "mente",
     icon: "leaf",
@@ -49,6 +56,7 @@ export const TOOLS = [
   },
   {
     id: "radar-compras",
+    app: { route: "/app/financas", icon: "wallet", tagline: "Gastos do mês e a espera de 24h" },
     name: "Radar de Compras",
     category: "trabalho",
     icon: "wind",
@@ -67,6 +75,7 @@ export const TOOLS = [
   },
   {
     id: "coach-academia",
+    app: { route: "/app/academia", icon: "dumbbell", tagline: "Treinos, séries e carga" },
     name: "Coach de Academia",
     category: "movimento",
     icon: "flame",

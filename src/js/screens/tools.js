@@ -1,27 +1,57 @@
 /*
-  Ferramentas: objetos que ajudam de verdade — cada um entrega um conteúdo
-  real (uma técnica, um roteiro, um checklist), não um número a mais.
+  Apps — a casa das ferramentas.
 
-  Duas origens, do mesmo jeito que o usuário pediu: algumas se compram com
-  sementes (a mesma bolsa do Jardim), outras se encontram sozinhas quando o
-  histórico de um hábito daquela categoria cumpre o requisito — como um
-  achado de criatura, só que o prêmio é algo pra usar, não pra guardar.
+  Uma ferramenta obtida não é um texto guardado numa lista: é um app que
+  passa a existir no aparelho. Esta tela é a gaveta deles — cada um com o
+  seu ícone e uma linha dizendo como você está indo nele agora, não o que
+  ele promete fazer.
+
+  Embaixo, o que ainda não é seu: o que se compra com sementes e o que se
+  destrava cumprindo hábito.
 */
 
-import { createEl, showToolFound } from "../ui.js";
+import { createEl, showToolFound, showSheet } from "../ui.js";
 import { createIcon } from "../icons.js";
-import { refresh } from "../router.js";
+import { navigate, refresh } from "../router.js";
 import { getCompanionState } from "../companion.js";
 import { CATEGORY_LABELS } from "../../data/animals.js";
 import { getSeedsAvailable } from "../decor.js";
-import { getShopCatalog, buyTool, getOwnedTools, getPendingTool, collectTool } from "../tools.js";
+import { TOOLS } from "../../data/tools.js";
+import { getShopCatalog, buyTool, getOwnedTools, getPendingTool, collectTool, isObtained } from "../tools.js";
+
+import { getWeekCount } from "../apps/gym.js";
+import { getMonthSummary, formatarValor } from "../apps/money.js";
+import { getPendingCount } from "../apps/journal.js";
+import { getWeekPages } from "../apps/reading.js";
+
+/*
+  A linha de status de cada app: o número que importa nele hoje. É o que
+  transforma uma gaveta de ícones em algo que se olha de manhã.
+*/
+function statusDoApp(toolId) {
+  if (toolId === "coach-academia") {
+    const treinos = getWeekCount();
+    return treinos ? `${treinos} ${treinos === 1 ? "treino" : "treinos"} em 7 dias` : "Nenhum treino esta semana";
+  }
+  if (toolId === "radar-compras") {
+    const { total } = getMonthSummary();
+    return total ? `${formatarValor(total)} este mês` : "Nada lançado este mês";
+  }
+  if (toolId === "bullet-journal") {
+    const abertas = getPendingCount();
+    return abertas ? `${abertas} ${abertas === 1 ? "tarefa aberta" : "tarefas abertas"}` : "Dia em dia";
+  }
+  if (toolId === "apoiador-leitura") {
+    const paginas = getWeekPages();
+    return paginas ? `${paginas} páginas em 7 dias` : "Nenhuma leitura esta semana";
+  }
+  return "";
+}
 
 export function renderToolsScreen() {
   const pendente = getPendingTool();
   if (pendente) {
     const companion = getCompanionState(pendente.habit);
-    // O achado se anuncia assim que a tela abre — igual a uma criatura
-    // entregando algo no Lar, só que o conteúdo mora aqui, não lá.
     requestAnimationFrame(() => {
       showToolFound(pendente.tool, pendente.habit, companion.animal, () => {
         collectTool(pendente.tool.id, pendente.habit.id);
@@ -30,135 +60,188 @@ export function renderToolsScreen() {
     });
   }
 
-  const owned = getOwnedTools();
-  const seeds = getSeedsAvailable();
-  const shop = getShopCatalog();
+  const meus = getOwnedTools();
 
   return createEl("div", {
     className: "screen",
     children: [
       createEl("div", {
         className: "screen-header",
-        children: [
-          createEl("h1", { className: "section-title", text: "Ferramentas" }),
-          createEl("a", { className: "link-button", text: "Voltar", attrs: { href: "#/hoje" } }),
-        ],
+        children: [createEl("h1", { className: "section-title", text: "Apps" })],
       }),
       createEl("p", {
         className: "tree-hint",
-        text: "Objetos que ajudam de verdade: cada um ensina algo pra usar, não só decora. Algumas se compram com sementes, outras se encontram cumprindo o hábito certo.",
+        text: "Cada ferramenta conquistada vira um app de verdade aqui dentro.",
       }),
-      owned.length ? renderOwned(owned) : renderEmptyOwned(),
-      renderShop(seeds, shop),
+
+      meus.length ? renderGaveta(meus) : renderGavetaVazia(),
+      renderPorVir(),
     ],
   });
 }
 
-function renderEmptyOwned() {
-  return createEl("p", {
-    className: "tree-hint",
-    text: "Nenhuma ferramenta ainda. Compre uma na loja abaixo, ou cumpra um hábito com constância — algumas se encontram sozinhas.",
-  });
-}
-
-function renderOwned(owned) {
+function renderGaveta(meus) {
   return createEl("div", {
-    className: "tool-list",
-    children: owned.map((item) => renderToolCard(item.tool)),
+    className: "app-grid",
+    children: meus.map((item) => {
+      const tool = item.tool;
+      const tile = createEl("button", {
+        className: "app-tile",
+        attrs: { type: "button", style: `--color-app: ${corDoApp(tool.id)}` },
+        children: [
+          createEl("span", {
+            className: "app-tile-icon",
+            children: [createIcon(tool.app?.icon || tool.icon)],
+          }),
+          createEl("span", { className: "app-tile-name", text: tool.name }),
+          createEl("span", { className: "app-tile-status", text: statusDoApp(tool.id) }),
+        ],
+      });
+      tile.addEventListener("click", () => navigate(tool.app?.route || "/ferramentas"));
+      return tile;
+    }),
   });
 }
 
-function renderToolCard(tool) {
+const CORES = {
+  "coach-academia": "#e0705f",
+  "radar-compras": "#6fb8d1",
+  "bullet-journal": "#9b8cfa",
+  "apoiador-leitura": "#6db3f2",
+};
+
+function corDoApp(id) {
+  return CORES[id] || "#8fae5c";
+}
+
+function renderGavetaVazia() {
   return createEl("section", {
-    className: "card tool-card",
+    className: "card",
     children: [
-      createEl("div", {
-        className: "tool-card-head",
-        children: [
-          createEl("span", { className: "tool-card-icon", children: [createIcon(tool.icon)] }),
-          createEl("div", {
-            className: "tool-card-title",
-            children: [
-              createEl("span", { className: "card-title", text: tool.name }),
-              createEl("span", {
-                className: "tool-card-category",
-                text: `Cuida de ${CATEGORY_LABELS[tool.category] || tool.category}`,
-              }),
-            ],
-          }),
-        ],
-      }),
-      createEl("p", { className: "card-subtitle", text: tool.content.intro }),
-      createEl("div", {
-        className: "tool-content",
-        children: tool.content.items.map((item) =>
-          createEl("div", {
-            className: "tool-content-item",
-            children: [
-              createEl("span", { className: "tool-content-title", text: item.titulo }),
-              createEl("span", { className: "tool-content-text", text: item.texto }),
-            ],
-          })
-        ),
+      createEl("h2", { className: "card-title", text: "Nenhum app ainda." }),
+      createEl("p", {
+        className: "card-subtitle",
+        text: "Compre uma ferramenta com sementes, ou cumpra um hábito com constância — algumas aparecem sozinhas.",
       }),
     ],
   });
 }
 
 /*
-  A loja: só as ferramentas compráveis (source "loja"). As de achado nunca
-  aparecem aqui — elas não se compram, e listá-las como indisponíveis só
-  cobraria uma dívida que não é bem assim que a app funciona.
+  O que ainda não é seu. As duas origens ficam na mesma lista porque a
+  pergunta de quem olha é uma só ("o que mais existe?"), e cada linha diz
+  como se chega lá.
 */
-function renderShop(seeds, shop) {
-  if (!shop.length) return null;
+function renderPorVir() {
+  const sementes = getSeedsAvailable();
+  const loja = getShopCatalog().filter((item) => !item.obtained);
+  const achados = TOOLS.filter((tool) => tool.source === "achado" && !isObtained(tool.id));
+
+  if (!loja.length && !achados.length) return null;
 
   return createEl("section", {
-    className: "card garden-shop",
+    className: "card",
     children: [
       createEl("div", {
-        className: "section-header",
+        className: "app-card-head",
         children: [
-          createEl("h2", { className: "card-title", text: "Loja" }),
-          createEl("span", { className: "badge", text: `${seeds} ${seeds === 1 ? "semente" : "sementes"}` }),
+          createEl("h2", { className: "card-title", text: "Por destravar" }),
+          createEl("span", {
+            className: "badge",
+            text: `${sementes} ${sementes === 1 ? "semente" : "sementes"}`,
+          }),
         ],
       }),
-      createEl("p", {
-        className: "card-subtitle",
-        text: "A mesma bolsa de sementes do Jardim — gastar aqui é gastar de lá também.",
+      createEl("div", {
+        className: "app-list",
+        children: [
+          ...loja.map((item) => renderLinhaLoja(item)),
+          ...achados.map((tool) => renderLinhaAchado(tool)),
+        ],
       }),
-      createEl("div", { className: "garden-catalog", children: shop.map(renderShopItem) }),
     ],
   });
 }
 
-function renderShopItem(item) {
-  const button = createEl("button", {
-    className: "button button-secondary",
-    text: item.obtained ? "Obtida" : item.affordable ? `Obter · ${item.cost}` : `${item.cost} sementes`,
+function renderLinhaLoja(item) {
+  const botao = createEl("button", {
+    className: "button button-secondary shop-buy",
+    text: item.affordable ? `Obter · ${item.cost}` : `${item.cost}`,
     attrs: { type: "button" },
   });
-  button.disabled = item.obtained || !item.affordable;
-  button.addEventListener("click", () => {
+  botao.disabled = !item.affordable;
+  botao.addEventListener("click", () => {
     buyTool(item.id);
     refresh();
   });
 
-  return createEl("article", {
-    className: "garden-catalog-item",
+  const linha = createEl("div", {
+    className: "app-row is-locked",
     children: [
-      createEl("div", {
-        className: "tool-shop-icon",
-        children: [createIcon(item.icon)],
+      createEl("span", {
+        className: "app-row-icon",
+        attrs: { style: `--color-app: ${corDoApp(item.id)}` },
+        children: [createIcon(item.app?.icon || item.icon)],
       }),
       createEl("div", {
-        className: "garden-catalog-body",
+        className: "app-row-body",
         children: [
-          createEl("span", { className: "garden-catalog-name", text: item.name }),
-          createEl("span", { className: "garden-catalog-story", text: item.story }),
+          createEl("span", { className: "app-row-name", text: item.name }),
+          createEl("span", { className: "app-row-note", text: item.app?.tagline || item.story }),
         ],
       }),
-      button,
+      botao,
     ],
   });
+  return linha;
+}
+
+function renderLinhaAchado(tool) {
+  const linha = createEl("button", {
+    className: "app-row is-locked",
+    attrs: { type: "button" },
+    children: [
+      createEl("span", {
+        className: "app-row-icon",
+        attrs: { style: `--color-app: ${corDoApp(tool.id)}` },
+        children: [createIcon(tool.app?.icon || tool.icon)],
+      }),
+      createEl("div", {
+        className: "app-row-body",
+        children: [
+          createEl("span", { className: "app-row-name", text: tool.name }),
+          createEl("span", {
+            className: "app-row-note",
+            text: `Aparece sozinha: ${descreverRequisito(tool)}`,
+          }),
+        ],
+      }),
+    ],
+  });
+  linha.addEventListener("click", () =>
+    showSheet({
+      title: tool.name,
+      subtitle: tool.app?.tagline,
+      content: [createEl("p", { className: "sheet-speech", text: `"${tool.story}"` })],
+      actions: [
+        {
+          label: `Como destravar: ${descreverRequisito(tool)}`,
+          disabled: true,
+          onClick: () => {},
+        },
+      ],
+    })
+  );
+  return linha;
+}
+
+function descreverRequisito(tool) {
+  const area = CATEGORY_LABELS[tool.category] || tool.category;
+  if (tool.requires?.type === "sequencia") {
+    return `${tool.requires.amount} dias seguidos de ${area}`;
+  }
+  if (tool.requires?.type === "dias") {
+    return `${tool.requires.amount} dias de ${area}`;
+  }
+  return `constância em ${area}`;
 }
