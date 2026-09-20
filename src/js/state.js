@@ -14,6 +14,21 @@ function getInitialState() {
     garden: [],
     tools: [],
     treeMarks: [],
+
+    /*
+      Dados das ferramentas. Cada ferramenta desbloqueada é um app de
+      verdade, com os registros da pessoa — treinos feitos, gastos,
+      páginas lidas, linhas do diário. Tudo escolha ou registro real:
+      nada aqui é derivado de outra coisa.
+    */
+    workoutPlans: [],
+    workoutSessions: [],
+    expenses: [],
+    wishlist: [],
+    journalEntries: [],
+    books: [],
+    readingSessions: [],
+
     settings: { theme: "automatico" },
     meta: { firstOpenedAt: null, deviceId: null },
   };

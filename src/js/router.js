@@ -6,8 +6,14 @@ let rootEl = null;
 let notFoundHandler = null;
 let guardFn = null;
 
-export function registerRoute(path, renderFn, { chromeless = false } = {}) {
-  routes.set(path, { renderFn, chromeless });
+/*
+  chromeless: sem cabeçalho e sem navegação (onboarding, missão).
+  fullbleed: mantém a navegação, mas entrega a área inteira para a tela —
+  é o que permite o Jardim ser o mundo ocupando tudo, sem cabeçalho nem
+  respiro de página em volta.
+*/
+export function registerRoute(path, renderFn, { chromeless = false, fullbleed = false } = {}) {
+  routes.set(path, { renderFn, chromeless, fullbleed });
 }
 
 export function setNotFound(renderFn) {
@@ -58,6 +64,7 @@ function render() {
   const entry = routes.get(path);
   const handler = entry?.renderFn || notFoundHandler;
   document.body.classList.toggle("is-chromeless", Boolean(entry?.chromeless));
+  document.body.classList.toggle("is-fullbleed", Boolean(entry?.fullbleed));
   rootEl.replaceChildren();
   if (handler) {
     rootEl.appendChild(handler(params));

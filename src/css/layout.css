@@ -67,3 +67,29 @@
   gap: var(--space-6);
   flex: 1;
 }
+
+/*
+  Telas de tela cheia (o Jardim). Diferente de chromeless, a navegação
+  continua — o que sai é o cabeçalho e todo o respiro de página, para o
+  mundo ocupar cada pixel disponível entre o topo e a barra de baixo.
+*/
+.is-fullbleed .app-header {
+  display: none;
+}
+
+.is-fullbleed .app-main {
+  padding: 0;
+  gap: 0;
+}
+
+/* Sobre o mundo, a barra precisa de corpo: o vidro translúcido do resto do
+   app some contra a grama e os ícones ficam ilegíveis. */
+.is-fullbleed .app-nav {
+  background: color-mix(in srgb, var(--color-void) 86%, transparent);
+  position: fixed;
+  left: 50%;
+  translate: -50% 0;
+  width: 100%;
+  max-width: var(--app-max-width);
+  z-index: 4;
+}

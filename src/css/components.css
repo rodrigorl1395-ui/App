@@ -173,12 +173,24 @@
 }
 
 .nav-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  opacity: 0.75;
+  transition: opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-emphasized);
+}
+
+.nav-item-icon svg {
   width: 22px;
   height: 22px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid currentColor;
-  opacity: 0.6;
-  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.nav-item-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
 }
 
 .nav-item.is-active {
@@ -187,12 +199,7 @@
 
 .nav-item.is-active .nav-item-icon {
   opacity: 1;
-  box-shadow: 0 0 14px var(--color-accent-glow);
-}
-
-.nav-item.is-disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+  transform: translateY(-1px) scale(1.06);
 }
 
 /* Companheiro — o momento forte da tela Hoje */
@@ -2274,54 +2281,282 @@ textarea.input {
 }
 
 /*
-  A fichinha da árvore: diferente da celebration, não fecha sozinha — tem
-  botões para ler antes de decidir. Sobe do rodapé porque é um menu de
-  ações, não um anúncio.
+  Ficha de rodapé — o componente de ação do app.
+
+  Sobe de baixo, tem um "pegador" no topo como toda folha de ação de app
+  mobile, e fecha no toque fora. É onde moram as decisões que antes viravam
+  seção de página: a árvore tocada, o guardião, a loja, o que falta regar.
 */
-.tree-sheet-overlay {
+.sheet-overlay {
   position: fixed;
   inset: 0;
   z-index: 10;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: var(--space-4);
-  background: rgba(6, 9, 18, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  animation: celebration-in var(--duration-base) var(--ease-emphasized);
+  background: rgba(6, 9, 18, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: celebration-in var(--duration-fast) var(--ease-standard);
 }
 
-.tree-sheet {
+.sheet {
   width: 100%;
   max-width: var(--app-max-width);
+  max-height: 86vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-5);
-  padding-bottom: calc(var(--space-5) + var(--safe-bottom));
-  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-5) calc(var(--space-5) + var(--safe-bottom));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--color-elevated);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-lg);
+  border-top: 1px solid var(--glass-border);
+  box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.4);
+  animation: sheet-up var(--duration-base) var(--ease-emphasized);
 }
 
-.tree-sheet-title {
+.sheet-grip {
+  width: 36px;
+  height: 4px;
+  margin: 0 auto var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-text-tertiary);
+  opacity: 0.4;
+}
+
+.sheet-title {
+  font-family: var(--font-display);
   font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
 }
 
-.tree-sheet-subtitle {
+.sheet-subtitle {
   font-size: var(--fs-200);
   color: var(--color-text-secondary);
   line-height: var(--lh-snug);
   margin-top: calc(-1 * var(--space-2));
 }
 
-.tree-sheet-actions {
+.sheet-note {
+  font-size: var(--fs-200);
+  color: var(--color-text-tertiary);
+}
+
+.sheet-speech {
+  font-size: var(--fs-300);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
+  font-style: italic;
+}
+
+.sheet-actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   margin-top: var(--space-1);
+}
+
+.sheet-actions .button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.button-icon {
+  display: flex;
+}
+
+.button-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sheet-portrait {
+  display: flex;
+  justify-content: center;
+}
+
+.sheet-portrait-orb {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.5), transparent 42%),
+    radial-gradient(circle at 36% 30%, var(--color-accent-strong), var(--color-accent) 62%,
+      color-mix(in srgb, var(--color-accent) 62%, #000) 100%);
+  box-shadow: 0 0 34px var(--color-accent-glow);
+}
+
+.sheet-portrait-orb .guardian-art {
+  width: 82%;
+  height: 82%;
+}
+
+/* Marcas do tronco: uma grade de símbolos, o gravado em destaque. */
+.mark-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-2);
+}
+
+.mark-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+}
+
+.mark-option svg {
+  width: 18px;
+  height: 18px;
+}
+
+.mark-option.is-active {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
+}
+
+/* O que falta regar: uma linha por criatura esperando. */
+.water-list,
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.water-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  text-align: left;
+}
+
+.water-row-orb {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 34% 28%, var(--color-accent-strong), var(--color-accent) 64%,
+      color-mix(in srgb, var(--color-accent) 60%, #000) 100%);
+}
+
+.water-row-orb .guardian-art {
+  width: 78%;
+  height: 78%;
+}
+
+.water-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.water-row-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.water-row-note {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+.water-row-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.water-row-action svg {
+  width: 18px;
+  height: 18px;
+}
+
+.shop-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+}
+
+.shop-row-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-fill-strong);
+  color: #8fae5c;
+}
+
+.shop-row-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.shop-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.shop-row-name {
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.shop-row-story {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  line-height: var(--lh-snug);
+}
+
+.shop-row-owned {
+  font-size: var(--fs-100);
+  color: var(--color-accent-strong);
+}
+
+.shop-buy {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-100);
+  white-space: nowrap;
 }
 
 /* Formulário */
@@ -3767,177 +4002,219 @@ textarea.input {
 }
 
 /*
-  O Jardim em pixel art. Sem canvas, sem WebGL: cada canteiro é DOM, cada
-  árvore é um bloco de SVG (icons.js). A porta para o Lar fica por cima do
-  chão, à esquerda; o chão ganha um respiro do mesmo tamanho para os
-  canteiros nunca nascerem escondidos atrás dela.
+  O mundo — a tela inteira do Jardim.
+
+  O canvas fica numa caixa que rola sozinha (o mundo cresce para baixo
+  conforme se planta) e o HUD flutua por cima, sem capturar o toque a não
+  ser nos próprios botões. É a receita de qualquer jogo mobile: cena
+  embaixo, controles por cima, nada de página rolando em volta.
 */
-.garden-scene {
+.world-screen {
   position: relative;
-  border-radius: var(--radius-lg);
+  flex: 1;
+  min-height: calc(100dvh - var(--nav-height) - var(--safe-bottom));
   overflow: hidden;
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
-  background: #16241f;
+  background: #4d8b3f;
 }
 
-.garden-scene .scene-portal.is-left {
-  border-right: none;
-}
-
-/*
-  O chão é onde o "espaço amplo" pedido acontece: a altura vem de JS (uma
-  trilha mais longa = um chão mais alto) — quanto mais se planta, maior o
-  jardim fica, em vez de uma câmera que só se afasta.
-*/
-.garden-scene-ground {
-  position: relative;
-  padding-left: calc(22% + var(--space-3));
-  background:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 4px),
-    radial-gradient(60% 30% at 50% 0%, rgba(143, 174, 92, 0.14), transparent 70%),
-    linear-gradient(180deg, #2c4a34, #1a2e22);
-}
-
-/* A trilha desenhada por baixo de tudo: uma linha escura de base e uma mais
-   clara por cima, o jeito mais barato de dar contorno a um traço só. */
-.garden-scene-path {
+.world-viewport {
   position: absolute;
   inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.world-canvas {
+  display: block;
   width: 100%;
-  height: 100%;
+  /* O pulo do gato: sem isto o navegador suaviza a ampliação e a pixel art
+     vira borrão. */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
-.garden-path-line {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.garden-path-line.is-border {
-  stroke: #3c2f1e;
-  opacity: 0.55;
-}
-
-.garden-path-line.is-fill {
-  stroke: #c9a96a;
-  opacity: 0.4;
-}
-
-.garden-plot {
+.world-labels {
   position: absolute;
-  transform: translate(-50%, -100%);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* A placa com o nome: madeira, como a estaca desenhada embaixo dela. */
+.world-label {
+  position: absolute;
+  translate: -50% 0;
+  padding: 1px 7px;
+  border-radius: 3px;
+  background: #6b4a2f;
+  border: 1px solid #3f2b1a;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  color: #f7efe3;
+  font-size: 0.625rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.world-hud {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+  pointer-events: none;
+}
+
+.world-hud > * {
+  pointer-events: auto;
+}
+
+/* Barra de cima com véu escuro: sem ele, texto claro sobre copa clara
+   some — e o mundo tem de tudo embaixo. */
+.world-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: calc(var(--safe-top) + var(--space-4)) var(--space-4) var(--space-5);
+  background: linear-gradient(180deg, rgba(8, 16, 12, 0.72), rgba(8, 16, 12, 0));
+  pointer-events: none;
+}
+
+.world-title {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.world-title-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-600);
+  font-weight: var(--fw-semibold);
+  color: #fdfbf4;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.world-title-note {
+  font-size: var(--fs-100);
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.world-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  background: rgba(12, 20, 16, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fdfbf4;
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.world-chip-icon {
+  display: flex;
+  color: #f0c94a;
+}
+
+.world-chip-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.world-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.world-fab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-full);
+  background: rgba(12, 20, 16, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  color: #fdfbf4;
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.world-fab:active {
+  transform: scale(0.96);
+}
+
+.world-fab svg {
+  width: 18px;
+  height: 18px;
+}
+
+.world-fab.is-primary {
+  background: linear-gradient(180deg, #6fb8d1, #4a92ad);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #06212b;
+}
+
+.world-empty {
+  margin: auto var(--space-5);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  background: none;
-  border: none;
-  padding: 0;
-  width: 72px;
-}
-
-.garden-plot-bed {
-  position: relative;
-  width: 60px;
-  height: 74px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.garden-plot-bed.is-murcha {
-  filter: saturate(0.55) brightness(0.85);
-}
-
-/* Sombra oval no chão: é o que planta o item no gramado em vez de deixá-lo
-   flutuando, sem precisar de canteiro nenhum ao redor. */
-.garden-plot-shadow {
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  translate: -50% 0;
-  width: 70%;
-  height: 12px;
-  border-radius: var(--radius-full);
-  background: rgba(0, 0, 0, 0.32);
-  filter: blur(1.5px);
-}
-
-.garden-plot-tree {
-  display: block;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-origin: 50% 96%;
-  animation: tree-sway 5.5s ease-in-out infinite;
-}
-
-.garden-plot-tree svg,
-.garden-plot-bed.is-decor svg {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.garden-plot-mark {
-  position: absolute;
-  bottom: 12px;
-  right: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-full);
-  background: rgba(6, 9, 18, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #f0c987;
-}
-
-.garden-plot-mark svg {
-  width: 10px;
-  height: 10px;
-}
-
-.garden-plot-fruit {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  background: #e0705f;
-  box-shadow: 0 0 8px rgba(224, 112, 95, 0.8);
-  animation: gift-pulse 1.8s ease-in-out infinite;
-}
-
-/* A placa: uma tabuleta de madeira presa numa estaca, igual à do jardim em
-   3D antigo, só que em CSS — leve inclinação pra não ficar em prumo demais. */
-.garden-plot-sign {
-  display: inline-block;
-  margin-top: 2px;
-  padding: 2px 8px;
-  border-radius: 3px;
-  background: #8a6440;
-  border: 1px solid #5b4029;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
-  color: #f7efe3;
-  font-size: var(--fs-100);
-  font-weight: var(--fw-medium);
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: rgba(10, 18, 14, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   text-align: center;
-  white-space: nowrap;
-  max-width: 96px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transform: rotate(-1.5deg);
+  color: #fdfbf4;
 }
 
-.harvest-fx {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  translate: -50% 0;
+.world-empty-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+}
+
+.world-empty-text {
   font-size: var(--fs-200);
-  animation: harvest-pop 0.85s var(--ease-emphasized) forwards;
-  pointer-events: none;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: var(--lh-snug);
+  margin-bottom: var(--space-2);
+}
+
+/* Aviso de colheita: só a satisfação do gesto, some sozinho. */
+.harvest-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + var(--space-5));
+  translate: -50% 0;
+  z-index: 12;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-full);
+  background: rgba(12, 20, 16, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fdfbf4;
+  font-size: var(--fs-200);
+  animation: xp-rise var(--duration-base) var(--ease-emphasized);
 }

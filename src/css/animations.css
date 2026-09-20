@@ -99,6 +99,11 @@
   100% { opacity: 0; transform: translateY(-26px) scale(0.9); }
 }
 
+@keyframes sheet-up {
+  from { transform: translateY(14px); opacity: 0.6; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 @keyframes evolution-pulse {
   0% {
     opacity: 0;

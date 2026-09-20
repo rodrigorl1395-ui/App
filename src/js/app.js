@@ -10,10 +10,9 @@ import { renderHabitsScreen } from "./screens/habitsList.js";
 import { renderNewHabitScreen } from "./screens/newHabit.js";
 import { renderMissionScreen } from "./screens/mission.js";
 import { renderSanctuaryScreen } from "./screens/sanctuary.js";
-import { renderHomeScreen } from "./screens/home.js";
 import { renderCreatureScreen } from "./screens/creature.js";
 import { renderEditHabitScreen } from "./screens/editHabit.js";
-import { renderGardenScreen } from "./screens/decor.js";
+import { renderGardenScreen, renderHomeScreen } from "./screens/garden.js";
 import { renderSettingsScreen } from "./screens/settings.js";
 import { renderToolsScreen } from "./screens/tools.js";
 import { generateId } from "./utils.js";
@@ -53,8 +52,10 @@ function registerRoutes() {
   registerRoute("/novo-habito", renderNewHabitScreen);
   registerRoute("/missao", renderMissionScreen, { chromeless: true });
   registerRoute("/santuario", renderSanctuaryScreen);
-  registerRoute("/lar", renderHomeScreen);
-  registerRoute("/jardim", renderGardenScreen);
+  // O mundo ocupa a tela inteira: fullbleed tira o cabeçalho e o respiro
+  // de página, e deixa só a navegação por cima do jardim.
+  registerRoute("/jardim", renderGardenScreen, { fullbleed: true });
+  registerRoute("/lar", renderHomeScreen, { fullbleed: true });
   registerRoute("/criatura", renderCreatureScreen);
   registerRoute("/editar-habito", renderEditHabitScreen);
   registerRoute("/ajustes", renderSettingsScreen);

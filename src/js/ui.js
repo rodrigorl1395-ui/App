@@ -17,12 +17,24 @@ export function createEl(tag, { className, text, attrs = {}, children = [] } = {
   return el;
 }
 
+/*
+  Cinco destinos, cada um com um propósito distinto:
+
+    Hoje         o que fazer agora
+    Hábitos      gerir os hábitos e ver o Mestre
+    Jardim       o mundo — guardiões e árvores no mesmo terreno
+    Ferramentas  os apps que as ferramentas destravam
+    Santuário    a coleção de criaturas
+
+  Lar e Jardim eram duas cenas pela metade contando a mesma história (um
+  tinha os bichos, o outro as árvores deles). Viraram um lugar só: o mundo.
+*/
 const NAV_ITEMS = [
-  { path: "/hoje", label: "Hoje", enabled: true },
-  { path: "/habitos", label: "Hábitos", enabled: true },
-  { path: "/lar", label: "Lar", enabled: true },
-  { path: "/jardim", label: "Jardim", enabled: true },
-  { path: "/santuario", label: "Santuário", enabled: true },
+  { path: "/hoje", label: "Hoje", icon: "sun" },
+  { path: "/habitos", label: "Hábitos", icon: "list" },
+  { path: "/jardim", label: "Jardim", icon: "tree" },
+  { path: "/ferramentas", label: "Apps", icon: "tools" },
+  { path: "/santuario", label: "Coleção", icon: "paw" },
 ];
 
 export function renderAppShell({ activePath }) {
@@ -46,26 +58,16 @@ export function renderAppShell({ activePath }) {
   });
   const main = createEl("main", { className: "app-main", attrs: { id: "app-main" } });
 
-  const navItems = NAV_ITEMS.map((item) => {
-    if (!item.enabled) {
-      return createEl("span", {
-        className: "nav-item is-disabled",
-        attrs: { "aria-disabled": "true", title: "Em breve" },
-        children: [
-          createEl("span", { className: "nav-item-icon" }),
-          createEl("span", { text: item.label }),
-        ],
-      });
-    }
-    return createEl("a", {
+  const navItems = NAV_ITEMS.map((item) =>
+    createEl("a", {
       className: `nav-item${item.path === activePath ? " is-active" : ""}`,
       attrs: { href: `#${item.path}`, "data-nav-link": "" },
       children: [
-        createEl("span", { className: "nav-item-icon" }),
-        createEl("span", { text: item.label }),
+        createEl("span", { className: "nav-item-icon", children: [createIcon(item.icon)] }),
+        createEl("span", { className: "nav-item-label", text: item.label }),
       ],
-    });
-  });
+    })
+  );
 
   const nav = createEl("nav", { className: "app-nav", children: navItems });
 
@@ -308,39 +310,43 @@ export function showToolFound(tool, habit, animal, onOpen) {
 }
 
 /*
-  A árvore virou um ponto próprio: tocar nela abre uma fichinha com o que dá
-  para fazer ali, em vez de pular direto para o perfil do hábito. Diferente
-  da celebration (que fecha sozinha ou no primeiro toque em qualquer lugar),
-  esta fica aberta até uma ação ou o fundo ser tocado — tem botão para ler,
-  não só para fechar.
-*/
-export function showTreeSheet({ title, subtitle, actions }) {
-  const overlay = createEl("div", { className: "tree-sheet-overlay" });
+  Fichinha que sobe do rodapé. É o componente de ação do app inteiro: a
+  árvore tocada no mundo, o guardião, a loja, a lista do que falta regar.
 
+  Diferente da celebration (que fecha sozinha, ou no primeiro toque em
+  qualquer lugar), esta fica aberta até uma ação ou o toque no fundo — tem
+  conteúdo para ler antes de decidir.
+*/
+export function showSheet({ title, subtitle, content = [], actions = [], accent = null } = {}) {
+  const overlay = createEl("div", { className: "sheet-overlay" });
   const close = () => overlay.remove();
 
+  const botoes = actions.filter(Boolean).map((action) => {
+    const button = createEl("button", {
+      className: `button ${action.primary ? "button-primary" : "button-secondary"}`,
+      attrs: { type: "button" },
+      children: [
+        action.icon ? createEl("span", { className: "button-icon", children: [createIcon(action.icon)] }) : null,
+        createEl("span", { text: action.label }),
+      ],
+    });
+    button.disabled = Boolean(action.disabled);
+    button.addEventListener("click", () => {
+      action.onClick?.();
+      if (!action.keepOpen) close();
+    });
+    return button;
+  });
+
   const sheet = createEl("div", {
-    className: "tree-sheet",
+    className: "sheet",
+    attrs: accent ? { style: accentStyle(accent) } : {},
     children: [
-      createEl("h3", { className: "tree-sheet-title", text: title }),
-      subtitle ? createEl("p", { className: "tree-sheet-subtitle", text: subtitle }) : null,
-      createEl("div", {
-        className: "tree-sheet-actions",
-        children: actions.map((action) => {
-          const button = createEl("button", {
-            className: `button ${action.primary ? "button-primary" : "button-secondary"}`,
-            text: action.label,
-            attrs: { type: "button" },
-          });
-          button.disabled = Boolean(action.disabled);
-          button.addEventListener("click", () => {
-            action.onClick?.();
-            if (action.keepOpen) return;
-            close();
-          });
-          return button;
-        }),
-      }),
+      createEl("span", { className: "sheet-grip", attrs: { "aria-hidden": "true" } }),
+      title ? createEl("h3", { className: "sheet-title", text: title }) : null,
+      subtitle ? createEl("p", { className: "sheet-subtitle", text: subtitle }) : null,
+      ...content,
+      botoes.length ? createEl("div", { className: "sheet-actions", children: botoes }) : null,
     ],
   });
 
@@ -350,32 +356,12 @@ export function showTreeSheet({ title, subtitle, actions }) {
   overlay.appendChild(sheet);
   document.body.appendChild(overlay);
 
-  return { close };
+  return { close, el: sheet };
 }
 
 export function createSectionHeader(title, action = null) {
   return createEl("div", {
     className: "section-header",
     children: [createEl("h2", { className: "section-title", text: title }), action],
-  });
-}
-
-/*
-  A porta entre Lar e Jardim: os dois lugares são o mesmo terreno, só que
-  divididos — um é onde os guardiões vivem, o outro é o que se planta do
-  lado. A porta fica colada na borda da cena, com um vislumbre do que tem
-  do outro lado, para a travessia parecer visitar o vizinho, não trocar de
-  tela. Cada cena põe a sua na borda que faz sentido (Lar → direita,
-  Jardim → esquerda), sempre olhando uma para a outra.
-*/
-export function createScenePortal({ href, label, side, icon }) {
-  return createEl("a", {
-    className: `scene-portal is-${side}`,
-    attrs: { href, "aria-label": `Ir para ${label}` },
-    children: [
-      createEl("span", { className: "scene-portal-icon", children: icon ? [icon] : [] }),
-      createEl("span", { className: "scene-portal-label", text: label }),
-      createEl("span", { className: "scene-portal-chevron", attrs: { "aria-hidden": "true" } }),
-    ],
   });
 }

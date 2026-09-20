@@ -215,7 +215,7 @@ function renderDayComplete() {
         className: "card-subtitle",
         text: "O jardim inteiro foi regado. Cada hábito avançou 1% — volte amanhã.",
       }),
-      createEl("a", { className: "link-button", text: "Visitar o Lar", attrs: { href: "#/lar" } }),
+      createEl("a", { className: "link-button", text: "Visitar o jardim", attrs: { href: "#/jardim" } }),
     ],
   });
 }
@@ -800,13 +800,13 @@ function renderDiscoveryNudge(habits) {
     if (companion.animal && getPendingDiscovery(habit, companion.animal)) {
       return createEl("a", {
         className: "next-step",
-        attrs: { href: "#/lar" },
+        attrs: { href: "#/jardim" },
         children: [
           createEl("span", {
             className: "next-step-text",
             text: `${companion.animal.name} encontrou algo para você.`,
           }),
-          createEl("span", { className: "link-button", text: "Ir ao Lar" }),
+          createEl("span", { className: "link-button", text: "Ir ao jardim" }),
         ],
       });
     }
