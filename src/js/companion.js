@@ -10,6 +10,7 @@ import { ANIMALS, CATEGORY_ELEMENT, CATEGORY_LABELS, getAnimalById } from "../da
 import { getStage, getNextStage, getStageProgress, stageName } from "./evolution.js";
 import { HABIT_TEMPLATES } from "../data/habits.js";
 import { getPowerForElement } from "../data/powers.js";
+import { todayKey } from "./utils.js";
 
 // Nenhuma criatura se conquista antes de uma semana de jogo de verdade.
 export const MIN_ACTIVE_DAYS = 7;
@@ -109,12 +110,162 @@ export function isStarterChosen(animal) {
   return getState().user?.selectedAnimalId === animal.id;
 }
 
+function shiftDay(dateKey, delta) {
+  const date = new Date(`${dateKey}T00:00:00`);
+  date.setDate(date.getDate() + delta);
+  return date.toISOString().slice(0, 10);
+}
+
+function gapDays(fromKey, toKey) {
+  return Math.round((new Date(`${toKey}T00:00:00`) - new Date(`${fromKey}T00:00:00`)) / 86400000);
+}
+
+// A maior corrida de dias consecutivos dentro de um conjunto de datas
+// distintas — o mesmo espírito de getBestStreak (stats.js), só que somando
+// datas de vários hábitos em vez de um só.
+function bestStreakFromDates(dates) {
+  if (!dates.length) return 0;
+  const marked = new Set(dates);
+  let best = 0;
+  let run = 0;
+  let cursor = dates[0];
+  const last = dates[dates.length - 1];
+  while (cursor <= last) {
+    if (marked.has(cursor)) {
+      run++;
+      best = Math.max(best, run);
+    } else {
+      run = 0;
+    }
+    cursor = shiftDay(cursor, 1);
+  }
+  return best;
+}
+
+// Melhor sequência de dias em que pelo menos um hábito daquela categoria
+// foi cumprido.
+function getCategoryStreak(category) {
+  const state = getState();
+  const habitIds = new Set(
+    state.habits.filter((habit) => habit.category === category).map((habit) => habit.id)
+  );
+  const dates = [...new Set(state.logs.filter((log) => habitIds.has(log.habitId)).map((log) => log.date))].sort();
+  return bestStreakFromDates(dates);
+}
+
+// Melhor sequência de dias com QUALQUER hábito cumprido — a constância geral
+// do Mestre, não presa a uma área.
+function getGeneralStreak() {
+  const dates = [...new Set(getState().logs.map((log) => log.date))].sort();
+  return bestStreakFromDates(dates);
+}
+
+// Vezes que a pessoa voltou depois de sumir dois dias ou mais, somando o
+// histórico inteiro — countReturns (quests.js) presa a um hábito, só que
+// aqui é o Mestre como um todo.
+function getReturnCount() {
+  const dates = [...new Set(getState().logs.map((log) => log.date))].sort();
+  let returns = 0;
+  for (let i = 1; i < dates.length; i++) {
+    if (gapDays(dates[i - 1], dates[i]) >= 2) returns++;
+  }
+  return returns;
+}
+
+function getReflectionCount() {
+  return getState().logs.filter((log) => log.reflection).length;
+}
+
+function getPlanCount() {
+  return getState().plans.length;
+}
+
+function getBonusCount() {
+  return getState().logs.filter((log) => log.level === "bonus").length;
+}
+
+// Quantos elementos distintos tiveram algum registro nos últimos `days`
+// dias — o equilíbrio de verdade, medido na janela mais recente.
+function getRecentElementCount(days) {
+  const state = getState();
+  const categoryByHabit = new Map(state.habits.map((habit) => [habit.id, habit.category]));
+  const cutoff = shiftDay(todayKey(), -days);
+  const elements = new Set();
+  for (const log of state.logs) {
+    if (log.date < cutoff) continue;
+    const element = CATEGORY_ELEMENT[categoryByHabit.get(log.habitId)];
+    if (element) elements.add(element);
+  }
+  return elements.size;
+}
+
+// O número bruto de uma regra de desbloqueio, qualquer que seja o tipo.
+function measureUnlockRule(rule) {
+  switch (rule.type) {
+    case "categoria":
+      return getCategoryDays(rule.category);
+    case "sequencia-categoria":
+      return getCategoryStreak(rule.category);
+    case "sequencia-geral":
+      return getGeneralStreak();
+    case "retorno":
+      return getReturnCount();
+    case "lembrancas":
+      return getReflectionCount();
+    case "combinados":
+      return getPlanCount();
+    case "bonus":
+      return getBonusCount();
+    case "equilibrio":
+      return getRecentElementCount(rule.days || 7);
+    default:
+      return 0;
+  }
+}
+
+function evaluateUnlockRule(rule) {
+  const current = measureUnlockRule(rule);
+  return { rule, current: Math.min(current, rule.amount), target: rule.amount, done: current >= rule.amount };
+}
+
+// A regra mais perto de se cumprir, entre os caminhos alternativos de um
+// guardião. Se alguma já está pronta, é ela — senão, é a que tem a maior
+// proporção andada, para a Santuário sempre mostrar o caminho mais aberto.
+function closestUnlockRule(rules) {
+  const evaluated = rules.map(evaluateUnlockRule);
+  const done = evaluated.find((item) => item.done);
+  if (done) return done;
+  return evaluated.reduce((best, item) =>
+    item.current / item.target > best.current / best.target ? item : best
+  );
+}
+
+const RULE_LABELS = {
+  categoria: (rule) => `dias de ${CATEGORY_LABELS[rule.category] || rule.category}`,
+  "sequencia-categoria": (rule) => `dias seguidos de ${CATEGORY_LABELS[rule.category] || rule.category}`,
+  "sequencia-geral": () => "dias seguidos, em qualquer hábito",
+  retorno: () => "vezes voltando depois de sumir",
+  lembrancas: () => "lembranças guardadas",
+  combinados: () => "vezes combinando antes",
+  bonus: () => "vezes indo além (bônus)",
+  equilibrio: () => "áreas diferentes na mesma semana",
+};
+
+// A frase que descreve o caminho mais próximo — usada no Santuário para
+// dizer não só "quanto falta", mas "falta o quê".
+export function describeUnlockRule(rule) {
+  return RULE_LABELS[rule.type]?.(rule) || "";
+}
+
 // Uma inicial só está disponível se foi A escolhida; as outras duas ficam
 // perdidas para sempre, por isso nunca entram na conta de conquistáveis.
+//
+// As demais têm vários caminhos possíveis (animal.unlock é uma lista):
+// nenhum guardião pertence a uma área só, basta UM caminho se cumprir.
 export function isUnlocked(animal) {
   if (animal.starter) return isStarterChosen(animal);
   if (getActiveDays() < MIN_ACTIVE_DAYS) return false;
-  return getCategoryDays(animal.unlock.category) >= animal.unlock.days;
+  return animal.unlock.some((rule) => measureUnlockRule(rule) >= rule.amount);
 }
 
 export function getUnlockedAnimals() {
@@ -127,7 +278,7 @@ export function getUnlockableAnimals() {
 
 /*
   Estado de conquista de uma criatura, incluindo qual dos dois requisitos
-  ainda falta — a semana de jogo ou a constância na categoria.
+  ainda falta — a semana de jogo ou o caminho mais próximo de se cumprir.
 */
 export function getUnlockProgress(animal) {
   if (animal.starter) {
@@ -140,16 +291,17 @@ export function getUnlockProgress(animal) {
   }
 
   const activeDays = getActiveDays();
-  const categoryDays = getCategoryDays(animal.unlock.category);
+  const progress = closestUnlockRule(animal.unlock);
 
   return {
     kind: "earned",
-    unlocked: activeDays >= MIN_ACTIVE_DAYS && categoryDays >= animal.unlock.days,
+    unlocked: activeDays >= MIN_ACTIVE_DAYS && progress.done,
     needsMorePlay: activeDays < MIN_ACTIVE_DAYS,
     activeDays,
     minActiveDays: MIN_ACTIVE_DAYS,
-    current: categoryDays,
-    required: animal.unlock.days,
+    current: progress.current,
+    required: progress.target,
+    ruleLabel: describeUnlockRule(progress.rule),
   };
 }
 

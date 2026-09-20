@@ -105,9 +105,28 @@ export const CATEGORY_LABELS = {
   starter: true → uma das três iniciais. Escolhe-se UMA no começo, e as
                   outras duas ficam perdidas para sempre: não há como
                   conquistá-las depois. É o que dá peso à escolha.
-  unlock: {category, days} → pede tantos dias cumpridos em hábitos daquela
-                  categoria (dias distintos, não registros), além do mínimo
-                  de uma semana de jogo exigido de toda conquista.
+
+  unlock: [regra, regra, ...] → uma lista de caminhos alternativos. Basta UM
+                  se cumprir para o guardião aparecer — nenhum pertence a
+                  uma área só, do jeito que o Diário de Descobertas descreve:
+                  "um guardião de fogo pode ser encontrado por alguém que
+                  estuda". Por isso cada um mantém o caminho óbvio (a
+                  categoria que dá nome a ele) e ganha pelo menos um caminho
+                  inesperado, que qualquer pessoa pode cumprir sem nunca ter
+                  criado um hábito daquela categoria.
+
+                  Tipos de regra (avaliados em companion.js):
+                    categoria            dias distintos numa categoria
+                    sequencia-categoria  melhor sequência numa categoria
+                    sequencia-geral      melhor sequência em qualquer hábito
+                    retorno              vezes que voltou depois de sumir
+                    lembrancas           reflexões guardadas, em qualquer hábito
+                    combinados           vezes que combinou onde/quando antes
+                    bonus                vezes que cumpriu o nível bônus
+                    equilibrio           elementos distintos praticados na semana
+
+                  Além do mínimo de uma semana de jogo, exigido de toda
+                  conquista.
 */
 export const ANIMALS = [
   {
@@ -148,7 +167,12 @@ export const ANIMALS = [
     color: "#e8d35f",
     tagline: "A primeira luz de quem estuda no escuro.",
     personality: "Pequeno e teimoso. Brilha mesmo quando ninguém está vendo.",
-    unlock: { category: "mente", days: 10 },
+    unlock: [
+      { type: "categoria", category: "mente", amount: 10 },
+      // Brilha mesmo sem plateia: também aparece para quem volta sozinho,
+      // sem ninguém cobrando — em qualquer hábito.
+      { type: "retorno", amount: 2 },
+    ],
   },
   {
     id: "salamandra",
@@ -158,7 +182,12 @@ export const ANIMALS = [
     color: "#e2543f",
     tagline: "Quem atravessa o fogo sem se apagar.",
     personality: "Resistente ao desconforto. Vive onde os outros desistem.",
-    unlock: { category: "movimento", days: 25 },
+    unlock: [
+      { type: "categoria", category: "movimento", amount: 25 },
+      // Vive onde os outros desistem: ir além do combinado, de novo e de
+      // novo, em qualquer hábito.
+      { type: "bonus", amount: 15 },
+    ],
   },
   {
     id: "tartaruga",
@@ -168,7 +197,12 @@ export const ANIMALS = [
     color: "#4fb3c9",
     tagline: "A prova de que devagar também chega.",
     personality: "Carrega a própria casa. Nunca teve pressa e nunca ficou para trás.",
-    unlock: { category: "recuperacao", days: 25 },
+    unlock: [
+      { type: "categoria", category: "recuperacao", amount: 25 },
+      // Devagar também chega: acumular lembranças, sem pressa, em qualquer
+      // hábito.
+      { type: "lembrancas", amount: 20 },
+    ],
   },
   {
     id: "tatu",
@@ -178,7 +212,12 @@ export const ANIMALS = [
     color: "#b08d57",
     tagline: "Couraça de quem cuida do próprio corpo.",
     personality: "Cava fundo e se protege. Cuidar de si é uma forma de armadura.",
-    unlock: { category: "corpo", days: 25 },
+    unlock: [
+      { type: "categoria", category: "corpo", amount: 25 },
+      // Se protege: combina onde e quando antes de agir, em qualquer
+      // hábito — a couraça de quem se prepara.
+      { type: "combinados", amount: 12 },
+    ],
   },
   {
     id: "ourico",
@@ -188,7 +227,12 @@ export const ANIMALS = [
     color: "#7d9b6a",
     tagline: "Quem aprendeu a se recolher sem se fechar.",
     personality: "Encontra equilíbrio entre proteger-se e continuar andando.",
-    unlock: { category: "equilibrio", days: 40 },
+    unlock: [
+      { type: "categoria", category: "equilibrio", amount: 40 },
+      // O nome dele é o próprio critério: praticar áreas diferentes na
+      // mesma semana, sem que nenhuma domine as outras.
+      { type: "equilibrio", amount: 3, days: 7 },
+    ],
   },
   {
     id: "coruja",
@@ -198,7 +242,12 @@ export const ANIMALS = [
     color: "#c3b8e8",
     tagline: "Enxerga o que o cansaço esconde.",
     personality: "Guarda o que aprendeu. Onde havia dúvida, agora há repertório.",
-    unlock: { category: "mente", days: 30 },
+    unlock: [
+      { type: "categoria", category: "mente", amount: 30 },
+      // Guarda o que aprendeu: lembranças guardadas em qualquer hábito
+      // também contam como repertório.
+      { type: "lembrancas", amount: 15 },
+    ],
   },
   {
     id: "lontra",
@@ -208,7 +257,12 @@ export const ANIMALS = [
     color: "#f2c14e",
     tagline: "Não solta a mão de quem gosta.",
     personality: "Dorme de mãos dadas para não se perder na correnteza. Sozinha ela flutua; junto, ela brinca.",
-    unlock: { category: "relacoes", days: 15 },
+    unlock: [
+      { type: "categoria", category: "relacoes", amount: 15 },
+      // Não solta a mão: combinar antes é um jeito de segurar um
+      // compromisso, em qualquer hábito.
+      { type: "combinados", amount: 10 },
+    ],
   },
   {
     id: "cervo",
@@ -218,7 +272,12 @@ export const ANIMALS = [
     color: "#b39ddb",
     tagline: "Sabe para onde vai, mesmo devagar.",
     personality: "Anda em silêncio e sem pressa. Os chifres crescem como galhos: o tempo trabalha a favor dele.",
-    unlock: { category: "proposito", days: 15 },
+    unlock: [
+      { type: "categoria", category: "proposito", amount: 15 },
+      // Sabe pra onde vai: constância geral, em qualquer hábito, sem
+      // precisar ser justamente em propósito.
+      { type: "sequencia-geral", amount: 20 },
+    ],
   },
   {
     id: "lince",
@@ -228,7 +287,12 @@ export const ANIMALS = [
     color: "#f0a04b",
     tagline: "Precisão de quem treinou muito tempo.",
     personality: "Não desperdiça movimento. Cada passo tem intenção.",
-    unlock: { category: "movimento", days: 60 },
+    unlock: [
+      { type: "categoria", category: "movimento", amount: 60 },
+      // Cada passo tem intenção: uma sequência longa em qualquer hábito
+      // é a mesma disciplina, só que fora do movimento.
+      { type: "sequencia-geral", amount: 30 },
+    ],
   },
 ];
 

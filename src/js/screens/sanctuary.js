@@ -1,5 +1,5 @@
 import { createEl, createCreatureBadge, createSectionHeader, accentStyle } from "../ui.js";
-import { ANIMALS, CATEGORY_LABELS, getElement } from "../../data/animals.js";
+import { ANIMALS, getElement } from "../../data/animals.js";
 import {
   getUnlockProgress,
   getAnimalXp,
@@ -11,8 +11,10 @@ import {
 } from "../companion.js";
 import { getStage, getStageProgress, stageName } from "../evolution.js";
 
-// Uma linha por criatura, dizendo em que pé ela está.
-function describe(animal, unlock) {
+// Uma linha por criatura, dizendo em que pé ela está. Nenhum guardião
+// pertence a uma área só — por isso a nota descreve o caminho mais perto de
+// se cumprir, não "a" categoria dele.
+function describe(unlock) {
   if (unlock.kind === "starter") {
     if (unlock.unlocked) return { stage: null, note: "Sua escolha inicial" };
     return { stage: null, note: "Inicial não escolhida — não pode ser conquistada" };
@@ -20,14 +22,13 @@ function describe(animal, unlock) {
 
   if (unlock.unlocked) return { stage: null, note: null };
 
-  const categoria = CATEGORY_LABELS[animal.unlock.category] || animal.unlock.category;
   if (unlock.needsMorePlay) {
     return {
       stage: null,
       note: `Depois de ${MIN_ACTIVE_DAYS} dias de jogo — você tem ${unlock.activeDays}`,
     };
   }
-  return { stage: null, note: `${unlock.current} de ${unlock.required} dias de ${categoria}` };
+  return { stage: null, note: `${unlock.current} de ${unlock.required} ${unlock.ruleLabel}` };
 }
 
 /*
@@ -61,7 +62,7 @@ export function renderSanctuaryScreen() {
     const unlock = getUnlockProgress(animal);
     const xp = getAnimalXp(animal.id);
     const habit = getHabitsOfAnimal(animal.id).length ? getHabitOfAnimal(animal.id) : null;
-    const { note } = describe(animal, unlock);
+    const { note } = describe(unlock);
     const ratio = unlockRatio(unlock);
 
     // Batizada, é o nome dela que aparece — a espécie vira legenda, não título.
