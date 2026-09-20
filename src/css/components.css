@@ -3942,6 +3942,8 @@ textarea.input {
 }
 
 .app-tile-status {
+  margin-top: auto;
+  padding-top: var(--space-1);
   font-size: var(--fs-100);
   color: var(--color-text-tertiary);
   line-height: var(--lh-snug);
@@ -4144,7 +4146,12 @@ textarea.input {
 }
 
 .app-icon-button.is-danger {
+  color: var(--color-text-tertiary);
+}
+
+.app-icon-button.is-danger:active {
   color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 40%, transparent);
 }
 
 .app-icon-button.is-prev svg {

@@ -34,7 +34,7 @@ const NAV_ITEMS = [
   { path: "/habitos", label: "Hábitos", icon: "list" },
   { path: "/jardim", label: "Jardim", icon: "tree" },
   { path: "/ferramentas", label: "Apps", icon: "tools" },
-  { path: "/santuario", label: "Coleção", icon: "paw" },
+  { path: "/santuario", label: "Santuário", icon: "paw" },
 ];
 
 export function renderAppShell({ activePath }) {
