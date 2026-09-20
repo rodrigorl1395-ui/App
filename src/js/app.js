@@ -14,6 +14,7 @@ import { renderCreatureScreen } from "./screens/creature.js";
 import { renderEditHabitScreen } from "./screens/editHabit.js";
 import { renderGardenScreen } from "./screens/decor.js";
 import { renderSettingsScreen } from "./screens/settings.js";
+import { renderToolsScreen } from "./screens/tools.js";
 import { generateId } from "./utils.js";
 
 const ENTRY_PATHS = ["/onboarding", "/escolha-animal"];
@@ -51,6 +52,7 @@ function registerRoutes() {
   registerRoute("/criatura", renderCreatureScreen);
   registerRoute("/editar-habito", renderEditHabitScreen);
   registerRoute("/ajustes", renderSettingsScreen);
+  registerRoute("/ferramentas", renderToolsScreen);
   setNotFound(renderTodayScreen);
 
   setGuard((path) => {

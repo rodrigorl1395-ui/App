@@ -270,6 +270,43 @@ export function showDiscovery(discovery, animal, onCollect) {
   document.body.appendChild(overlay);
 }
 
+/*
+  Achou uma ferramenta: a mesma interrupção da descoberta de uma criatura,
+  mas sem dono de um bicho só — quem entrega é o guardião do hábito que
+  destravou. O toque leva direto para a Ferramenta, não só guarda: o que
+  ela tem para dar é conteúdo pra usar agora, não um item pra guardar.
+*/
+export function showToolFound(tool, habit, animal, onOpen) {
+  const overlay = createEl("div", {
+    className: "celebration",
+    attrs: animal ? { style: accentStyle(animal.color) } : {},
+    children: [
+      createEl("div", {
+        className: "discovery-orb",
+        children: [animal ? createGuardianArt(animal.id) : createIcon(tool.icon)],
+      }),
+      createEl("p", {
+        className: "celebration-message",
+        text: animal ? `${animal.name} achou uma ferramenta.` : "Você achou uma ferramenta.",
+      }),
+      createEl("p", { className: "celebration-evolution", text: tool.name }),
+      createEl("p", { className: "celebration-note", text: `"${tool.story}"` }),
+      createEl("p", { className: "mission-xp", text: "Toque para ver o que ela ensina" }),
+    ],
+  });
+
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    overlay.remove();
+    if (onOpen) onOpen();
+  };
+
+  overlay.addEventListener("click", close);
+  document.body.appendChild(overlay);
+}
+
 export function createSectionHeader(title, action = null) {
   return createEl("div", {
     className: "section-header",

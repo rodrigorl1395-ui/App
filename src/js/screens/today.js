@@ -19,6 +19,7 @@ import { getState } from "../state.js";
 import { getCompanionState } from "../companion.js";
 import { getMood } from "../mood.js";
 import { getPendingDiscovery } from "../discoveries.js";
+import { getPendingTool } from "../tools.js";
 import { getHabitStats } from "../stats.js";
 import { stageName } from "../evolution.js";
 import { CATEGORY_LABELS } from "../../data/animals.js";
@@ -111,6 +112,7 @@ export function renderTodayScreen() {
       mainBlock,
       renderSecondaryHabits(habits, excludeId),
       renderDiscoveryNudge(habits),
+      renderToolNudge(),
     ],
   });
 }
@@ -769,6 +771,25 @@ function renderSecondaryCard(habit) {
   });
 
   return createEl("div", { className: "habit-item is-secondary", children: [row] });
+}
+
+// Igual ao nudge de achado, mas para uma ferramenta — algo com efeito real,
+// não só uma peça de coleção. A entrega em si acontece em Ferramentas.
+function renderToolNudge() {
+  const pendente = getPendingTool();
+  if (!pendente) return null;
+
+  return createEl("a", {
+    className: "next-step",
+    attrs: { href: "#/ferramentas" },
+    children: [
+      createEl("span", {
+        className: "next-step-text",
+        text: `Uma ferramenta te espera: ${pendente.tool.name}.`,
+      }),
+      createEl("span", { className: "link-button", text: "Ver" }),
+    ],
+  });
 }
 
 // O segundo motivo de abrir o app: quando alguém trouxe algo, uma linha

@@ -12,6 +12,7 @@ function getInitialState() {
     powerUses: [],
     misses: [],
     garden: [],
+    tools: [],
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

@@ -53,7 +53,10 @@ export function renderHabitsScreen() {
   return createEl("div", {
     className: "screen",
     children: [
-      createSectionHeader("Meus hábitos"),
+      createSectionHeader(
+        "Meus hábitos",
+        createEl("a", { className: "link-button", text: "Ferramentas", attrs: { href: "#/ferramentas" } })
+      ),
       habits.length ? renderMaster() : null,
       habits.length
         ? createEl("div", {
