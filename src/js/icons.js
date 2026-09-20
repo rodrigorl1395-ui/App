@@ -18,6 +18,7 @@ const ICON_PATHS = {
     "M2 6h10a2 2 0 1 0-2-2H8a4 4 0 1 1 4 4H2V6Z M2 11h14a2 2 0 1 1-2 2h-2a4 4 0 1 0 4-4H2v2Z M2 16h7a2 2 0 1 1-2 2H5a4 4 0 1 0 4-4H2v2Z",
   // Espírito: faísca de quatro pontas, distinta da estrela de cinco.
   spark: "M12 2c1.2 5 2.8 6.8 8 8-5.2 1.2-6.8 3-8 8-1.2-5-2.8-6.8-8-8 5.2-1.2 6.8-3 8-8Z",
+  heart: "M12 20.5S3 14.6 3 8.7C3 5.6 5.4 3.5 8 3.5c1.7 0 3.2.9 4 2.3.8-1.4 2.3-2.3 4-2.3 2.6 0 5 2.1 5 5.2 0 5.9-9 11.8-9 11.8Z",
 };
 
 export function createIcon(name) {
@@ -52,6 +53,20 @@ function clarear(hex, quanto) {
   const canal = (deslocamento) => {
     const base = (num >> deslocamento) & 255;
     return Math.round(base + (255 - base) * quanto);
+  };
+  return `rgb(${canal(16)}, ${canal(8)}, ${canal(0)})`;
+}
+
+// O inverso de clarear: escurece em direção ao preto. Usado para o lado
+// sombreado dos blocos de pixel art — a mesma folha, mais escura, no canto
+// oposto ao da luz.
+function escurecer(hex, quanto) {
+  const limpo = hex.replace("#", "");
+  const cheio = limpo.length === 3 ? limpo.split("").map((c) => c + c).join("") : limpo;
+  const num = parseInt(cheio, 16);
+  const canal = (deslocamento) => {
+    const base = (num >> deslocamento) & 255;
+    return Math.round(base * (1 - quanto));
   };
   return `rgb(${canal(16)}, ${canal(8)}, ${canal(0)})`;
 }
@@ -193,6 +208,130 @@ export function createTree(stage, leafColor, vigor = 1) {
       grupo.appendChild(dot);
     }
   }
+
+  return svg;
+}
+
+/*
+  A mesma árvore, em pixel art. Não é um asset — é a mesma lógica de estágio
+  e vigor de createTree, só desenhada em blocos quadrados sobre uma grade
+  grossa em vez de círculos suaves. É o bloco que engana o olho de longe:
+  poucos "pixels" grandes, cantos duros (crispEdges), sem antialiasing.
+*/
+export function createPixelTree(stage, leafColor, vigor = 1) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 32 40");
+  svg.setAttribute("shape-rendering", "crispEdges");
+  svg.setAttribute("aria-hidden", "true");
+
+  const grupo = document.createElementNS(SVG_NS, "g");
+  svg.appendChild(grupo);
+
+  const folhagem = 0.45 + vigor * 0.45;
+  const claraFolha = clarear(leafColor, 0.3);
+  const escuraFolha = escurecer(leafColor, 0.32);
+
+  function bloco(x, y, w, h, fill, opacity) {
+    const r = document.createElementNS(SVG_NS, "rect");
+    r.setAttribute("x", String(x));
+    r.setAttribute("y", String(y));
+    r.setAttribute("width", String(w));
+    r.setAttribute("height", String(h));
+    r.setAttribute("fill", fill);
+    if (opacity != null) r.setAttribute("opacity", String(opacity));
+    grupo.appendChild(r);
+    return r;
+  }
+
+  if (stage === 0) {
+    // Semente: monte de terra e duas folhinhas em bloco — visível o
+    // suficiente para o canteiro recém-criado não parecer abandonado.
+    bloco(11, 36, 10, 3, "#4a3f33");
+    bloco(13, 30, 4, 7, leafColor, folhagem);
+    bloco(17, 32, 4, 6, leafColor, folhagem);
+    return svg;
+  }
+
+  const trunkH = [0, 6, 9, 13, 16, 16, 16][stage] ?? 6;
+  const trunkW = stage >= 4 ? 4 : 3;
+  const trunkX = 16 - Math.floor(trunkW / 2);
+  const trunkY = 38 - trunkH;
+  bloco(trunkX, trunkY, trunkW, trunkH, "#5b4a3a");
+  bloco(trunkX + trunkW - 1, trunkY, 1, trunkH, "#3d2c1f", 0.75);
+
+  // Copa: um círculo pixelado — grade grossa de blocos 2x2, pintados quando
+  // caem dentro do raio. É o teste de distância que dá a forma redonda sem
+  // precisar de path nenhum; a grade grossa é o que dá o ar de pixel art.
+  const canopyR = [0, 4, 6, 8, 10, 11, 11][stage] ?? 4;
+  const cell = 2;
+  const cx = 16;
+  const cy = trunkY - canopyR * 0.55;
+
+  for (let gy = -canopyR - cell; gy <= canopyR + cell; gy += cell) {
+    for (let gx = -canopyR - cell; gx <= canopyR + cell; gx += cell) {
+      const dx = gx / canopyR;
+      const dy = (gy / canopyR) * 1.15; // achata um pouco: copa mais larga que alta
+      if (dx * dx + dy * dy > 1) continue;
+      const tom = dx < -0.15 && dy < -0.1 ? claraFolha : dx > 0.25 && dy > 0.15 ? escuraFolha : leafColor;
+      bloco(cx + gx - cell / 2, cy + gy - cell / 2, cell, cell, tom, folhagem);
+    }
+  }
+
+  // Flores e frutos: os mesmos blocos, espalhados em posições fixas dentro
+  // da copa — desbotam junto com o vigor, como na versão orgânica.
+  if (stage >= 5) {
+    const pontos = [
+      [-0.55, -0.1], [0.5, -0.25], [0.05, -0.55], [-0.2, 0.35],
+      [0.62, 0.2], [-0.7, 0.32], [0.25, 0.05],
+    ];
+    const frutos = stage >= 6;
+    const quantos = frutos ? pontos.length : 5;
+    for (const [dx, dy] of pontos.slice(0, quantos)) {
+      bloco(
+        cx + dx * canopyR - 1,
+        cy + dy * canopyR - 1,
+        2, 2,
+        frutos ? "#e0705f" : "#f7d9e6",
+        0.4 + vigor * 0.6
+      );
+    }
+  }
+
+  return svg;
+}
+
+/*
+  Morada em pixel art: parede, telhado de duas águas e porta, tudo em bloco.
+  Substitui a construção isométrica só dentro da cena — o catálogo continua
+  usando o preview isométrico, que já é pequeno e não conflita com "3D".
+*/
+export function createPixelHouse(color, scale = 1) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 32 40");
+  svg.setAttribute("shape-rendering", "crispEdges");
+  svg.setAttribute("aria-hidden", "true");
+
+  const grupo = document.createElementNS(SVG_NS, "g");
+  const escala = Math.max(0.6, Math.min(1.15, scale));
+  grupo.setAttribute("transform", `translate(16 38) scale(${escala}) translate(-16 -38)`);
+  svg.appendChild(grupo);
+
+  function bloco(x, y, w, h, fill) {
+    const r = document.createElementNS(SVG_NS, "rect");
+    r.setAttribute("x", String(x));
+    r.setAttribute("y", String(y));
+    r.setAttribute("width", String(w));
+    r.setAttribute("height", String(h));
+    r.setAttribute("fill", fill);
+    grupo.appendChild(r);
+  }
+
+  bloco(9, 22, 14, 16, color);
+  bloco(19, 22, 4, 16, escurecer(color, 0.28));
+  bloco(6, 12, 20, 3, "#6d4c2f");
+  bloco(6, 15, 20, 4, "#8a6440");
+  bloco(4, 14, 24, 3, "#5b4029");
+  bloco(14, 28, 4, 10, "#2b211a");
 
   return svg;
 }

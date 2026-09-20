@@ -60,6 +60,12 @@ body::before {
   pointer-events: none;
 }
 
+/* No claro o mesmo brilho por trás do vidro estoura contra um fundo já
+   claro; aqui ele só precisa dar uma sugestão de cor, não um clarão. */
+:root[data-theme="claro"] body::before {
+  opacity: 0.14;
+}
+
 h1,
 h2,
 h3 {

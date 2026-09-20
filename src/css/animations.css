@@ -87,6 +87,18 @@
   }
 }
 
+/* O jardim pixel art: a copa balança de leve, e um fruto colhido sobe e some. */
+@keyframes tree-sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+@keyframes harvest-pop {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  30% { opacity: 1; transform: translateY(-6px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-26px) scale(0.9); }
+}
+
 @keyframes evolution-pulse {
   0% {
     opacity: 0;

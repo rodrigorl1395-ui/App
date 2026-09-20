@@ -571,8 +571,9 @@
 
 .home-scene {
   position: relative;
-  height: 62vh;
-  min-height: 340px;
+  height: 78vh;
+  min-height: 460px;
+  max-height: 640px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background:
@@ -2272,6 +2273,57 @@ textarea.input {
   animation: evolution-pulse 1.4s var(--ease-emphasized);
 }
 
+/*
+  A fichinha da árvore: diferente da celebration, não fecha sozinha — tem
+  botões para ler antes de decidir. Sobe do rodapé porque é um menu de
+  ações, não um anúncio.
+*/
+.tree-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(6, 9, 18, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: celebration-in var(--duration-base) var(--ease-emphasized);
+}
+
+.tree-sheet {
+  width: 100%;
+  max-width: var(--app-max-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  padding-bottom: calc(var(--space-5) + var(--safe-bottom));
+  border-radius: var(--radius-lg);
+  background: var(--color-elevated);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.tree-sheet-title {
+  font-size: var(--fs-500);
+}
+
+.tree-sheet-subtitle {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
+  margin-top: calc(-1 * var(--space-2));
+}
+
+.tree-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
 /* Formulário */
 
 .habit-form {
@@ -2610,6 +2662,32 @@ textarea.input {
   border: none;
   border-top: 1px solid var(--glass-border);
   margin: var(--space-2) 0;
+}
+
+.theme-options {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.theme-option {
+  flex: 1;
+  padding: var(--space-2) var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-medium);
+  text-align: center;
+  transition: background var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+
+.theme-option.is-active {
+  background: var(--color-accent-soft);
+  border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  color: var(--color-accent-strong);
 }
 
 .form-error:empty {
@@ -3688,47 +3766,178 @@ textarea.input {
   line-height: var(--lh-snug);
 }
 
-/* Aviso dentro da própria cena do Jardim, quando ainda não há nada plantado. */
 /*
-  O palco do jardim em 3D. O canvas preenche a caixa inteira; a porta para o
-  Lar fica por cima dele, em DOM, para continuar sendo um link de verdade.
+  O Jardim em pixel art. Sem canvas, sem WebGL: cada canteiro é DOM, cada
+  árvore é um bloco de SVG (icons.js). A porta para o Lar fica por cima do
+  chão, à esquerda; o chão ganha um respiro do mesmo tamanho para os
+  canteiros nunca nascerem escondidos atrás dela.
 */
-.garden-3d {
+.garden-scene {
   position: relative;
-  height: 52vh;
-  min-height: 320px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight);
   background: #16241f;
-  touch-action: none;
 }
 
-.garden-3d-canvas {
-  display: block;
+.garden-scene .scene-portal.is-left {
+  border-right: none;
+}
+
+/*
+  O chão é onde o "espaço amplo" pedido acontece: a altura vem de JS (uma
+  trilha mais longa = um chão mais alto) — quanto mais se planta, maior o
+  jardim fica, em vez de uma câmera que só se afasta.
+*/
+.garden-scene-ground {
+  position: relative;
+  padding-left: calc(22% + var(--space-3));
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 4px),
+    radial-gradient(60% 30% at 50% 0%, rgba(143, 174, 92, 0.14), transparent 70%),
+    linear-gradient(180deg, #2c4a34, #1a2e22);
+}
+
+/* A trilha desenhada por baixo de tudo: uma linha escura de base e uma mais
+   clara por cima, o jeito mais barato de dar contorno a um traço só. */
+.garden-scene-path {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 }
 
-/*
-  Sobre o jardim 3D a porta é só o botão: a divisória tracejada foi feita
-  para a cena chapada do Lar e, por cima de uma cena com profundidade, lê
-  como um risco na tela. O gradiente fica, porque é ele que destaca o botão.
-*/
-.garden-3d .scene-portal.is-left {
-  border-right: none;
+.garden-path-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.garden-scene-hint {
+.garden-path-line.is-border {
+  stroke: #3c2f1e;
+  opacity: 0.55;
+}
+
+.garden-path-line.is-fill {
+  stroke: #c9a96a;
+  opacity: 0.4;
+}
+
+.garden-plot {
   position: absolute;
-  inset: 0;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 72px;
+}
+
+.garden-plot-bed {
+  position: relative;
+  width: 60px;
+  height: 74px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.garden-plot-bed.is-murcha {
+  filter: saturate(0.55) brightness(0.85);
+}
+
+/* Sombra oval no chão: é o que planta o item no gramado em vez de deixá-lo
+   flutuando, sem precisar de canteiro nenhum ao redor. */
+.garden-plot-shadow {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  translate: -50% 0;
+  width: 70%;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.32);
+  filter: blur(1.5px);
+}
+
+.garden-plot-tree {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 96%;
+  animation: tree-sway 5.5s ease-in-out infinite;
+}
+
+.garden-plot-tree svg,
+.garden-plot-bed.is-decor svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.garden-plot-mark {
+  position: absolute;
+  bottom: 12px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: rgba(6, 9, 18, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-inline: 26%;
+  color: #f0c987;
+}
+
+.garden-plot-mark svg {
+  width: 10px;
+  height: 10px;
+}
+
+.garden-plot-fruit {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: #e0705f;
+  box-shadow: 0 0 8px rgba(224, 112, 95, 0.8);
+  animation: gift-pulse 1.8s ease-in-out infinite;
+}
+
+/* A placa: uma tabuleta de madeira presa numa estaca, igual à do jardim em
+   3D antigo, só que em CSS — leve inclinação pra não ficar em prumo demais. */
+.garden-plot-sign {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: #8a6440;
+  border: 1px solid #5b4029;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  color: #f7efe3;
+  font-size: var(--fs-100);
+  font-weight: var(--fw-medium);
   text-align: center;
+  white-space: nowrap;
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: rotate(-1.5deg);
+}
+
+.harvest-fx {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  translate: -50% 0;
   font-size: var(--fs-200);
-  color: var(--color-text-tertiary);
+  animation: harvest-pop 0.85s var(--ease-emphasized) forwards;
   pointer-events: none;
 }

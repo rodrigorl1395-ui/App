@@ -8,10 +8,10 @@
   de enfeite, sem ligação com hábito nenhum.
 */
 
-import { createEl, createSectionHeader, createScenePortal } from "../ui.js";
+import { createEl, createSectionHeader } from "../ui.js";
 import { createTree, createIcon } from "../icons.js";
 import { createIsoDwelling } from "../isoBuildings.js";
-import { createGarden3D } from "../garden3d.js";
+import { createGardenScene } from "../gardenScene.js";
 import { navigate, refresh } from "../router.js";
 import { getSceneCreatures } from "../garden.js";
 import { getCatalog, getGarden, getSeedsAvailable, plantItem } from "../decor.js";
@@ -139,78 +139,22 @@ function firstGuardianIcon() {
 }
 
 /*
-  A cena: as árvores de verdade primeiro (cada uma com a vigor dela, murcha
-  ou de pé — o único medidor da cena), o que foi plantado com sementes por
-  cima. A porta de volta ao Lar fica sempre na borda esquerda, plantado ou
-  não, porque a travessia não devia depender de ter algo para mostrar.
-*/
-/*
-  A cena em 3D. O canvas entra num contêiner próprio e é montado depois que
-  o elemento existe no documento (antes disso ele não tem tamanho, e o
-  renderizador nasceria de zero por zero).
+  A cena: as árvores de verdade primeiro (cada uma com o vigor dela, murcha
+  ou de pé), o que foi plantado com sementes por cima, em pixel art — sem
+  WebGL, sem contexto para descartar. A porta de volta ao Lar fica sempre na
+  borda esquerda, plantado ou não, porque a travessia não devia depender de
+  ter algo para mostrar.
 
-  O descarte importa mais do que parece: cada visita ao Jardim cria um
-  contexto WebGL, e o navegador dá poucos. Sem devolver o contexto ao sair,
-  depois de algumas idas e vindas o jardim simplesmente apaga.
-*/
-function renderScene3D(trees, decor) {
-  const palco = createEl("div", { className: "garden-3d" });
-  palco.appendChild(
-    createScenePortal({ href: "#/lar", label: "Lar", side: "left", icon: firstGuardianIcon() })
-  );
-
-  let jardim = null;
-
-  const montar = () => {
-    if (jardim || !palco.isConnected || !palco.clientWidth) return false;
-    jardim = createGarden3D(palco, {
-      trees,
-      decor,
-      onPick: (habitId) => navigate(`/criatura?habit=${habitId}`),
-    });
-    /*
-      Sem WebGL não há jardim, e inventar um desenho pior no lugar seria
-      esconder o problema. As fichas logo abaixo já dizem tudo que a cena
-      diria — nome, estágio, água, sol e crescimento de cada árvore.
-    */
-    if (!jardim) {
-      palco.appendChild(
-        createEl("p", {
-          className: "garden-scene-hint",
-          text: "Este aparelho não consegue desenhar o jardim em 3D. Suas árvores continuam logo abaixo.",
-        })
-      );
-    }
-    return true;
-  };
-
-  // O router insere a tela inteira de uma vez; o observador serve para
-  // montar assim que ela entra e descartar assim que ela sai.
-  const observador = new MutationObserver(() => {
-    if (palco.isConnected) {
-      montar();
-    } else if (jardim) {
-      jardim.dispose();
-      jardim = null;
-      observador.disconnect();
-    }
-  });
-  observador.observe(document.body, { childList: true, subtree: true });
-  requestAnimationFrame(montar);
-
-  return palco;
-}
-
-/*
-  O que vai para dentro do jardim: uma árvore por hábito, com a cor da folha
-  do tipo de árvore dele, e o que foi plantado com sementes espalhado em
-  volta. O vigor cru vira número aqui (uma árvore nunca regada não está
-  murcha, só ainda não foi regada uma vez).
+  O vigor cru vira número aqui para desenhar a árvore (uma árvore nunca
+  regada não está murcha, só ainda não foi regada uma vez), mas o número
+  bruto segue junto — é ele que describeVigor usa para escrever a frase
+  certa na fichinha de cada árvore.
 */
 function renderScene(catalog) {
   const trees = getSceneCreatures().map((creature) => ({
     habit: creature.tree.habit,
     stage: creature.tree.stage,
+    vigorBruto: creature.tree.vigor,
     vigor: vigorAmount(creature.tree.vigor),
     leaf: getTreeType(creature.tree.habit.treeType).leaf,
   }));
@@ -221,12 +165,17 @@ function renderScene(catalog) {
     .filter((plot) => plot.item)
     .map(({ item, plantedId }) => ({
       id: plantedId,
+      name: item.name,
       kind: item.kind,
       color: item.color || "#c9a26a",
       scale: item.scale || 1,
     }));
 
-  return renderScene3D(trees, decor);
+  return createGardenScene(trees, decor, {
+    onNavigate: (habitId) => navigate(`/criatura?habit=${habitId}`),
+    onChanged: refresh,
+    firstGuardianIcon: firstGuardianIcon(),
+  });
 }
 
 /*

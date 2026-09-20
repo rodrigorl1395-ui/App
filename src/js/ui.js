@@ -307,6 +307,52 @@ export function showToolFound(tool, habit, animal, onOpen) {
   document.body.appendChild(overlay);
 }
 
+/*
+  A árvore virou um ponto próprio: tocar nela abre uma fichinha com o que dá
+  para fazer ali, em vez de pular direto para o perfil do hábito. Diferente
+  da celebration (que fecha sozinha ou no primeiro toque em qualquer lugar),
+  esta fica aberta até uma ação ou o fundo ser tocado — tem botão para ler,
+  não só para fechar.
+*/
+export function showTreeSheet({ title, subtitle, actions }) {
+  const overlay = createEl("div", { className: "tree-sheet-overlay" });
+
+  const close = () => overlay.remove();
+
+  const sheet = createEl("div", {
+    className: "tree-sheet",
+    children: [
+      createEl("h3", { className: "tree-sheet-title", text: title }),
+      subtitle ? createEl("p", { className: "tree-sheet-subtitle", text: subtitle }) : null,
+      createEl("div", {
+        className: "tree-sheet-actions",
+        children: actions.map((action) => {
+          const button = createEl("button", {
+            className: `button ${action.primary ? "button-primary" : "button-secondary"}`,
+            text: action.label,
+            attrs: { type: "button" },
+          });
+          button.disabled = Boolean(action.disabled);
+          button.addEventListener("click", () => {
+            action.onClick?.();
+            if (action.keepOpen) return;
+            close();
+          });
+          return button;
+        }),
+      }),
+    ],
+  });
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) close();
+  });
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  return { close };
+}
+
 export function createSectionHeader(title, action = null) {
   return createEl("div", {
     className: "section-header",

@@ -1,5 +1,6 @@
 import { getState, hydrate, subscribe } from "./state.js";
 import { loadState, saveState } from "./storage.js";
+import { applyThemeEarly, applyTheme } from "./theme.js";
 import { registerRoute, setNotFound, setGuard, initRouter } from "./router.js";
 import { renderAppShell } from "./ui.js";
 import { renderTodayScreen } from "./screens/today.js";
@@ -16,6 +17,10 @@ import { renderGardenScreen } from "./screens/decor.js";
 import { renderSettingsScreen } from "./screens/settings.js";
 import { renderToolsScreen } from "./screens/tools.js";
 import { generateId } from "./utils.js";
+
+// Antes de tudo, sem esperar o resto do estado hidratar: evita o flash do
+// tema errado ao abrir o app.
+applyThemeEarly();
 
 const ENTRY_PATHS = ["/onboarding", "/escolha-animal"];
 
@@ -36,6 +41,7 @@ function bootstrapState() {
     });
     saveState(getState());
   }
+  applyTheme();
   subscribe((state) => saveState(state));
 }
 

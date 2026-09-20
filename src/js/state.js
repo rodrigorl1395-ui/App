@@ -13,6 +13,8 @@ function getInitialState() {
     misses: [],
     garden: [],
     tools: [],
+    treeMarks: [],
+    settings: { theme: "automatico" },
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

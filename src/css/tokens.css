@@ -100,7 +100,37 @@
 }
 
 /*
-  Não há um bloco de CSS por animal: a cor de cada criatura vem do catálogo
-  em JS e é aplicada como --color-accent no contexto (ver accentStyle em
-  ui.js). É o que permite o catálogo crescer até 100 sem tocar no CSS.
+  Tema claro. Mesma receita de vidro sobre luz — só que o vidro agora é
+  escuro sobre um fundo claro, em vez de claro sobre um fundo escuro. Nada
+  de componente lê cor fixa; tudo passa por estas variáveis, então trocar o
+  tema é só isto: um bloco de tokens, zero regra nova.
+
+  Aplica quando o modo é "claro" explícito, ou em "automático" quando o
+  sistema prefere claro — os dois casos usam o mesmo atributo porque o JS
+  em theme.js já resolve qual dos dois vale antes de escrever no <html>.
 */
+:root[data-theme="claro"] {
+  --color-void: #f6f3ea;
+  --color-deep: #eee9dc;
+  --color-elevated: #ffffff;
+
+  --glass-fill: rgba(28, 24, 18, 0.035);
+  --glass-fill-strong: rgba(28, 24, 18, 0.065);
+  --glass-border: rgba(28, 24, 18, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.75);
+
+  --color-text-primary: #211d16;
+  --color-text-secondary: #5c564a;
+  --color-text-tertiary: #8b8474;
+  --color-text-on-accent: #ffffff;
+
+  --color-accent: #4f7cb0;
+  --color-accent-strong: #35608c;
+  --color-accent-soft: rgba(79, 124, 176, 0.12);
+  --color-accent-glow: rgba(79, 124, 176, 0.3);
+
+  --shadow-sm: 0 1px 2px rgba(30, 24, 12, 0.1);
+  --shadow-md: 0 8px 28px rgba(30, 24, 12, 0.12);
+  --shadow-lg: 0 20px 50px rgba(30, 24, 12, 0.16);
+}
+

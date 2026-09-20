@@ -3,6 +3,44 @@ import { getState, hydrate, setState } from "../state.js";
 import { todayKey } from "../utils.js";
 import { getHabits } from "../habits.js";
 import { checkDevPassword, simulateDays, advanceTime, getDevLogCount, clearDevData } from "../dev.js";
+import { THEME_MODES, getThemeMode, setThemeMode } from "../theme.js";
+
+// Escuro, claro ou automático. Um clique troca e aplica na hora — sem
+// recarregar, porque o tema é só CSS reagindo a um atributo.
+function renderThemeCard() {
+  const options = createEl("div", { className: "theme-options" });
+
+  function paint() {
+    const atual = getThemeMode();
+    options.replaceChildren(
+      ...THEME_MODES.map((mode) => {
+        const button = createEl("button", {
+          className: `theme-option${mode.id === atual ? " is-active" : ""}`,
+          text: mode.label,
+          attrs: { type: "button" },
+        });
+        button.addEventListener("click", () => {
+          setThemeMode(mode.id);
+          paint();
+        });
+        return button;
+      })
+    );
+  }
+  paint();
+
+  return createEl("section", {
+    className: "card",
+    children: [
+      createEl("h2", { className: "card-title", text: "Aparência" }),
+      createEl("p", {
+        className: "card-subtitle",
+        text: "Automático segue o tema do seu aparelho.",
+      }),
+      options,
+    ],
+  });
+}
 
 /*
   Tudo vive no navegador. Limpar os dados do site, trocar de aparelho ou usar
@@ -313,6 +351,7 @@ export function renderSettingsScreen() {
       }),
       resumo,
       nameCard,
+      renderThemeCard(),
       backup,
       danger,
       renderDevPanel(),
