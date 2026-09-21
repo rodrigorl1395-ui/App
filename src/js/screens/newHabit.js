@@ -20,7 +20,6 @@ import { CATEGORY_ELEMENT, getElement } from "../../data/animals.js";
 import { createHabit, getHabits } from "../habits.js";
 import { getAvailableAnimals, getGuardianDomain } from "../companion.js";
 import { MISSION_LEVELS } from "../missions.js";
-import { startTourIfFirstHabit } from "../tour.js";
 
 const UNIT_OPTIONS = ["min", "horas", "vezes", "páginas", "copos", "porções", "km"];
 
@@ -553,8 +552,7 @@ export function renderNewHabitScreen(params = {}) {
       weeklyTarget: state.weekly,
       guardianName: state.guardianName.trim() || null,
     });
-    if (primeiroHabito) startTourIfFirstHabit();
-    navigate("/hoje");
+    navigate(primeiroHabito ? "/guia" : "/hoje");
   }
 
   render();

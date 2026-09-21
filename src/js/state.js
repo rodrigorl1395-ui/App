@@ -30,9 +30,6 @@ function getInitialState() {
     readingSessions: [],
 
     settings: { theme: "automatico" },
-    // null = tour nunca começou. Começa ao criar o primeiro hábito
-    // (tour.js), e vira { step, done, skipped } a partir daí.
-    tour: null,
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

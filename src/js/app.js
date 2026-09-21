@@ -1,11 +1,11 @@
 import { getState, hydrate, subscribe } from "./state.js";
 import { loadState, saveState } from "./storage.js";
 import { applyThemeEarly, applyTheme } from "./theme.js";
-import { mountTourOverlay } from "./tourOverlay.js";
 import { registerRoute, setNotFound, setGuard, initRouter } from "./router.js";
 import { renderAppShell } from "./ui.js";
 import { renderTodayScreen } from "./screens/today.js";
 import { renderOnboardingScreen } from "./screens/onboarding.js";
+import { renderGuideScreen } from "./screens/guide.js";
 import { renderChooseAnimalScreen } from "./screens/chooseAnimal.js";
 import { renderHabitsScreen } from "./screens/habitsList.js";
 import { renderNewHabitScreen } from "./screens/newHabit.js";
@@ -53,6 +53,7 @@ function bootstrapState() {
 function registerRoutes() {
   registerRoute("/onboarding", renderOnboardingScreen, { chromeless: true });
   registerRoute("/escolha-animal", renderChooseAnimalScreen, { chromeless: true });
+  registerRoute("/guia", renderGuideScreen, { chromeless: true });
   registerRoute("/hoje", renderTodayScreen);
   registerRoute("/habitos", renderHabitsScreen);
   registerRoute("/novo-habito", renderNewHabitScreen);
@@ -94,7 +95,6 @@ function start() {
   appRoot.appendChild(root);
 
   initRouter(main, hasAnimal ? "/hoje" : "/onboarding");
-  mountTourOverlay();
 }
 
 document.addEventListener("DOMContentLoaded", start);
