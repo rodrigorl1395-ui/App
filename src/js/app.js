@@ -1,6 +1,6 @@
 import { getState, hydrate, subscribe } from "./state.js";
 import { loadState, saveState } from "./storage.js";
-import { applyThemeEarly, applyTheme } from "./theme.js";
+import { applyThemeEarly, applyTheme, applyAmbientGlow } from "./theme.js";
 import { registerRoute, setNotFound, setGuard, initRouter } from "./router.js";
 import { renderAppShell } from "./ui.js";
 import { renderTodayScreen } from "./screens/today.js";
@@ -21,6 +21,13 @@ import { renderGymApp } from "./screens/apps/gym.js";
 import { renderMoneyApp } from "./screens/apps/money.js";
 import { renderJournalApp } from "./screens/apps/journal.js";
 import { renderReadingApp } from "./screens/apps/reading.js";
+import { renderAlarmApp } from "./screens/apps/alarm.js";
+import { renderFocusApp } from "./screens/apps/focusMode.js";
+import { renderAgendaApp } from "./screens/apps/agenda.js";
+import { renderGoalsApp } from "./screens/apps/goals.js";
+import { renderPiggybankApp } from "./screens/apps/piggybank.js";
+import { renderCaloriesApp } from "./screens/apps/calories.js";
+import { iniciarVigiaDeAlarmes } from "./apps/alarm.js";
 import { generateId } from "./utils.js";
 
 // Antes de tudo, sem esperar o resto do estado hidratar: evita o flash do
@@ -47,7 +54,11 @@ function bootstrapState() {
     saveState(getState());
   }
   applyTheme();
-  subscribe((state) => saveState(state));
+  applyAmbientGlow();
+  subscribe((state) => {
+    saveState(state);
+    applyAmbientGlow();
+  });
 }
 
 function registerRoutes() {
@@ -74,6 +85,12 @@ function registerRoutes() {
   registerRoute("/app/financas", guardApp("radar-compras", renderMoneyApp));
   registerRoute("/app/diario", guardApp("bullet-journal", renderJournalApp));
   registerRoute("/app/leitura", guardApp("apoiador-leitura", renderReadingApp));
+  registerRoute("/app/despertador", guardApp("despertador", renderAlarmApp));
+  registerRoute("/app/foco", guardApp("foco-total", renderFocusApp));
+  registerRoute("/app/agenda", guardApp("agenda", renderAgendaApp));
+  registerRoute("/app/metas", guardApp("metas", renderGoalsApp));
+  registerRoute("/app/cofre", guardApp("cofrinho", renderPiggybankApp));
+  registerRoute("/app/calorias", guardApp("calculadora-calorias", renderCaloriesApp));
   setNotFound(renderTodayScreen);
 
   setGuard((path) => {
@@ -88,6 +105,7 @@ function registerRoutes() {
 function start() {
   bootstrapState();
   registerRoutes();
+  iniciarVigiaDeAlarmes();
 
   const hasAnimal = Boolean(getState().user?.selectedAnimalId);
   const appRoot = document.getElementById("app");

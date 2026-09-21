@@ -4766,3 +4766,139 @@ textarea.input {
   font-size: var(--fs-200);
   animation: xp-rise var(--duration-base) var(--ease-emphasized);
 }
+
+/* ------------------------------------------------------------------ */
+/* Novos apps: Despertador, Foco Total, Agenda, Metas, Cofrinho,        */
+/* Calculadora de Calorias                                              */
+/* ------------------------------------------------------------------ */
+
+.app-row.is-quiet {
+  opacity: 0.55;
+}
+
+.app-row.is-late {
+  border-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
+}
+
+.goal-card {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.app-row-value.is-negative {
+  color: var(--color-danger);
+}
+
+/* Pote do Cofrinho: enche de baixo pra cima, a mesma leitura de uma barra
+   de progresso, só na vertical — pra combinar com a metáfora de guardar. */
+.jar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.jar {
+  position: relative;
+  width: 96px;
+  height: 128px;
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-lg) var(--radius-lg);
+  background: var(--glass-fill);
+  border: 2px solid var(--glass-border);
+  overflow: hidden;
+}
+
+.jar-fill {
+  position: absolute;
+  inset: auto 0 0 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-app) 85%, white), var(--color-app));
+  transition: height var(--duration-slow) var(--ease-emphasized);
+}
+
+.jar-caption {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+}
+
+/* Interruptor do alarme: uma pílula com bolinha, sem depender de <input>
+   nativo pra herdar a cor do app. */
+.alarm-toggle {
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--glass-fill-strong);
+  border: 1px solid var(--glass-border);
+  position: relative;
+  padding: 2px;
+  transition: background var(--duration-base) var(--ease-standard);
+}
+
+.alarm-toggle.is-on {
+  background: color-mix(in srgb, var(--color-app) 55%, transparent);
+  border-color: color-mix(in srgb, var(--color-app) 65%, transparent);
+}
+
+.alarm-toggle-knob {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fdfbf4;
+  transition: translate var(--duration-base) var(--ease-emphasized);
+}
+
+.alarm-toggle.is-on .alarm-toggle-knob {
+  translate: 18px 0;
+}
+
+.alarm-time {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Foco Total travado: tela cheia, centrada, só o cronômetro e a saída. */
+.focus-lock-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+  background:
+    radial-gradient(60% 50% at 50% 20%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 72%),
+    var(--color-void);
+}
+
+.focus-lock-label {
+  font-size: var(--fs-200);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.focus-lock-task {
+  font-family: var(--font-display);
+  font-size: var(--fs-500);
+  color: var(--color-text-primary);
+  max-width: 22ch;
+}
+
+.focus-clock {
+  font-family: var(--font-display);
+  font-size: 4.2rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-text-primary);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.focus-lock-exit {
+  margin-top: var(--space-5);
+}

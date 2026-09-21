@@ -28,8 +28,15 @@ function getInitialState() {
     journalEntries: [],
     books: [],
     readingSessions: [],
+    alarms: [],
+    focusSessions: [],
+    agendaEvents: [],
+    goals: [],
+    savingsGoal: null,
+    savingsEntries: [],
+    calorieLogs: [],
 
-    settings: { theme: "automatico" },
+    settings: { theme: "automatico", calorieGoal: 0 },
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

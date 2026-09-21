@@ -61,6 +61,21 @@
   min-height: 100vh;
 }
 
+/*
+  Sessão de Foco Total travada: mesma ideia do chromeless (sem cabeçalho,
+  sem nav), só que ligada por uma classe própria em vez de pela rota — a
+  mesma rota /app/foco tem duas caras, com e sem sessão ativa.
+*/
+.is-focus-lock .app-header,
+.is-focus-lock .app-nav {
+  display: none;
+}
+
+.is-focus-lock .app-main {
+  padding: 0;
+  min-height: 100vh;
+}
+
 .immersive-screen {
   display: flex;
   flex-direction: column;

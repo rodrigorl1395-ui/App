@@ -4,6 +4,19 @@
   ver o companheiro evoluir. Nada de entradas animadas em cada seção.
 */
 
+/* O brilho de fundo respira devagar — vivo, sem chamar atenção pra si. */
+@keyframes ambient-drift {
+  0% {
+    transform: translate(-2%, -1%) scale(1);
+  }
+  50% {
+    transform: translate(2%, 1.5%) scale(1.06);
+  }
+  100% {
+    transform: translate(-1%, 2%) scale(1.02);
+  }
+}
+
 @keyframes celebration-in {
   from {
     opacity: 0;

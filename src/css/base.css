@@ -45,6 +45,11 @@ body {
   Luz ambiente: três focos de cor bem desfocados, fixos atrás de tudo.
   É o que o backdrop-filter dos painéis tem para refratar — sem isso,
   vidro sobre fundo chapado vira só um retângulo cinza.
+
+  As três cores (--glow-violet/--glow-teal/--glow-ember, apesar do nome
+  fixo) são reescritas em tempo real por applyAmbientGlow() (theme.js) a
+  partir do elemento do guardião escolhido — é o fundo carregando a cor de
+  quem joga, não uma paleta genérica.
 */
 body::before {
   content: "";
@@ -52,18 +57,25 @@ body::before {
   inset: -20%;
   z-index: -1;
   background:
-    radial-gradient(38% 30% at 20% 12%, var(--glow-violet), transparent 70%),
-    radial-gradient(42% 32% at 85% 32%, var(--glow-teal), transparent 72%),
-    radial-gradient(45% 35% at 50% 92%, var(--glow-ember), transparent 75%);
-  opacity: 0.17;
-  filter: blur(80px);
+    radial-gradient(40% 34% at 18% 10%, var(--glow-violet), transparent 70%),
+    radial-gradient(46% 36% at 86% 28%, var(--glow-teal), transparent 72%),
+    radial-gradient(50% 40% at 46% 96%, var(--glow-ember), transparent 75%);
+  opacity: 0.32;
+  filter: blur(76px) saturate(135%);
+  animation: ambient-drift 34s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
 /* No claro o mesmo brilho por trás do vidro estoura contra um fundo já
    claro; aqui ele só precisa dar uma sugestão de cor, não um clarão. */
 :root[data-theme="claro"] body::before {
-  opacity: 0.14;
+  opacity: 0.24;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
 }
 
 h1,
