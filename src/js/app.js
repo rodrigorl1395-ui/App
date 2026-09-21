@@ -1,6 +1,7 @@
 import { getState, hydrate, subscribe } from "./state.js";
 import { loadState, saveState } from "./storage.js";
 import { applyThemeEarly, applyTheme } from "./theme.js";
+import { mountTourOverlay } from "./tourOverlay.js";
 import { registerRoute, setNotFound, setGuard, initRouter } from "./router.js";
 import { renderAppShell } from "./ui.js";
 import { renderTodayScreen } from "./screens/today.js";
@@ -93,6 +94,7 @@ function start() {
   appRoot.appendChild(root);
 
   initRouter(main, hasAnimal ? "/hoje" : "/onboarding");
+  mountTourOverlay();
 }
 
 document.addEventListener("DOMContentLoaded", start);

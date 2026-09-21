@@ -26,6 +26,7 @@ import { getTouchLine } from "../dialogue.js";
 import { isDoneToday, completeMission } from "../missions.js";
 import { getCompanionState } from "../companion.js";
 import { stageName } from "../evolution.js";
+import { notifyTourSignal } from "../tour.js";
 
 export function renderGardenScreen() {
   const creatures = getSceneCreatures();
@@ -194,6 +195,7 @@ function barra(rotulo, valor, classe) {
   aquela árvore, e não como lista de todas ao mesmo tempo.
 */
 function abrirArvore(dados) {
+  notifyTourSignal("arvore-tocada");
   const habit = dados.habit;
   const tipo = getTreeType(habit.treeType);
   const companion = getCompanionState(habit);

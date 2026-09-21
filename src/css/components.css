@@ -4766,3 +4766,108 @@ textarea.input {
   font-size: var(--fs-200);
   animation: xp-rise var(--duration-base) var(--ease-emphasized);
 }
+
+
+/* ------------------------------------------------------------------ */
+/* Tour guiado                                                         */
+/* ------------------------------------------------------------------ */
+
+/*
+  A casca inteira não bloqueia toque nenhum — só a bolha e o anel, que são
+  os únicos elementos clicáveis dela. É o que permite tocar de verdade no
+  botão da navegação ou no cartão da missão por baixo do tour.
+*/
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.tour-ring {
+  position: fixed;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-accent-strong);
+  box-shadow: 0 0 0 4px var(--color-accent-soft);
+  pointer-events: none;
+  /* A centralização mora dentro da própria animação (transform), porque
+     o keyframe já precisa do transform pra pulsar — duas propriedades de
+     posição (translate + transform) somariam o deslocamento em dobro. */
+  animation: tour-pulse 1.6s ease-in-out infinite;
+}
+
+/*
+  Fixa no topo, nunca embaixo: a barra de baixo é onde ficam os botões
+  primários de verdade em telas mais longas (a conclusão de uma missão,
+  por exemplo) — uma bolha ali cobriria justamente o botão que a pessoa
+  precisa tocar para seguir o fluxo real, tour ou não.
+*/
+.tour-bubble {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--safe-top) + var(--space-3));
+  translate: -50% 0;
+  z-index: 7;
+  width: calc(100% - var(--space-6));
+  max-width: calc(var(--app-max-width) - var(--space-6));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-elevated);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: sheet-down var(--duration-base) var(--ease-emphasized);
+}
+
+/* Passo de ação: sem "Entendi" para clicar, então a bolha some um pouco
+   pra trás — é a tela por baixo que precisa da atenção agora. */
+.tour-bubble.is-acao {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--glass-border));
+}
+
+.tour-bubble-step {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tour-bubble-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-400);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+}
+
+.tour-bubble-text {
+  font-size: var(--fs-200);
+  color: var(--color-text-secondary);
+  line-height: var(--lh-snug);
+}
+
+.tour-bubble-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.tour-bubble-actions .button {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-200);
+}
+
+@keyframes sheet-down {
+  from { transform: translateY(-14px); opacity: 0.6; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes tour-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.7; }
+}

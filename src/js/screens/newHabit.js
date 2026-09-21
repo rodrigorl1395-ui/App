@@ -17,9 +17,10 @@ import { navigate } from "../router.js";
 import { HABIT_TEMPLATES, CUSTOM_TEMPLATE } from "../../data/habits.js";
 import { getTreeType } from "../../data/trees.js";
 import { CATEGORY_ELEMENT, getElement } from "../../data/animals.js";
-import { createHabit } from "../habits.js";
+import { createHabit, getHabits } from "../habits.js";
 import { getAvailableAnimals, getGuardianDomain } from "../companion.js";
 import { MISSION_LEVELS } from "../missions.js";
+import { startTourIfFirstHabit } from "../tour.js";
 
 const UNIT_OPTIONS = ["min", "horas", "vezes", "páginas", "copos", "porções", "km"];
 
@@ -536,6 +537,10 @@ export function renderNewHabitScreen(params = {}) {
   function submit() {
     if (!state.animal || !state.name.trim() || !(state.missions.main > 0)) return;
 
+    // Só o hábito de verdade dispara o tour — a checagem precisa vir antes
+    // de criar este, senão getHabits() já não estaria mais vazio.
+    const primeiroHabito = getHabits().length === 0;
+
     createHabit({
       name: state.name.trim(),
       unit: state.unit.trim() || "vezes",
@@ -548,6 +553,7 @@ export function renderNewHabitScreen(params = {}) {
       weeklyTarget: state.weekly,
       guardianName: state.guardianName.trim() || null,
     });
+    if (primeiroHabito) startTourIfFirstHabit();
     navigate("/hoje");
   }
 
