@@ -13,7 +13,13 @@ function getInitialState() {
     misses: [],
     garden: [],
     tools: [],
-    treeMarks: [],
+
+    /*
+      O jardim: canteiros plantados, o regador e o que já foi tirado do
+      riacho. Só escolha da pessoa — quanta água existe, em que estágio cada
+      planta está e se ela tem sede saem daqui na hora, em grove.js.
+    */
+    grove: null,
 
     /*
       Dados das ferramentas. Cada ferramenta desbloqueada é um app de

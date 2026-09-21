@@ -15,7 +15,7 @@ import { createEl, createCreatureBadge, accentStyle } from "../ui.js";
 import { createIcon } from "../icons.js";
 import { navigate } from "../router.js";
 import { HABIT_TEMPLATES, CUSTOM_TEMPLATE } from "../../data/habits.js";
-import { getTreeType } from "../../data/trees.js";
+import { getSpecies, SPECIES_BY_CATEGORY } from "../../data/species.js";
 import { CATEGORY_ELEMENT, getElement } from "../../data/animals.js";
 import { createHabit, getHabits } from "../habits.js";
 import { getAvailableAnimals, getGuardianDomain } from "../companion.js";
@@ -498,7 +498,9 @@ export function renderNewHabitScreen(params = {}) {
     const unidade = state.unit || "vezes";
     const guardiao = state.animal;
     const nomeGuardiao = state.guardianName.trim() || guardiao?.name;
-    const arvore = getTreeType(state.template.treeType).name;
+    // O que o hábito abre no Jardim é a espécie da ÁREA dele, não uma
+    // árvore própria: cuidar do corpo é o que destranca a mangueira.
+    const muda = getSpecies(SPECIES_BY_CATEGORY[state.template.category] || "pitangueira");
 
     const linhas = [
       `${state.name.trim() || "Hábito sem nome"} — ${state.missions.main} ${unidade} por dia`,
@@ -506,7 +508,7 @@ export function renderNewHabitScreen(params = {}) {
       guardiao
         ? `${nomeGuardiao} cuida deste hábito${nomeGuardiao !== guardiao.name ? ` (${guardiao.name})` : ""}.`
         : null,
-      `Planta uma ${arvore} no Jardim.`,
+      `Abre a ${muda.name} para plantar no Jardim.`,
     ].filter(Boolean);
 
     return createEl("div", {

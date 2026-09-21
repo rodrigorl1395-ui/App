@@ -15,7 +15,7 @@ import { createIcon } from "../icons.js";
 import { navigate, refresh } from "../router.js";
 import { getCompanionState } from "../companion.js";
 import { CATEGORY_LABELS } from "../../data/animals.js";
-import { getSeedsAvailable } from "../decor.js";
+import { getSeedsAvailable } from "../seeds.js";
 import { TOOLS } from "../../data/tools.js";
 import { getShopCatalog, buyTool, getOwnedTools, getPendingTool, collectTool, isObtained } from "../tools.js";
 
