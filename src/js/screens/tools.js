@@ -29,6 +29,8 @@ import { getUpcoming } from "../apps/agenda.js";
 import { getActiveGoals } from "../apps/goals.js";
 import { getGoal as getSavingsGoal, getSaldo } from "../apps/piggybank.js";
 import { getGoal as getCalorieGoal, getDayTotal } from "../apps/calories.js";
+import { getSumidas } from "../apps/pessoas.js";
+import { getSemana as getRotinasSemana } from "../apps/rotinas.js";
 
 /*
   A linha de status de cada app: o número que importa nele hoje. É o que
@@ -74,6 +76,16 @@ function statusDoApp(toolId) {
   if (toolId === "calculadora-calorias") {
     const meta = getCalorieGoal();
     return meta ? `${getDayTotal()}/${meta} kcal hoje` : "Sem meta ainda";
+  }
+  if (toolId === "pessoas") {
+    const sumidas = getSumidas();
+    return sumidas
+      ? `${sumidas} ${sumidas === 1 ? "pessoa" : "pessoas"} há mais de um mês sem contato`
+      : "Todo mundo em dia";
+  }
+  if (toolId === "rotinas") {
+    const feitas = getRotinasSemana();
+    return feitas ? `${feitas} ${feitas === 1 ? "rotina cumprida" : "rotinas cumpridas"} em 7 dias` : "Nenhuma rotina esta semana";
   }
   return "";
 }
@@ -144,6 +156,8 @@ const CORES = {
   metas: "#e2a23f",
   cofrinho: "#8fae5c",
   "calculadora-calorias": "#e2543f",
+  pessoas: "#e0709f",
+  rotinas: "#7d9b6a",
 };
 
 function corDoApp(id) {

@@ -27,6 +27,8 @@ import { renderAgendaApp } from "./screens/apps/agenda.js";
 import { renderGoalsApp } from "./screens/apps/goals.js";
 import { renderPiggybankApp } from "./screens/apps/piggybank.js";
 import { renderCaloriesApp } from "./screens/apps/calories.js";
+import { renderPessoasApp } from "./screens/apps/pessoas.js";
+import { renderRotinasApp } from "./screens/apps/rotinas.js";
 import { iniciarVigiaDeAlarmes } from "./apps/alarm.js";
 import { generateId } from "./utils.js";
 
@@ -91,6 +93,8 @@ function registerRoutes() {
   registerRoute("/app/metas", guardApp("metas", renderGoalsApp));
   registerRoute("/app/cofre", guardApp("cofrinho", renderPiggybankApp));
   registerRoute("/app/calorias", guardApp("calculadora-calorias", renderCaloriesApp));
+  registerRoute("/app/pessoas", guardApp("pessoas", renderPessoasApp));
+  registerRoute("/app/rotinas", guardApp("rotinas", renderRotinasApp));
   setNotFound(renderTodayScreen);
 
   setGuard((path) => {

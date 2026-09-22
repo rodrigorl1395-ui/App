@@ -137,10 +137,12 @@ export const QUESTS = [
       story: "Vinte dias num mês é mais do que a maioria consegue. Conta.",
       goal: { type: "dias", amount: 20 },
     },
-    reward: "A criatura e a pessoa mudaram juntas.",
+    reward: "O guardião e a pessoa mudaram juntas.",
   },
 ];
 
+// O placeholder se chama {animal} por herança; o que sai dele é sempre o
+// nome do guardião — e, na falta dele, a palavra guardião mesmo.
 export function fillNames(text, animalName) {
-  return text.replaceAll("{animal}", animalName || "Sua criatura");
+  return text.replaceAll("{animal}", animalName || "Seu guardião");
 }

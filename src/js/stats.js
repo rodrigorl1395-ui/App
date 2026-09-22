@@ -250,7 +250,7 @@ export function getTimeline(habit, animal) {
   let bestStreak = 0;
   let previousDate = null;
   const seenDates = new Set();
-  const nome = animal?.name || "Sua criatura";
+  const nome = animal?.name || "Seu guardião";
 
   for (const log of logs) {
     if (!seenDates.size) events.push({ date: log.date, text: "Primeiro progresso registrado." });

@@ -36,6 +36,8 @@ import {
   buy,
   paySeedling,
 } from "../garden/grove.js";
+import { getGuardians, getTargets, askWork, feedGuardian, runGardenTick, getTodayBonus } from "../garden/guardianWork.js";
+import { XP_POR_FRUTO } from "../../data/guardians.js";
 import { getStageProgress } from "../../data/species.js";
 import { getSceneCreatures } from "../garden.js";
 import { collectDiscovery } from "../discoveries.js";
@@ -66,6 +68,14 @@ function svgEl(tag, attrs = {}) {
 export function renderGardenScreen() {
   const tema = document.documentElement.getAttribute("data-theme") === "claro" ? "claro" : "escuro";
 
+  /*
+    Antes de desenhar: o jardim acerta o dia. Os guardiões que ainda não
+    trabalharam trabalham, e as larvas das árvores abandonadas aparecem.
+    Roda uma vez por dia — e o que aconteceu vira o recado de boas-vindas,
+    que é metade do motivo de abrir o jardim de manhã.
+  */
+  const noticias = runGardenTick();
+
   camada = svgEl("svg", {
     class: "grove-layer",
     viewBox: `0 0 ${VIEW.w} ${VIEW.h}`,
@@ -79,7 +89,44 @@ export function renderGardenScreen() {
   cena.classList.add("grove-scene");
   palco.append(cena, camada);
 
+  if (noticias.length) requestAnimationFrame(() => mostrarNoticias(noticias));
+
   return createEl("div", { className: "world-screen", children: [palco, renderHud()] });
+}
+
+/*
+  O que aconteceu desde a última visita. Só interrompe a tela quando algo
+  mudou o jardim de verdade — uma larva, uma muda que nasceu. Trabalho de
+  rotina vira um recado que some sozinho: um modal por dia dizendo "o
+  axolote regou" cansaria em uma semana.
+*/
+function mostrarNoticias(noticias) {
+  if (!noticias.some((linha) => linha.urgent)) {
+    aviso(noticias.length === 1 ? noticias[0].text : `${noticias.length} guardiões trabalharam no jardim.`);
+    return;
+  }
+
+  showSheet({
+    title: "Enquanto você não estava",
+    subtitle: "O jardim não para quando você fecha o app.",
+    content: [
+      createEl("div", {
+        className: "app-list",
+        children: noticias.map((linha) =>
+          createEl("div", {
+            className: `app-row${linha.urgent ? " is-late" : " is-quiet"}`,
+            children: [
+              createEl("div", {
+                className: "app-row-body",
+                children: [createEl("span", { className: "app-row-note", text: linha.text })],
+              }),
+            ],
+          })
+        ),
+      }),
+    ],
+    actions: [{ label: "Ver o jardim", primary: true, onClick: () => {} }],
+  });
 }
 
 function desenharCamada() {
@@ -174,7 +221,10 @@ function montarCanteiro({ slot, plant: planta }) {
 
     // O selo fica logo acima da copa desta planta, não no topo da caixa.
     const alto = -Math.round(alturaDaPlanta(planta.species, planta.stage.stage) * ALTURA_ARTE) - 26;
-    if (planta.ripe) g.appendChild(selo("apple", "is-ripe", planta.especie.fruit, alto));
+    // A larva grita mais alto que a sede: árvore doente não cresce nem com
+    // água, então é ela que precisa ser resolvida primeiro.
+    if (planta.sick) g.appendChild(selo("bug", "is-sick", null, alto));
+    else if (planta.ripe) g.appendChild(selo("apple", "is-ripe", planta.especie.fruit, alto));
     else if (planta.thirsty) g.appendChild(selo("droplet", "is-thirsty", null, alto));
   } else {
     // No canteiro vazio o sinal fica rente ao chão: não há árvore nenhuma
@@ -221,14 +271,28 @@ function selo(icone, classe, cor, altura) {
 */
 function acao(slot, planta, g) {
   if (!planta) return escolherMuda(slot);
+  // Com larva não há gesto rápido: a ficha explica o que houve e quem
+  // resolve. Regar por cima seria deixar a pessoa achar que resolveu.
+  if (planta.sick) return fichaPlanta(planta);
   if (planta.ripe) return colher(planta, g);
   if (planta.thirsty) return regar(planta, g);
   return fichaPlanta(planta);
 }
 
+/*
+  Quem tira a larva: um guardião de fogo que ainda não trabalhou hoje. Sem
+  nenhum por perto, o galpão vende o defensivo — ninguém fica com a árvore
+  travada só por não ter tirado a espécie certa.
+*/
+function quemCura() {
+  const fogo = getGuardians().filter((item) => item.element === "fogo" && !item.doneToday);
+  if (fogo.length) return `${fogo[0].name} pode queimar a larva: toque nele e peça.`;
+  return "Nenhum guardião de fogo livre hoje. O defensivo do galpão resolve.";
+}
+
 function regar(planta, g) {
   const antes = planta.stage.stage;
-  const feito = water(planta.id);
+  const feito = water(planta.id, { bonus: getTodayBonus("nutrir") });
   if (!feito) {
     aviso(
       getGroveSummary().can < 1
@@ -334,6 +398,11 @@ function montarGuardioes() {
   });
 }
 
+/*
+  A ficha do guardião: quem ele é, o que ele faz no jardim e as duas coisas
+  que se fazem com ele — pedir o trabalho do dia e dar de comer. É aqui que
+  o bicho deixa de ser enfeite da cena.
+*/
 function abrirGuardiao(criatura) {
   const { animal, habit, pendingDiscovery } = criatura;
   if (pendingDiscovery) {
@@ -343,19 +412,126 @@ function abrirGuardiao(criatura) {
     });
     return;
   }
+
+  const trabalhador = getGuardians().find((item) => item.guardian.id === animal.id);
+  const work = trabalhador?.work;
+  const frutos = getGroveSummary().fruits;
+
   showSheet({
     title: animal.name,
-    subtitle: `Cuida de ${habit.name}`,
+    subtitle: work ? `${work.verb} · cuida de ${habit.name}` : `Cuida de ${habit.name}`,
     accent: animal.color,
     content: [
       createEl("div", {
         className: "sheet-portrait",
         children: [createEl("div", { className: "sheet-portrait-orb", children: [createGuardianArt(animal.id)] })],
       }),
-      createEl("p", { className: "sheet-speech", text: `"${getTouchLine(animal)}"` }),
-      createEl("p", { className: "sheet-note", text: criatura.mood.label }),
+      createEl("p", { className: "sheet-speech", text: `"${work?.story || getTouchLine(animal)}"` }),
+      createEl("p", {
+        className: "sheet-note",
+        text: !work
+          ? criatura.mood.label
+          : trabalhador.doneToday
+            ? `Já trabalhou hoje: ${trabalhador.action?.asked ? "a seu pedido" : "por conta própria"}.`
+            : work.askText,
+      }),
     ],
-    actions: [{ label: "Ver perfil", onClick: () => navigate(`/criatura?habit=${habit.id}`) }],
+    actions: [
+      work && !trabalhador.doneToday
+        ? { label: `Pedir para ${work.verb.toLowerCase()}`, icon: work.icon, primary: true, onClick: () => pedirTrabalho(animal.id) }
+        : null,
+      frutos
+        ? { label: `Alimentar (${frutos} ${frutos === 1 ? "fruto" : "frutos"})`, icon: "apple", onClick: () => abrirAlimentar(animal) }
+        : null,
+      { label: "Ver perfil", onClick: () => navigate(`/criatura?habit=${habit.id}`) },
+    ],
+  });
+}
+
+/*
+  Pedir o trabalho. Com alvo a escolher (regar, proteger, adubar), abre a
+  lista de árvores; sem alvo (polinizar, nutrir, abençoar), acontece direto.
+*/
+function pedirTrabalho(guardianId) {
+  const alvos = getTargets(guardianId);
+  const trabalhador = getGuardians().find((item) => item.guardian.id === guardianId);
+  const precisaAlvo = ["regar", "proteger", "adubar"].includes(trabalhador?.work.id);
+
+  if (!precisaAlvo || alvos.length <= 1) {
+    concluirTrabalho(askWork(guardianId, alvos[0]?.planta.id || null));
+    return;
+  }
+
+  showSheet({
+    title: trabalhador.work.verb,
+    subtitle: "Em qual árvore?",
+    content: [
+      createEl("div", {
+        className: "app-list",
+        children: alvos.map(({ planta, daArea, util }) => {
+          const linha = createEl("button", {
+            className: `app-row${util ? "" : " is-quiet"}`,
+            attrs: { type: "button" },
+            children: [
+              createEl("div", {
+                className: "app-row-body",
+                children: [
+                  createEl("span", { className: "app-row-name", text: planta.especie.name }),
+                  createEl("span", {
+                    className: "app-row-note",
+                    text: [
+                      planta.stage.name.toLowerCase(),
+                      planta.sick ? "com larva" : planta.thirsty ? "com sede" : "em dia",
+                      daArea ? "da área dele" : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · "),
+                  }),
+                ],
+              }),
+            ],
+          });
+          linha.addEventListener("click", () => {
+            document.querySelector(".sheet-overlay")?.remove();
+            concluirTrabalho(askWork(guardianId, planta.id));
+          });
+          return linha;
+        }),
+      }),
+    ],
+  });
+}
+
+function concluirTrabalho(resultado) {
+  if (!resultado) {
+    aviso("Não há o que fazer com isso agora.");
+    return;
+  }
+  aviso(resultado.text);
+  desenharCamada();
+  atualizarChips();
+}
+
+function abrirAlimentar(animal) {
+  const frutos = getGroveSummary().fruits;
+  const porcoes = [1, 3, 10].filter((quanto) => quanto <= frutos);
+
+  showSheet({
+    title: `Alimentar ${animal.name}`,
+    subtitle: `Cada fruto vale ${XP_POR_FRUTO} XP. Acelera a evolução — não substitui o dia cumprido.`,
+    accent: animal.color,
+    actions: [
+      ...porcoes.map((quanto) => ({
+        label: `${quanto} ${quanto === 1 ? "fruto" : "frutos"} · +${quanto * XP_POR_FRUTO} XP`,
+        primary: quanto === porcoes[porcoes.length - 1],
+        onClick: () => {
+          const comeu = feedGuardian(animal.id, quanto);
+          if (!comeu) return;
+          aviso(`${animal.name} comeu ${comeu.fruits} e ganhou ${comeu.xp} XP${comeu.blessed ? " (abençoado)" : ""}.`);
+          atualizarChips();
+        },
+      })),
+    ],
   });
 }
 
@@ -381,15 +557,26 @@ function fichaPlanta(planta) {
       }),
       createEl("p", {
         className: "sheet-note",
-        text: next
-          ? `Próximo estágio: ${next.name.toLowerCase()}.${planta.compostLeft ? ` Adubo vale por mais ${planta.compostLeft} ${planta.compostLeft === 1 ? "rega" : "regas"}.` : ""}`
-          : `Madura. Colha os ${planta.especie.fruitName} e ela volta a florir.`,
+        text: planta.sick
+          ? "Com larva: ela para de crescer até alguém tirar a praga. Nada do que já cresceu se perde."
+          : next
+            ? `Próximo estágio: ${next.name.toLowerCase()}.${planta.compostLeft ? ` Adubo vale por mais ${planta.compostLeft} ${planta.compostLeft === 1 ? "rega" : "regas"}.` : ""}`
+            : `Madura. Colha os ${planta.especie.fruitName} e ela volta a florir.`,
       }),
+      planta.sick ? createEl("p", { className: "sheet-note", text: quemCura() }) : null,
       createEl("p", { className: "sheet-speech", text: `"${planta.especie.story}"` }),
     ],
     actions: [
-      planta.thirsty && grove.can > 0
-        ? { label: "Regar", icon: "droplet", primary: true, onClick: () => { water(planta.id); redesenhar(planta.slot); } }
+      planta.thirsty && grove.can > 0 && !planta.sick
+        ? {
+            label: "Regar",
+            icon: "droplet",
+            primary: true,
+            onClick: () => {
+              water(planta.id, { bonus: getTodayBonus("nutrir") });
+              redesenhar(planta.slot);
+            },
+          }
         : null,
       planta.ripe
         ? { label: "Colher", icon: "apple", primary: true, onClick: () => { harvest(planta.id); redesenhar(planta.slot); } }

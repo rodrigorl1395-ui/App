@@ -22,6 +22,18 @@ function getInitialState() {
     grove: null,
 
     /*
+      O que os guardiões fizeram no jardim (uma ação por guardião por dia) e
+      os frutos que você deu a eles. Escolha e acontecimento, não derivado:
+      o XP que vem da fruta some se isto não ficar registrado.
+    */
+    guardianActions: [],
+    feedings: [],
+
+    // Dados dos apps que os guardiões destravam.
+    people: [],
+    routines: [],
+
+    /*
       Dados das ferramentas. Cada ferramenta desbloqueada é um app de
       verdade, com os registros da pessoa — treinos feitos, gastos,
       páginas lidas, linhas do diário. Tudo escolha ou registro real:

@@ -200,6 +200,42 @@ export const TOOLS = [
       ],
     },
   },
+  {
+    id: "pessoas",
+    app: { route: "/app/pessoas", icon: "heart", tagline: "Há quantos dias você não fala com quem gosta" },
+    name: "Pessoas",
+    category: "relacoes",
+    icon: "heart",
+    source: "loja",
+    cost: 4,
+    story: "Não tem rede social nem aniversário. Só a conta dos dias desde a última vez que vocês se falaram.",
+    content: {
+      intro: "Ninguém decide se afastar. Some por acúmulo de semanas em que não deu — e é isso que a lista mostra.",
+      items: [
+        { titulo: "Combine uma frequência realista", texto: "A cada 30 dias, cumprido, vale mais do que toda semana, abandonado no segundo mês." },
+        { titulo: "Mensagem curta conta", texto: "Um áudio de 20 segundos mantém o vínculo. O café que nunca é marcado, não." },
+        { titulo: "Não é cobrança", texto: "A lista é lembrete seu, não dívida da outra pessoa. Quem sumiu por dois anos volta com uma mensagem só." },
+      ],
+    },
+  },
+  {
+    id: "rotinas",
+    app: { route: "/app/rotinas", icon: "list", tagline: "Sequências que você repete, na ordem" },
+    name: "Rotinas",
+    category: "trabalho",
+    icon: "list",
+    source: "loja",
+    cost: 4,
+    story: "Guarda a ordem dos passos, pra você não gastar decisão em algo que já fez cem vezes.",
+    content: {
+      intro: "Encadear hábitos é mais barato que criar um novo: cada passo vira o gatilho do seguinte.",
+      items: [
+        { titulo: "A ordem fixa é o método", texto: "Sempre igual, sempre na mesma sequência — é o que tira a decisão do caminho." },
+        { titulo: "Comece com dois ou três passos", texto: "Uma rotina curta que você cumpre vira base. Uma longa vira uma lista que você evita abrir." },
+        { titulo: "Rotina longa demais morre", texto: "Se passa de doze passos, ela não sobrevive à terceira semana. Corte o que não muda o dia." },
+      ],
+    },
+  },
 ];
 
 export function getToolItem(id) {

@@ -16,6 +16,7 @@ import { createIcon } from "../icons.js";
 import { navigate } from "../router.js";
 import { HABIT_TEMPLATES, CUSTOM_TEMPLATE } from "../../data/habits.js";
 import { getSpecies, SPECIES_BY_CATEGORY } from "../../data/species.js";
+import { plantForCategory } from "../garden/grove.js";
 import { CATEGORY_ELEMENT, getElement } from "../../data/animals.js";
 import { createHabit, getHabits } from "../habits.js";
 import { getAvailableAnimals, getGuardianDomain } from "../companion.js";
@@ -554,6 +555,12 @@ export function renderNewHabitScreen(params = {}) {
       weeklyTarget: state.weekly,
       guardianName: state.guardianName.trim() || null,
     });
+
+    // A árvore da área nasce junto com o hábito, sem pedir licença: é o que
+    // faz "plantar um hábito" ser literal. Se a espécie já está lá, ou se
+    // não sobrou canteiro, não acontece nada — e nada quebra.
+    plantForCategory(state.template.category);
+
     navigate(primeiroHabito ? "/guia" : "/hoje");
   }
 

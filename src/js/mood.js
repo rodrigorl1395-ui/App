@@ -48,7 +48,7 @@ export function getMoodMessage(animal, habitId) {
   const mood = getMood(habitId);
   const days = getDaysSinceLast(habitId);
   const streak = getStreak(habitId);
-  const nome = animal?.name || "Sua criatura";
+  const nome = animal?.name || "Seu guardião";
 
   switch (mood.id) {
     case "novo":

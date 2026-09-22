@@ -19,6 +19,7 @@ import { getState, setState } from "../state.js";
 import { getHabits } from "../habits.js";
 import { generateId, todayKey } from "../utils.js";
 import { SPECIES, SPECIES_BY_CATEGORY, getSpecies, getPlantStage, PLANT_STAGES, REPLANT_GROWTH } from "../../data/species.js";
+import { POLEN_POR_MUDA } from "../../data/guardians.js";
 
 // O que cada missão cumprida despeja no riacho. Segue os três níveis: quem
 // fez o mínimo também regou, só que menos.
@@ -36,6 +37,10 @@ const VAZIO = {
   draws: [],
   compost: 0,
   fruits: 0,
+  // Pólen que os guardiões de ar já trouxeram, e o último dia em que o
+  // jardim foi acertado (ver runGardenTick em guardianWork.js).
+  pollen: 0,
+  lastTick: null,
 };
 
 export function getGrove() {
@@ -109,7 +114,11 @@ function withReading(planta) {
     stage,
     vigor: vigorDe(dias),
     thirsty: planta.lastWater !== todayKey(),
-    ripe: stage.stage >= 6,
+    // Com praga a planta não morre nem perde o que cresceu: ela só para de
+    // crescer até alguém tirar a larva. Perder progresso por ter faltado
+    // seria a única coisa que este app nunca faz.
+    sick: Boolean(planta.pest),
+    ripe: stage.stage >= 6 && !planta.pest,
     days: dias,
   };
 }
@@ -144,6 +153,27 @@ export function plant(slot, speciesId) {
   return muda;
 }
 
+/*
+  Criar um hábito planta a árvore da área dele, na hora. "Plantar um
+  hábito" deixa de ser figura de linguagem: você decide cuidar do corpo e a
+  mangueira aparece no canteiro, esperando a primeira rega.
+
+  Se a espécie já está no jardim, não planta de novo — uma árvore por área
+  basta, e o segundo hábito de corpo rega a mesma mangueira. Sem canteiro
+  livre, devolve null e a tela avisa que falta terra.
+*/
+export function plantForCategory(category) {
+  const speciesId = SPECIES_BY_CATEGORY[category] || SPECIES_BY_CATEGORY.custom;
+  const grove = getGrove();
+  if (grove.plots.some((planta) => planta.species === speciesId)) return null;
+
+  const ocupados = new Set(grove.plots.map((planta) => planta.slot));
+  const slot = Array.from({ length: grove.plotCount }, (_, i) => i).find((i) => !ocupados.has(i));
+  if (slot === undefined) return null;
+
+  return plant(slot, speciesId);
+}
+
 function atualizar(id, muda) {
   const grove = getGrove();
   setGrove({ plots: grove.plots.map((planta) => (planta.id === id ? muda(planta) : planta)) });
@@ -154,14 +184,18 @@ function atualizar(id, muda) {
   você afogar ela, e o limite diário é o que faz o jardim ser um hábito e
   não uma sessão de cliques.
 */
-export function water(id) {
+export function water(id, { bonus = 0 } = {}) {
   const grove = getGrove();
   const planta = grove.plots.find((item) => item.id === id);
   if (!planta || grove.can < 1 || planta.lastWater === todayKey()) return null;
 
   const especie = getSpecies(planta.species);
   const adubado = planta.compostLeft > 0;
-  const ganho = Math.round(WATER_GROWTH * especie.rate * (adubado ? 2 : 1));
+  // Com praga, a água só mata a sede: o crescimento fica parado até a larva
+  // sair. bonus é o que o guardião de luz somou ao dia.
+  const ganho = planta.pest
+    ? 0
+    : Math.round(WATER_GROWTH * especie.rate * (adubado ? 2 : 1) * (1 + bonus));
 
   setGrove({ can: grove.can - 1 });
   atualizar(id, (item) => ({
@@ -170,7 +204,61 @@ export function water(id) {
     lastWater: todayKey(),
     compostLeft: Math.max(0, item.compostLeft - 1),
   }));
-  return { ganho, adubado };
+  return { ganho, adubado, sick: Boolean(planta.pest) };
+}
+
+/*
+  Crescer sem regador: é o que o guardião de água faz quando trabalha. Passa
+  pela mesma trava da praga — guardião nenhum faz uma árvore doente crescer.
+*/
+export function growPlant(id, amount) {
+  const planta = getGrove().plots.find((item) => item.id === id);
+  if (!planta || planta.pest) return 0;
+  const ganho = Math.round(amount * getSpecies(planta.species).rate);
+  atualizar(id, (item) => ({ ...item, growth: item.growth + ganho, lastWater: todayKey() }));
+  return ganho;
+}
+
+export function setPest(id, dateKey) {
+  atualizar(id, (planta) => ({ ...planta, pest: dateKey }));
+}
+
+export function curePest(id) {
+  const planta = getGrove().plots.find((item) => item.id === id);
+  if (!planta?.pest) return false;
+  atualizar(id, (item) => ({ ...item, pest: null }));
+  return true;
+}
+
+// Frutos a mais na próxima colheita — o que o guardião de terra deixa na
+// terra depois de revirar.
+export function addYieldBonus(id, amount) {
+  atualizar(id, (planta) => ({ ...planta, yieldBonus: (planta.yieldBonus || 0) + amount }));
+}
+
+export function addPollen(amount) {
+  setGrove({ pollen: getGrove().pollen + amount });
+}
+
+/*
+  A muda que o vento plantou. Escolhe sozinha um canteiro livre e uma
+  espécie já aberta — é presente, então não cobra fruto nenhum.
+*/
+export function plantFromPollen() {
+  const grove = getGrove();
+  if (grove.pollen < POLEN_POR_MUDA) return null;
+
+  const ocupados = new Set(grove.plots.map((planta) => planta.slot));
+  const slot = Array.from({ length: grove.plotCount }, (_, i) => i).find((i) => !ocupados.has(i));
+  if (slot === undefined) return null;
+
+  const abertas = getSeedlings().filter((muda) => muda.unlocked);
+  if (!abertas.length) return null;
+  // A mais rara primeiro: a que você ainda não tem no jardim.
+  const nova = abertas.find((muda) => !ocupados.size || !grove.plots.some((p) => p.species === muda.especie.id)) || abertas[0];
+
+  setGrove({ pollen: grove.pollen - POLEN_POR_MUDA });
+  return plant(slot, nova.especie.id);
 }
 
 // Adubar vale pelas três próximas regas, não por tempo: quem adubou e sumiu
@@ -244,6 +332,14 @@ export function getShop() {
       available: grove.plotCount < MAX_PLOTS,
     },
     {
+      id: "defensivo",
+      name: "Defensivo natural",
+      note: "Tira a larva de uma árvore. Serve para quando não há guardião de fogo livre.",
+      icon: "bug",
+      cost: 3,
+      available: getPlots().some((plot) => plot.plant?.sick),
+    },
+    {
       id: "regador",
       name: "Regador maior",
       note: `Leva ${grove.canMax} doses por viagem ao riacho. Passa a levar ${grove.canMax + 2}.`,
@@ -263,6 +359,16 @@ export function buy(itemId) {
   if (itemId === "adubo") setGrove({ ...gasto, compost: grove.compost + 1 });
   if (itemId === "canteiro") setGrove({ ...gasto, plotCount: grove.plotCount + 1 });
   if (itemId === "regador") setGrove({ ...gasto, canMax: grove.canMax + 2 });
+  if (itemId === "defensivo") {
+    // Cura a que está doente há mais tempo: é a que trava o jardim.
+    const doente = getPlots()
+      .map((plot) => plot.plant)
+      .filter((planta) => planta?.sick)
+      .sort((a, b) => a.pest.localeCompare(b.pest))[0];
+    if (!doente) return false;
+    setGrove(gasto);
+    curePest(doente.id);
+  }
   return true;
 }
 

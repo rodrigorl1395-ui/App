@@ -332,7 +332,7 @@ export function renderSettingsScreen() {
       createEl("h2", { className: "card-title", text: "Recomeçar" }),
       createEl("p", {
         className: "card-subtitle",
-        text: "Apaga criaturas, hábitos, registros e achados. Não tem como desfazer — baixe uma cópia antes.",
+        text: "Apaga guardiões, hábitos, registros e achados. Não tem como desfazer — baixe uma cópia antes.",
       }),
       resetButton,
     ],
