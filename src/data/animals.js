@@ -294,6 +294,106 @@ export const ANIMALS = [
       { type: "sequencia-geral", amount: 30 },
     ],
   },
+  {
+    id: "andorinha",
+    gender: "f",
+    name: "Andorinha",
+    element: "ar",
+    color: "#c7dcf0",
+    tagline: "Sempre volta para o mesmo lugar.",
+    personality: "Migra longe, mas nunca se perde do caminho de casa.",
+    unlock: [
+      { type: "categoria", category: "mente", amount: 15 },
+      // Sempre volta: quem retoma depois de sumir conhece o mesmo caminho.
+      { type: "retorno", amount: 3 },
+    ],
+  },
+  {
+    id: "toupeira",
+    gender: "f",
+    name: "Toupeira",
+    element: "terra",
+    color: "#7a6a54",
+    tagline: "Cava um pouco todo dia até virar um túnel inteiro.",
+    personality: "Não vê longe, mas sente o caminho debaixo dos pés.",
+    unlock: [
+      { type: "categoria", category: "trabalho", amount: 20 },
+      // Um pouco todo dia: a mesma constância, em qualquer hábito.
+      { type: "sequencia-geral", amount: 15 },
+    ],
+  },
+  {
+    id: "tamandua",
+    gender: "m",
+    name: "Tamanduá",
+    element: "terra",
+    color: "#5f5347",
+    tagline: "Trabalho de formiga em formiga, sem pressa e sem parar.",
+    personality: "Persistente até no que ninguém percebe. O resultado aparece depois.",
+    unlock: [
+      { type: "categoria", category: "trabalho", amount: 45 },
+      // Sem parar: ir além do combinado é o mesmo tipo de persistência.
+      { type: "bonus", amount: 20 },
+    ],
+  },
+  {
+    id: "beijaflor",
+    gender: "m",
+    name: "Beija-flor",
+    element: "luz",
+    color: "#f7b8d0",
+    tagline: "Pequeno, rápido, e nunca longe de quem gosta.",
+    personality: "Bate as asas o tempo todo só para ficar perto.",
+    unlock: [
+      { type: "categoria", category: "relacoes", amount: 8 },
+      // Nunca longe: combinar antes é aparecer de propósito.
+      { type: "combinados", amount: 6 },
+    ],
+  },
+  {
+    id: "coelho",
+    gender: "f",
+    name: "Coelha",
+    element: "luz",
+    color: "#f4d9a0",
+    tagline: "Nunca dorme longe de quem faz parte da toca.",
+    personality: "Vive em grupo por escolha, não por precisar.",
+    unlock: [
+      { type: "categoria", category: "relacoes", amount: 30 },
+      // Vive em grupo: lembranças guardadas também são um jeito de manter
+      // gente por perto.
+      { type: "lembrancas", amount: 12 },
+    ],
+  },
+  {
+    id: "baleia",
+    gender: "f",
+    name: "Baleia",
+    element: "espirito",
+    color: "#7fa8c9",
+    tagline: "Canta uma canção que atravessa o oceano inteiro.",
+    personality: "Segue uma rota que só ela conhece, ano após ano.",
+    unlock: [
+      { type: "categoria", category: "proposito", amount: 30 },
+      // Ano após ano: a mesma direção sustentada, em qualquer hábito.
+      { type: "sequencia-geral", amount: 25 },
+    ],
+  },
+  {
+    id: "borboleta",
+    gender: "f",
+    name: "Borboleta",
+    element: "espirito",
+    color: "#d9a8e0",
+    tagline: "Virou outra coisa sem deixar de ser ela mesma.",
+    personality: "Sabe que mudar de forma faz parte do caminho, não é desvio dele.",
+    unlock: [
+      { type: "categoria", category: "proposito", amount: 8 },
+      // Virou outra coisa: equilibrar áreas diferentes é a mesma
+      // disposição para se transformar.
+      { type: "equilibrio", amount: 4, days: 7 },
+    ],
+  },
 ];
 
 export function getAnimalById(id) {

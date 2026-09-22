@@ -58,6 +58,14 @@ export function renderSanctuaryScreen() {
         : `${conquered} de ${unlockable.length} criaturas conquistadas. A constância em cada área do seu dia liberta as próximas.`,
   });
 
+  // O catálogo inteiro fica aqui; quem já está com você tem uma página só
+  // dela, mais enxuta — a Equipe.
+  const teamLink = createEl("a", {
+    className: "link-button",
+    text: `Ver sua Equipe (${conquered}) →`,
+    attrs: { href: "#/equipe" },
+  });
+
   const cards = ANIMALS.map((animal) => {
     const unlock = getUnlockProgress(animal);
     const xp = getAnimalXp(animal.id);
@@ -137,6 +145,7 @@ export function renderSanctuaryScreen() {
     children: [
       createSectionHeader("Santuário"),
       intro,
+      teamLink,
       createEl("div", { className: "sanctuary-grid", children: cards }),
     ],
   });
