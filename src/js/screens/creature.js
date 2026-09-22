@@ -598,7 +598,7 @@ function renderCollection(view) {
         createEl("p", {
           className: "tree-hint",
           text: `Nada ainda. ${
-            view.animal?.name || "Sua criatura"
+            view.animal?.name || "Seu guardião"
           } encontra coisas enquanto você cumpre o hábito — visite o Lar para receber.`,
         }),
       ],

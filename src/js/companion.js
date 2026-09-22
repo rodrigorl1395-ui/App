@@ -30,9 +30,20 @@ export function getAnimalXp(animalId) {
   const state = getState();
   const habitOwner = new Map(state.habits.map((habit) => [habit.id, habit.animalId]));
 
-  return state.logs
+  const dosHabitos = state.logs
     .filter((log) => (log.animalId ?? habitOwner.get(log.habitId)) === animalId)
     .reduce((total, log) => total + log.xpEarned, 0);
+
+  /*
+    E o que você deu de comer. O fruto acelera a evolução, nunca a
+    substitui: três frutos valem menos que um dia cumprido, então quem só
+    cuida do jardim não passa na frente de quem cumpre o hábito.
+  */
+  const dosFrutos = state.feedings
+    .filter((refeicao) => refeicao.guardianId === animalId)
+    .reduce((total, refeicao) => total + refeicao.xp, 0);
+
+  return dosHabitos + dosFrutos;
 }
 
 export function getHabitsOfAnimal(animalId) {

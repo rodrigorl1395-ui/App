@@ -65,6 +65,10 @@ function render() {
   const handler = entry?.renderFn || notFoundHandler;
   document.body.classList.toggle("is-chromeless", Boolean(entry?.chromeless));
   document.body.classList.toggle("is-fullbleed", Boolean(entry?.fullbleed));
+  // Reset daqui: só quem está de fato travado (Foco Total, com sessão
+  // ativa) reaplica esta classe dentro do próprio handler, mais abaixo.
+  // Sem isto, sair da rota por URL direta deixaria a navegação escondida.
+  document.body.classList.remove("is-focus-lock");
   rootEl.replaceChildren();
   if (handler) {
     rootEl.appendChild(handler(params));

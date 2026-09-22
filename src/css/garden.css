@@ -1,0 +1,327 @@
+/*
+  Pocket Habits — Jardim
+
+  O terreno é feito de dois SVG empilhados com o mesmo viewBox: o cenário
+  embaixo, as plantas e os bichos em cima. Por isso quase tudo aqui é
+  posicionamento absoluto e animação de transform — o layout de verdade está
+  nas coordenadas do SVG, não no CSS.
+*/
+
+.grove {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.grove-scene,
+.grove-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* A camada de cima só recebe toque onde há alguma coisa: o resto do jardim
+   é cenário, e tocar no céu não deve fazer nada. */
+.grove-layer {
+  pointer-events: none;
+}
+
+.grove-plot,
+.grove-stream,
+.grove-guardian {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.grove-plot:focus-visible,
+.grove-stream:focus-visible,
+.grove-guardian:focus-visible {
+  outline: 3px solid #fdfbf4;
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+/* ------------------------------------------------------------------ */
+/* Plantas                                                             */
+/* ------------------------------------------------------------------ */
+
+.grove-plant {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  transition: transform var(--duration-slow) var(--ease-emphasized);
+}
+
+.grove-plot:active .grove-plant {
+  transform: scale(0.96);
+}
+
+/* O gole: a planta afunda um instante e volta maior do que estava. É o
+   retorno da rega — o número na barra vem depois, isto vem agora. */
+.grove-plant.is-drinking {
+  animation: planta-bebe 620ms var(--ease-emphasized);
+}
+
+@keyframes planta-bebe {
+  0% { transform: scaleY(1) scaleX(1); }
+  30% { transform: scaleY(0.9) scaleX(1.06); }
+  65% { transform: scaleY(1.08) scaleX(0.96); }
+  100% { transform: scaleY(1) scaleX(1); }
+}
+
+/* Subir de degrau: a planta nasce do tamanho antigo e estufa até o novo.
+   É o único momento do jardim que merece um gesto maior que a rega. */
+.grove-plant.is-growing {
+  animation: planta-cresce 900ms var(--ease-emphasized);
+}
+
+@keyframes planta-cresce {
+  0% { transform: scale(0.72); opacity: 0.6; }
+  55% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.grove-badge-disc {
+  fill: rgba(12, 20, 16, 0.82);
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 1.5;
+}
+
+.grove-badge {
+  color: #fdfbf4;
+  animation: selo-flutua 2.8s ease-in-out infinite;
+}
+
+.grove-badge.is-ripe .grove-badge-disc {
+  stroke: rgba(255, 255, 255, 0.55);
+}
+
+.grove-badge.is-ripe {
+  color: #1c1208;
+  animation-duration: 1.6s;
+}
+
+.grove-badge.is-plant {
+  opacity: 0.85;
+}
+
+@keyframes selo-flutua {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+/* Canteiro vazio: discreto até você olhar pra ele. Um jardim cheio de
+   sinais de "+" piscando vira um formulário. */
+.grove-plot.is-empty .grove-badge {
+  opacity: 0.55;
+}
+
+.grove-plot.is-empty:hover .grove-badge {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Riacho                                                              */
+/* ------------------------------------------------------------------ */
+
+.grove-stream-disc {
+  fill: rgba(12, 28, 34, 0.7);
+  stroke: rgba(210, 240, 255, 0.5);
+  stroke-width: 2;
+}
+
+.grove-stream-halo {
+  fill: rgba(140, 220, 255, 0.18);
+  opacity: 0;
+}
+
+.grove-stream-icon {
+  color: #bfe9ff;
+}
+
+/* Só pulsa quando há o que fazer ali: regador com espaço e água correndo.
+   É o único tutorial do jardim. */
+.grove-stream.is-calling .grove-stream-halo {
+  opacity: 1;
+  animation: riacho-chama 2.2s ease-out infinite;
+}
+
+@keyframes riacho-chama {
+  0% { transform: scale(0.75); opacity: 0.55; }
+  70% { transform: scale(1.25); opacity: 0; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+.grove-stream.is-splash .grove-stream-icon {
+  animation: planta-bebe 500ms var(--ease-emphasized);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ------------------------------------------------------------------ */
+/* Guardiões                                                           */
+/* ------------------------------------------------------------------ */
+
+.grove-guardian {
+  animation: bicho-anda 4.5s ease-in-out infinite;
+  animation-delay: var(--atraso, 0s);
+}
+
+.grove-guardian-shadow {
+  fill: rgba(0, 0, 0, 0.22);
+}
+
+.grove-guardian-gift {
+  fill: #f2c14e;
+  animation: gift-pulse 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes bicho-anda {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Água e colheita                                                     */
+/* ------------------------------------------------------------------ */
+
+.grove-drop {
+  fill: #7fd4ff;
+  animation: gota-cai 520ms var(--ease-standard) both;
+  animation-delay: var(--atraso, 0ms);
+}
+
+@keyframes gota-cai {
+  0% { transform: translateY(-40px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(150px); opacity: 0; }
+}
+
+.grove-fruit-fly {
+  animation: fruto-voa 900ms var(--ease-emphasized) both;
+  animation-delay: var(--atraso, 0ms);
+}
+
+@keyframes fruto-voa {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  35% { transform: translateY(-40px) scale(1.1); opacity: 1; }
+  100% { transform: translateY(-120px) scale(0.5); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grove-badge,
+  .grove-guardian,
+  .grove-stream.is-calling .grove-stream-halo,
+  .grove-plant.is-drinking,
+  .grove-plant.is-growing {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* HUD                                                                 */
+/* ------------------------------------------------------------------ */
+
+.grove-chips {
+  display: flex;
+  gap: var(--space-2);
+  padding: calc(var(--safe-top) + var(--space-4)) var(--space-4) var(--space-5);
+  background: linear-gradient(180deg, rgba(8, 16, 12, 0.66), rgba(8, 16, 12, 0));
+}
+
+/*
+  A dica do jardim vazio é recado, não obstáculo: sem pointer-events: none
+  ela cobria o terreno inteiro e engolia justamente o toque que ela está
+  mandando dar. Some sozinha quando a primeira muda entra.
+*/
+.world-screen .world-empty {
+  pointer-events: none;
+  margin: auto var(--space-4) var(--space-3);
+  max-width: 320px;
+}
+
+.world-chip.is-riacho .world-chip-icon {
+  color: #7fd4ff;
+}
+
+.world-chip.is-regador .world-chip-icon {
+  color: #bfe9ff;
+}
+
+.world-chip.is-frutos .world-chip-icon {
+  color: #ffb74d;
+}
+
+.world-chip.is-galpao {
+  margin-left: auto;
+  cursor: pointer;
+  padding: var(--space-2);
+}
+
+.world-chip.is-galpao .world-chip-icon {
+  color: #e8d9b5;
+}
+
+/* ------------------------------------------------------------------ */
+/* Escolher muda                                                       */
+/* ------------------------------------------------------------------ */
+
+.seedling-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.seedling {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.seedling:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--folha) 65%, transparent);
+  background: color-mix(in srgb, var(--folha) 14%, transparent);
+}
+
+.seedling:disabled {
+  cursor: default;
+}
+
+.seedling.is-locked {
+  opacity: 0.45;
+}
+
+.seedling-art {
+  display: block;
+  width: 100%;
+  height: 74px;
+}
+
+.seedling-art svg {
+  width: 100%;
+  height: 100%;
+}
+
+.seedling-name {
+  font-size: var(--fs-200);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+}
+
+.seedling-note {
+  font-size: var(--fs-100);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  line-height: var(--lh-snug);
+}

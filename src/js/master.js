@@ -103,7 +103,7 @@ export function describeVigor(vigor) {
   água é o próprio dia cumprido.
 */
 export function describeFeeding(animal, doneToday, vigor) {
-  const nome = animal?.name || "Sua criatura";
+  const nome = animal?.name || "Seu guardião";
   if (vigor === null)
     return `A árvore acabou de ser plantada. O primeiro dia cumprido é a primeira rega — e o primeiro fruto de ${nome}.`;
   if (doneToday) return `Você regou a árvore hoje. ${nome} está comendo os frutos dela.`;

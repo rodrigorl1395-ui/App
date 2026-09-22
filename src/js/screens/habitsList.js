@@ -31,7 +31,7 @@ export function renderHabitsScreen() {
 
   const newButton = createEl("button", {
     className: "button button-primary button-block",
-    text: available.length ? "Novo hábito" : "Conquiste outra criatura para um novo hábito",
+    text: available.length ? "Novo hábito" : "Conquiste outro guardião para um novo hábito",
     attrs: { type: "button" },
   });
   newButton.disabled = !available.length;
@@ -39,7 +39,7 @@ export function renderHabitsScreen() {
 
   const content = habits.length
     ? createEl("div", { className: "habit-list", children: habits.map(renderHabitItem) })
-    : createEmptyState("Nenhum hábito ainda. Cada criatura cuida de um, e cresce com ele.");
+    : createEmptyState("Nenhum hábito ainda. Cada guardião cuida de um, e cresce com ele.");
 
   const reorderButton = createEl("button", {
     className: "link-button",
@@ -100,7 +100,7 @@ function renderMaster() {
     { valor: perfil.totalXp, rotulo: "XP no total" },
     { valor: perfil.bestStreak, rotulo: "melhor sequência" },
     { valor: `${perfil.regadasHoje}/${perfil.habits}`, rotulo: "regadas hoje" },
-    { valor: `${perfil.conquistadas}/${perfil.conquistaveis}`, rotulo: "criaturas" },
+    { valor: `${perfil.conquistadas}/${perfil.conquistaveis}`, rotulo: "guardiões" },
     { valor: perfil.achados, rotulo: perfil.achados === 1 ? "achado" : "achados" },
   ];
 
@@ -116,7 +116,7 @@ function renderMaster() {
               createEl("h2", { className: "card-title", text: "Perfil do Mestre" }),
               createEl("p", {
                 className: "card-subtitle",
-                text: "O mestre é você. As criaturas são o que você treina.",
+                text: "O mestre é você. Os guardiões são o que você treina.",
               }),
             ],
           }),
@@ -174,7 +174,7 @@ function renderForcas(perfil) {
   if (!perfil.maisForte) {
     return createEl("p", {
       className: "tree-hint",
-      text: "Com uma criatura só ainda não dá para comparar áreas. Conquiste outra e o Mestre começa a enxergar onde você é forte e onde precisa de ajuda.",
+      text: "Com um guardião só ainda não dá para comparar áreas. Conquiste outro e o Mestre começa a enxergar onde você é forte e onde precisa de ajuda.",
     });
   }
 

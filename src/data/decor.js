@@ -1,10 +1,11 @@
 /*
-  Catálogo do jardim: itens puramente decorativos, trocados por sementes.
+  Catálogo de enfeites do jardim antigo — APOSENTADO.
 
-  Nada aqui dá XP, mexe em vigor, sequência ou desbloqueio. É um segundo
-  circuito de recompensa por cima do que já existe — nunca dentro dele. A
-  árvore de cada hábito continua sendo a única fonte de progresso real;
-  estas são só as que o Mestre planta para o Lar ficar mais bonito.
+  Quando o jardim virou jogo de jardinagem de verdade (garden/grove.js),
+  plantar enfeite com semente deixou de existir: agora se planta muda, rega
+  e colhe. Este arquivo continua aqui por um motivo só — seeds.js recalcula
+  o quanto já foi gasto lendo estes preços, e apagá-lo devolveria sementes
+  para quem gastou antes. Não é para crescer nem ganhar item novo.
 
   cost mora aqui, e não em campo próprio: o preço de um item já plantado é
   recalculado deste catálogo sempre que se precisa saber o quanto foi gasto

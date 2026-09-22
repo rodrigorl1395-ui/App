@@ -13,7 +13,25 @@ function getInitialState() {
     misses: [],
     garden: [],
     tools: [],
-    treeMarks: [],
+
+    /*
+      O jardim: canteiros plantados, o regador e o que já foi tirado do
+      riacho. Só escolha da pessoa — quanta água existe, em que estágio cada
+      planta está e se ela tem sede saem daqui na hora, em grove.js.
+    */
+    grove: null,
+
+    /*
+      O que os guardiões fizeram no jardim (uma ação por guardião por dia) e
+      os frutos que você deu a eles. Escolha e acontecimento, não derivado:
+      o XP que vem da fruta some se isto não ficar registrado.
+    */
+    guardianActions: [],
+    feedings: [],
+
+    // Dados dos apps que os guardiões destravam.
+    people: [],
+    routines: [],
 
     /*
       Dados das ferramentas. Cada ferramenta desbloqueada é um app de
@@ -28,8 +46,15 @@ function getInitialState() {
     journalEntries: [],
     books: [],
     readingSessions: [],
+    alarms: [],
+    focusSessions: [],
+    agendaEvents: [],
+    goals: [],
+    savingsGoal: null,
+    savingsEntries: [],
+    calorieLogs: [],
 
-    settings: { theme: "automatico" },
+    settings: { theme: "automatico", calorieGoal: 0 },
     meta: { firstOpenedAt: null, deviceId: null },
   };
 }

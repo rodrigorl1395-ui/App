@@ -24,8 +24,8 @@ import { CATEGORY_LABELS } from "../../data/animals.js";
 
 const BOTOES = [
   { icon: "sun", nome: "Hoje", texto: "O que fazer agora — sua missão do dia." },
-  { icon: "tree", nome: "Jardim", texto: "Onde cada hábito planta uma árvore, e mora o guardião que cuida dela." },
-  { icon: "list", nome: "Hábitos", texto: "Seus hábitos, e o Perfil do Mestre — que é você, não a criatura." },
+  { icon: "tree", nome: "Jardim", texto: "Seu terreno: cumprir hábito enche o riacho, e a água faz as árvores crescerem." },
+  { icon: "list", nome: "Hábitos", texto: "Seus hábitos, e o Perfil do Mestre — que é você, não o guardião." },
   { icon: "tools", nome: "Apps", texto: "Objetos com efeito real, que você destrava aos poucos." },
   { icon: "paw", nome: "Santuário", texto: "A coleção de guardiões que ainda estão por vir." },
 ];
@@ -149,7 +149,7 @@ export function renderGuideScreen() {
               createEl("div", {
                 className: "focus-identity-body",
                 children: [
-                  createEl("span", { className: "focus-animal-name", text: animal?.name || "Sua criatura" }),
+                  createEl("span", { className: "focus-animal-name", text: animal?.name || "Seu guardião" }),
                   createEl("span", {
                     className: "focus-area",
                     text: `${CATEGORY_LABELS[habit.category] || habit.category} · ${habit.name}`,

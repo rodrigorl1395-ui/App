@@ -194,7 +194,7 @@ function renderEmptyState() {
       createEl("h2", { className: "card-title", text: "Ainda não há hábito nenhum." }),
       createEl("p", {
         className: "card-subtitle",
-        text: "Cada hábito traz uma criatura para cuidar dele. Comece com um só.",
+        text: "Cada hábito traz um guardião para cuidar dele. Comece com um só.",
       }),
       createEl("a", {
         className: "button button-primary button-block",
@@ -247,7 +247,7 @@ function identityBlock(habit, companion) {
       createEl("div", {
         className: "focus-identity-body",
         children: [
-          createEl("span", { className: "focus-animal-name", text: animal?.name || "Sua criatura" }),
+          createEl("span", { className: "focus-animal-name", text: animal?.name || "Seu guardião" }),
           createEl("span", {
             className: "focus-area",
             text: `${CATEGORY_LABELS[habit.category] || habit.category} · ${habit.name}`,
@@ -633,7 +633,7 @@ function renderConclusion(habit) {
   const evolutionLine = result.evolved
     ? createEl("p", {
         className: "conclusion-evolution",
-        text: `${animal?.name || "Sua criatura"} evoluiu para ${stageName(companion.stage, animal?.gender)}.`,
+        text: `${animal?.name || "Seu guardião"} evoluiu para ${stageName(companion.stage, animal?.gender)}.`,
       })
     : createEl("p", {
         className: "mission-hint",

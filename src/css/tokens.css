@@ -13,10 +13,15 @@
   --color-deep: #0c1322;
   --color-elevated: #121a2c;
 
-  /* Luz ambiente por trás do vidro (é o que dá o que refratar) */
-  --glow-violet: #5b3fa8;
-  --glow-teal: #1d7d8c;
-  --glow-ember: #b04a1e;
+  /*
+    Luz ambiente por trás do vidro (é o que dá o que refratar). Este trio é
+    só o valor de partida, antes de escolher um guardião — applyAmbientGlow()
+    em theme.js reescreve as três pela cor do elemento escolhido assim que
+    existe um guardião selecionado.
+  */
+  --glow-violet: #6a3fd6;
+  --glow-teal: #14a3ad;
+  --glow-ember: #e0581f;
 
   /* Vidro */
   --glass-fill: rgba(255, 255, 255, 0.05);

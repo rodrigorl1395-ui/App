@@ -15,7 +15,7 @@ import { createIcon } from "../icons.js";
 import { navigate, refresh } from "../router.js";
 import { getCompanionState } from "../companion.js";
 import { CATEGORY_LABELS } from "../../data/animals.js";
-import { getSeedsAvailable } from "../decor.js";
+import { getSeedsAvailable } from "../seeds.js";
 import { TOOLS } from "../../data/tools.js";
 import { getShopCatalog, buyTool, getOwnedTools, getPendingTool, collectTool, isObtained } from "../tools.js";
 
@@ -23,6 +23,14 @@ import { getWeekCount } from "../apps/gym.js";
 import { getMonthSummary, formatarValor } from "../apps/money.js";
 import { getPendingCount } from "../apps/journal.js";
 import { getWeekPages } from "../apps/reading.js";
+import { getAlarms } from "../apps/alarm.js";
+import { getTodayMinutes } from "../apps/focusMode.js";
+import { getUpcoming } from "../apps/agenda.js";
+import { getActiveGoals } from "../apps/goals.js";
+import { getGoal as getSavingsGoal, getSaldo } from "../apps/piggybank.js";
+import { getGoal as getCalorieGoal, getDayTotal } from "../apps/calories.js";
+import { getSumidas } from "../apps/pessoas.js";
+import { getSemana as getRotinasSemana } from "../apps/rotinas.js";
 
 /*
   A linha de status de cada app: o número que importa nele hoje. É o que
@@ -44,6 +52,40 @@ function statusDoApp(toolId) {
   if (toolId === "apoiador-leitura") {
     const paginas = getWeekPages();
     return paginas ? `${paginas} páginas em 7 dias` : "Nenhuma leitura esta semana";
+  }
+  if (toolId === "despertador") {
+    const ligados = getAlarms().filter((alarme) => alarme.enabled).length;
+    return ligados ? `${ligados} ${ligados === 1 ? "alarme ligado" : "alarmes ligados"}` : "Nenhum alarme ligado";
+  }
+  if (toolId === "foco-total") {
+    const minutos = getTodayMinutes();
+    return minutos ? `${minutos} min em foco hoje` : "Nenhum bloco hoje";
+  }
+  if (toolId === "agenda") {
+    const proximos = getUpcoming().length;
+    return proximos ? `${proximos} ${proximos === 1 ? "compromisso" : "compromissos"} por vir` : "Nada marcado";
+  }
+  if (toolId === "metas") {
+    const ativas = getActiveGoals().length;
+    return ativas ? `${ativas} ${ativas === 1 ? "meta ativa" : "metas ativas"}` : "Nenhuma meta ainda";
+  }
+  if (toolId === "cofrinho") {
+    const meta = getSavingsGoal();
+    return meta ? `${formatarValor(getSaldo())} guardado` : "Sem meta ainda";
+  }
+  if (toolId === "calculadora-calorias") {
+    const meta = getCalorieGoal();
+    return meta ? `${getDayTotal()}/${meta} kcal hoje` : "Sem meta ainda";
+  }
+  if (toolId === "pessoas") {
+    const sumidas = getSumidas();
+    return sumidas
+      ? `${sumidas} ${sumidas === 1 ? "pessoa" : "pessoas"} há mais de um mês sem contato`
+      : "Todo mundo em dia";
+  }
+  if (toolId === "rotinas") {
+    const feitas = getRotinasSemana();
+    return feitas ? `${feitas} ${feitas === 1 ? "rotina cumprida" : "rotinas cumpridas"} em 7 dias` : "Nenhuma rotina esta semana";
   }
   return "";
 }
@@ -108,6 +150,14 @@ const CORES = {
   "radar-compras": "#6fb8d1",
   "bullet-journal": "#9b8cfa",
   "apoiador-leitura": "#6db3f2",
+  despertador: "#f2b84e",
+  "foco-total": "#9b8cfa",
+  agenda: "#6db3f2",
+  metas: "#e2a23f",
+  cofrinho: "#8fae5c",
+  "calculadora-calorias": "#e2543f",
+  pessoas: "#e0709f",
+  rotinas: "#7d9b6a",
 };
 
 function corDoApp(id) {
